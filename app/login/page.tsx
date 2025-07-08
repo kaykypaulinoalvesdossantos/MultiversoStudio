@@ -114,9 +114,9 @@ export default function LoginPage() {
       </header>
 
       <div className="container mx-auto px-4 py-12">
-        <div className="grid lg:grid-cols-2 gap-12 items-start">
+        <div className="flex flex-col lg:grid lg:grid-cols-2 gap-12 items-start">
           {/* Left Side - Promoções e Produtos */}
-          <div className="space-y-8">
+          <div className="space-y-8 lg:order-1 order-2">
             {/* Welcome Message */}
             <div className="text-center lg:text-left">
               <h2 className="text-4xl font-bold text-black mb-4">
@@ -219,7 +219,7 @@ export default function LoginPage() {
           </div>
 
           {/* Right Side - Login/Register Form */}
-          <div className="lg:sticky lg:top-8">
+          <div className="lg:sticky lg:top-8 lg:order-2 order-1">
             <Card className="shadow-2xl border border-gray-200">
               <CardContent className="p-8">
                 {/* Form Header */}
