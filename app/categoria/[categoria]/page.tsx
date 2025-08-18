@@ -252,7 +252,7 @@ export default function CategoryPage() {
 
       {/* Hero Section da Categoria */}
       <section className="relative overflow-hidden">
-        <div className="h-80 relative">
+        <div className="h-48 md:h-64 lg:h-80 relative">
           <div className={`absolute inset-0 bg-gradient-to-r ${categoryConfig.color}`} />
           <Image
             src={categoryConfig.heroImage || "/placeholder.svg"}
@@ -263,32 +263,36 @@ export default function CategoryPage() {
           <div className="absolute inset-0 bg-black/20" />
 
           <div className="absolute inset-0 flex items-center">
-            <div className="container mx-auto px-4">
-              <div className="max-w-4xl">
-                <div className="glass-effect rounded-2xl p-8 max-w-3xl">
-                  <div className="flex items-center space-x-4 mb-6">
-                    <div className={`${categoryConfig.bgColor} p-4 rounded-full text-white`}>{categoryConfig.icon}</div>
-                    <Badge className={`${categoryConfig.bgColor} text-white text-lg px-4 py-2`}>
+            <div className="w-full px-4">
+              <div className="max-w-4xl mx-auto">
+                <div className="glass-effect rounded-xl md:rounded-2xl p-4 md:p-6 lg:p-8 max-w-3xl">
+                  <div className="flex items-center space-x-2 md:space-x-4 mb-4 md:mb-6">
+                    <div className={`${categoryConfig.bgColor} p-2 md:p-3 lg:p-4 rounded-full text-white`}>
+                      <div className="w-4 h-4 md:w-6 md:h-6 lg:w-8 lg:h-8">
+                        {categoryConfig.icon}
+                      </div>
+                    </div>
+                    <Badge className={`${categoryConfig.bgColor} text-white text-sm md:text-base lg:text-lg px-2 md:px-3 lg:px-4 py-1 md:py-2`}>
                       Categoria Oficial
                     </Badge>
                   </div>
 
-                  <h1 className="text-5xl font-black mb-4 text-white drop-shadow-lg">{categoryConfig.name}</h1>
-                  <p className="text-xl mb-8 max-w-3xl text-white/90 leading-relaxed">
+                  <h1 className="text-2xl md:text-3xl lg:text-4xl xl:text-5xl font-black mb-2 md:mb-4 text-white drop-shadow-lg">{categoryConfig.name}</h1>
+                  <p className="text-sm md:text-base lg:text-lg xl:text-xl mb-4 md:mb-6 lg:mb-8 max-w-3xl text-white/90 leading-relaxed">
                     {categoryConfig.description}. Produtos de todos os criadores da plataforma.
                   </p>
 
-                  <div className="flex items-center space-x-8 text-lg text-white">
-                    <span className="flex items-center glass-effect px-4 py-2 rounded-lg">
-                      <Package className="w-6 h-6 mr-2" />
+                  <div className="flex flex-col sm:flex-row items-start sm:items-center space-y-2 sm:space-y-0 sm:space-x-4 lg:space-x-8 text-sm md:text-base lg:text-lg text-white">
+                    <span className="flex items-center glass-effect px-2 md:px-3 lg:px-4 py-1 md:py-2 rounded-lg text-xs md:text-sm lg:text-base">
+                      <Package className="w-4 h-4 md:w-5 md:h-5 lg:w-6 lg:h-6 mr-1 md:mr-2" />
                       {products.length}+ produtos
                     </span>
-                    <span className="flex items-center glass-effect px-4 py-2 rounded-lg">
-                      <Star className="w-6 h-6 mr-2 fill-yellow-400 text-yellow-400" />
+                    <span className="flex items-center glass-effect px-2 md:px-3 lg:px-4 py-1 md:py-2 rounded-lg text-xs md:text-sm lg:text-base">
+                      <Star className="w-4 h-4 md:w-5 md:h-5 lg:w-6 lg:h-6 mr-1 md:mr-2 fill-yellow-400 text-yellow-400" />
                       4.8 avaliação média
                     </span>
-                    <span className="flex items-center glass-effect px-4 py-2 rounded-lg">
-                      <Truck className="w-6 h-6 mr-2" />
+                    <span className="flex items-center glass-effect px-2 md:px-3 lg:px-4 py-1 md:py-2 rounded-lg text-xs md:text-sm lg:text-base">
+                      <Truck className="w-4 h-4 md:w-5 md:h-5 lg:w-6 lg:h-6 mr-1 md:mr-2" />
                       Frete grátis
                     </span>
                   </div>
@@ -300,13 +304,13 @@ export default function CategoryPage() {
       </section>
 
       {/* Subcategorias */}
-      <section className="py-8 bg-white border-b">
-        <div className="container mx-auto px-4">
-          <div className="flex items-center space-x-4 overflow-x-auto pb-4">
+      <section className="py-4 md:py-6 lg:py-8 bg-white border-b">
+        <div className="w-full px-4">
+          <div className="flex items-center space-x-2 md:space-x-4 overflow-x-auto pb-2 md:pb-4 scrollbar-hide">
             <Button
               variant={selectedSubcategory === "todos" ? "default" : "outline"}
               onClick={() => setSelectedSubcategory("todos")}
-              className="whitespace-nowrap"
+              className="whitespace-nowrap text-xs md:text-sm px-2 md:px-3 py-1 md:py-2"
             >
               Todos
             </Button>
@@ -315,7 +319,7 @@ export default function CategoryPage() {
                 key={sub.name}
                 variant={selectedSubcategory === sub.name ? "default" : "outline"}
                 onClick={() => setSelectedSubcategory(sub.name)}
-                className="whitespace-nowrap"
+                className="whitespace-nowrap text-xs md:text-sm px-2 md:px-3 py-1 md:py-2"
               >
                 {sub.label}
               </Button>
@@ -325,15 +329,28 @@ export default function CategoryPage() {
       </section>
 
       {/* Produtos com Filtros */}
-      <section className="py-12">
-        <div className="container mx-auto px-4">
-          <div className="flex gap-8">
-            {/* Sidebar de Filtros */}
-            <div className="w-80 space-y-6 hidden lg:block">
+      <section className="py-6 md:py-8 lg:py-12">
+        <div className="w-full px-4">
+          <div className="flex flex-col lg:flex-row gap-4 md:gap-6 lg:gap-8">
+            {/* Sidebar de Filtros - Mobile: Botão para abrir modal, Desktop: Sidebar fixa */}
+            <div className="lg:hidden mb-4">
+              <Button 
+                variant="outline" 
+                className="w-full flex items-center justify-center space-x-2 bg-white"
+                onClick={() => {/* TODO: Implementar modal de filtros mobile */}}
+              >
+                <Filter className="w-4 h-4" />
+                <span>Filtros</span>
+                <ChevronDown className="w-4 h-4" />
+              </Button>
+            </div>
+
+            {/* Sidebar de Filtros - Desktop */}
+            <div className="w-full lg:w-80 space-y-6 hidden lg:block">
               <Card className="shadow-lg">
-                <CardContent className="p-6">
-                  <h3 className="text-xl font-bold mb-4 flex items-center text-gray-900">
-                    <Filter className={`w-5 h-5 mr-2 ${categoryConfig.bgColor.replace("bg-", "text-")}`} />
+                <CardContent className="p-4 md:p-6">
+                  <h3 className="text-lg md:text-xl font-bold mb-4 flex items-center text-gray-900">
+                    <Filter className={`w-4 h-5 md:w-5 md:h-5 mr-2 ${categoryConfig.bgColor.replace("bg-", "text-")}`} />
                     Filtros
                   </h3>
 
@@ -343,58 +360,25 @@ export default function CategoryPage() {
                     <div className="space-y-2">
                       <button
                         onClick={() => setSelectedSubcategory("todos")}
-                        className={`w-full text-left p-3 rounded-lg transition-all duration-200 ${
+                        className={`w-full text-left p-2 md:p-3 rounded-lg transition-all duration-200 ${
                           selectedSubcategory === "todos"
                             ? `${categoryConfig.bgColor.replace("bg-", "bg-")}/10 ${categoryConfig.bgColor.replace("bg-", "text-")} font-semibold shadow-md`
                             : "hover:bg-gray-50 text-gray-700"
                         }`}
                       >
-                        <div className="flex justify-between items-center">
-                          <span>Todos os Produtos</span>
-                          <Badge variant="outline" className="text-xs">
-                            {products.length}
-                          </Badge>
-                        </div>
+                        Todos
                       </button>
                       {categoryConfig.subcategories.map((sub) => (
                         <button
                           key={sub.name}
                           onClick={() => setSelectedSubcategory(sub.name)}
-                          className={`w-full text-left p-3 rounded-lg transition-all duration-200 ${
+                          className={`w-full text-left p-2 md:p-3 rounded-lg transition-all duration-200 ${
                             selectedSubcategory === sub.name
                               ? `${categoryConfig.bgColor.replace("bg-", "bg-")}/10 ${categoryConfig.bgColor.replace("bg-", "text-")} font-semibold shadow-md`
                               : "hover:bg-gray-50 text-gray-700"
                           }`}
                         >
-                          <div className="flex justify-between items-center">
-                            <div>
-                              <span className="block">{sub.label}</span>
-                              <span className="text-xs text-gray-500">{sub.description}</span>
-                            </div>
-                            <Badge variant="outline" className="text-xs">
-                              {Math.floor(Math.random() * 50) + 10}
-                            </Badge>
-                          </div>
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-
-                  {/* Filtro de Preço */}
-                  <div className="mb-6">
-                    <h4 className="font-semibold mb-3 text-gray-900">Preço</h4>
-                    <div className="space-y-2">
-                      {["Todos", "Até R$ 50", "R$ 50 - R$ 100", "R$ 100 - R$ 200", "Acima de R$ 200"].map((price) => (
-                        <button
-                          key={price}
-                          className={`w-full text-left p-2 text-sm rounded transition-colors ${
-                            selectedFilter.price === price.toLowerCase()
-                              ? `${categoryConfig.bgColor.replace("bg-", "bg-")}/10 ${categoryConfig.bgColor.replace("bg-", "text-")}`
-                              : "hover:bg-gray-50 text-gray-700"
-                          }`}
-                          onClick={() => setSelectedFilter((prev) => ({ ...prev, price: price.toLowerCase() }))}
-                        >
-                          {price}
+                          {sub.label}
                         </button>
                       ))}
                     </div>
@@ -453,23 +437,23 @@ export default function CategoryPage() {
             {/* Área de Produtos */}
             <div className="flex-1">
               {/* Controles superiores */}
-              <div className="flex justify-between items-center mb-8">
+              <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 md:mb-8 space-y-4 sm:space-y-0">
                 <div>
-                  <h2 className="text-3xl font-bold text-gray-900">
+                  <h2 className="text-xl md:text-2xl lg:text-3xl font-bold text-gray-900">
                     {selectedSubcategory === "todos"
                       ? `Todos os ${categoryConfig.name}`
                       : categoryConfig.subcategories.find((s) => s.name === selectedSubcategory)?.label}
                   </h2>
-                  <p className="text-gray-600">{filteredProducts.length} produtos encontrados</p>
+                  <p className="text-sm md:text-base text-gray-600">{filteredProducts.length} produtos encontrados</p>
                 </div>
 
-                <div className="flex items-center space-x-4">
+                <div className="flex items-center space-x-2 md:space-x-4 w-full sm:w-auto">
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
-                      <Button variant="outline" className="bg-white">
-                        <SortAsc className="w-4 h-4 mr-2" />
+                      <Button variant="outline" className="bg-white text-xs md:text-sm px-2 md:px-3 py-1 md:py-2">
+                        <SortAsc className="w-3 h-3 md:w-4 md:h-4 mr-1 md:mr-2" />
                         Ordenar
-                        <ChevronDown className="w-4 h-4 ml-2" />
+                        <ChevronDown className="w-3 h-3 md:w-4 md:h-4 ml-1 md:ml-2" />
                       </Button>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent>
@@ -487,17 +471,17 @@ export default function CategoryPage() {
                       variant={viewMode === "grid" ? "default" : "ghost"}
                       size="icon"
                       onClick={() => setViewMode("grid")}
-                      className="rounded-r-none"
+                      className="rounded-r-none w-8 h-8 md:w-10 md:h-10"
                     >
-                      <Grid3X3 className="w-4 h-4" />
+                      <Grid3X3 className="w-3 h-3 md:w-4 md:h-4" />
                     </Button>
                     <Button
                       variant={viewMode === "list" ? "default" : "ghost"}
                       size="icon"
                       onClick={() => setViewMode("list")}
-                      className="rounded-l-none"
+                      className="rounded-l-none w-8 h-8 md:w-10 md:h-10"
                     >
-                      <List className="w-4 h-4" />
+                      <List className="w-3 h-3 md:w-4 md:h-4" />
                     </Button>
                   </div>
                 </div>
@@ -505,8 +489,10 @@ export default function CategoryPage() {
 
               {/* Grid de Produtos */}
               <div
-                className={`grid gap-6 ${
-                  viewMode === "grid" ? "grid-cols-1 sm:grid-cols-2 lg:grid-cols-3" : "grid-cols-1"
+                className={`grid gap-4 md:gap-6 ${
+                  viewMode === "grid" 
+                    ? "grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4" 
+                    : "grid-cols-1"
                 }`}
               >
                 {filteredProducts.map((product) => (
@@ -519,41 +505,41 @@ export default function CategoryPage() {
                           width={400}
                           height={400}
                           className={`w-full object-cover group-hover:scale-110 transition-transform duration-500 ${
-                            viewMode === "grid" ? "h-64" : "h-48"
+                            viewMode === "grid" ? "h-48 md:h-56 lg:h-64" : "h-40 md:h-48"
                           }`}
                         />
 
-                        <div className="absolute top-4 left-4 flex flex-col space-y-2">
-                          <Badge className={`${product.badgeColor} text-white font-bold`}>{product.badge}</Badge>
+                        <div className="absolute top-2 md:top-4 left-2 md:left-4 flex flex-col space-y-1 md:space-y-2">
+                          <Badge className={`${product.badgeColor} text-white font-bold text-xs md:text-sm px-1 md:px-2 py-0.5 md:py-1`}>{product.badge}</Badge>
                           {product.originalPrice && (
-                            <Badge className="bg-green-500 text-white font-bold">
+                            <Badge className="bg-green-500 text-white font-bold text-xs md:text-sm px-1 md:px-2 py-0.5 md:py-1">
                               {Math.round(((product.originalPrice - product.price) / product.originalPrice) * 100)}% OFF
                             </Badge>
                           )}
                           {product.freeShipping && (
-                            <Badge className="bg-blue-500 text-white">
-                              <Truck className="w-3 h-3 mr-1" />
+                            <Badge className="bg-blue-500 text-white text-xs md:text-sm px-1 md:px-2 py-0.5 md:py-1">
+                              <Truck className="w-2 h-2 md:w-3 md:h-3 mr-1" />
                               Frete Grátis
                             </Badge>
                           )}
                         </div>
 
-                        <div className="absolute top-4 right-4 flex flex-col space-y-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                          <Button size="icon" className="bg-white/90 text-gray-800 hover:bg-white">
-                            <Heart className="w-4 h-4" />
+                        <div className="absolute top-2 md:top-4 right-2 md:right-4 flex flex-col space-y-1 md:space-y-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                          <Button size="icon" className="bg-white/90 text-gray-800 hover:bg-white w-7 h-7 md:w-8 md:h-8">
+                            <Heart className="w-3 h-3 md:w-4 md:h-4" />
                           </Button>
-                          <Button size="icon" className="bg-white/90 text-gray-800 hover:bg-white">
-                            <Share2 className="w-4 h-4" />
+                          <Button size="icon" className="bg-white/90 text-gray-800 hover:bg-white w-7 h-7 md:w-8 md:h-8">
+                            <Share2 className="w-3 h-3 md:w-4 md:h-4" />
                           </Button>
-                          <Button size="icon" className="bg-white/90 text-gray-800 hover:bg-white">
-                            <Eye className="w-4 h-4" />
+                          <Button size="icon" className="bg-white/90 text-gray-800 hover:bg-white w-7 h-7 md:w-8 md:h-8">
+                            <Eye className="w-3 h-3 md:w-4 md:h-4" />
                           </Button>
                         </div>
                       </div>
 
-                      <CardContent className={`p-6 ${viewMode === "list" ? "flex items-center space-x-6" : ""}`}>
+                      <CardContent className={`p-3 md:p-4 lg:p-6 ${viewMode === "list" ? "flex items-center space-x-4 md:space-x-6" : ""}`}>
                         <div className={viewMode === "list" ? "flex-1" : ""}>
-                          <div className="flex items-center justify-between mb-3">
+                          <div className="flex items-center justify-between mb-2 md:mb-3">
                             <Badge
                               variant="outline"
                               className="text-xs font-semibold"
@@ -562,42 +548,42 @@ export default function CategoryPage() {
                               {product.store}
                             </Badge>
                             <div className="flex items-center space-x-1">
-                              <Star className="w-4 h-4 fill-yellow-400 text-yellow-400" />
-                              <span className="text-sm font-medium">{product.rating}</span>
+                              <Star className="w-3 h-3 md:w-4 md:h-4 fill-yellow-400 text-yellow-400" />
+                              <span className="text-xs md:text-sm font-medium">{product.rating}</span>
                               <span className="text-xs text-gray-500">({product.reviews})</span>
                             </div>
                           </div>
 
-                          <h3 className="font-bold text-lg mb-3 line-clamp-2 group-hover:text-gray-600 transition-colors">
+                          <h3 className="font-bold text-sm md:text-base lg:text-lg mb-2 md:mb-3 line-clamp-2 group-hover:text-gray-600 transition-colors">
                             {product.name}
                           </h3>
 
-                          <div className="bg-green-50 p-3 rounded-lg mb-4">
+                          <div className="bg-green-50 p-2 md:p-3 rounded-lg mb-3 md:mb-4">
                             <div className="flex items-center space-x-2">
-                              <span className="text-2xl font-bold text-green-600">R$ {product.price.toFixed(2)}</span>
+                              <span className="text-lg md:text-xl lg:text-2xl font-bold text-green-600">R$ {product.price.toFixed(2)}</span>
                               {product.originalPrice && (
-                                <span className="text-lg text-gray-500 line-through">
+                                <span className="text-sm md:text-base lg:text-lg text-gray-500 line-through">
                                   R$ {product.originalPrice.toFixed(2)}
                                 </span>
                               )}
                             </div>
                             {product.originalPrice && (
-                              <p className="text-sm text-green-600 font-semibold">
+                              <p className="text-xs md:text-sm text-green-600 font-semibold">
                                 Economize R$ {(product.originalPrice - product.price).toFixed(2)}
                               </p>
                             )}
                           </div>
 
                           <div className="flex items-center justify-between">
-                            <div className="flex items-center space-x-3 text-sm text-gray-500">
+                            <div className="flex items-center space-x-2 md:space-x-3 text-xs md:text-sm text-gray-500">
                               <span className="flex items-center">
-                                <TrendingUp className="w-4 h-4 mr-1" />
+                                <TrendingUp className="w-3 h-3 md:w-4 md:h-4 mr-1" />
                                 {product.sales} vendidos
                               </span>
                             </div>
                             <Button
                               size="sm"
-                              className={`bg-gradient-to-r ${categoryConfig.color} hover:opacity-90 text-white font-semibold`}
+                              className={`bg-gradient-to-r ${categoryConfig.color} hover:opacity-90 text-white font-semibold text-xs md:text-sm px-2 md:px-3 py-1 md:py-2`}
                             >
                               Comprar
                             </Button>
@@ -616,11 +602,22 @@ export default function CategoryPage() {
       <Footer />
 
       {/* WhatsApp Float */}
-      <div className="fixed bottom-6 right-6 z-50">
-        <Button className="w-12 h-12 md:w-16 md:h-16 rounded-full bg-green-500 hover:bg-green-600 shadow-2xl hover:scale-110 transition-all">
-          <MessageCircle className="w-6 h-6 md:w-8 md:h-8 text-white" />
+      <div className="fixed bottom-4 md:bottom-6 right-4 md:right-6 z-50">
+        <Button className="w-12 h-12 md:w-14 md:h-14 lg:w-16 lg:h-16 rounded-full bg-green-500 hover:bg-green-600 shadow-2xl hover:scale-110 transition-all">
+          <MessageCircle className="w-5 h-5 md:w-6 md:h-6 lg:w-8 lg:h-8 text-white" />
         </Button>
       </div>
+
+      {/* CSS para esconder scrollbar horizontal no mobile */}
+      <style jsx global>{`
+        .scrollbar-hide {
+          -ms-overflow-style: none;
+          scrollbar-width: none;
+        }
+        .scrollbar-hide::-webkit-scrollbar {
+          display: none;
+        }
+      `}</style>
     </div>
   )
 }

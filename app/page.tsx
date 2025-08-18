@@ -14,8 +14,6 @@ import {
   Zap,
   RotateCcw,
   ArrowRight,
-  Crown,
-  TrendingUp,
   ChevronLeft,
   ChevronRight,
   CheckCircle,
@@ -350,8 +348,14 @@ export default function HomePage() {
         <div className="container mx-auto px-4">
           <div className="flex items-center justify-between mb-8 md:mb-12">
             <div className="flex items-center space-x-4">
-              <div className="bg-black p-3 rounded-full">
-                <TrendingUp className="w-6 md:w-8 h-6 md:h-8 text-white" />
+              <div className="p-3">
+                <Image 
+                  src="/icons/logo foguete.svg"
+                  alt="Foguete"
+                  width={120}
+                  height={120}
+                  className="w-12 md:w-16 h-12 md:h-16"
+                />
               </div>
               <div>
                 <h2 className="text-2xl md:text-4xl font-bold">Produtos em Alta</h2>
@@ -516,8 +520,14 @@ export default function HomePage() {
         <div className="container mx-auto px-4">
           <div className="flex items-center justify-between mb-8 md:mb-12">
             <div className="flex items-center space-x-4">
-              <div className="bg-black p-3 rounded-full">
-                <Crown className="w-6 md:w-8 h-6 md:h-8 text-white" />
+              <div className="p-3">
+                <Image 
+                  src="/icons/logo cogumelo.svg"
+                  alt="Cogumelo"
+                  width={120}
+                  height={120}
+                  className="w-12 md:w-16 h-12 md:h-16"
+                />
               </div>
               <div>
                 <h2 className="text-2xl md:text-4xl font-bold">Produtos Exclusivos Multiverso</h2>

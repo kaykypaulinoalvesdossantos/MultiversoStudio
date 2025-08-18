@@ -8,10 +8,10 @@ import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Input } from "@/components/ui/input"
 import { Separator } from "@/components/ui/separator"
+import Navbar from "@/components/navbar"
 import {
   Eye,
   EyeOff,
-  ArrowLeft,
   Mail,
   Lock,
   User,
@@ -86,32 +86,8 @@ export default function LoginPage() {
 
   return (
     <div className="min-h-screen bg-white">
-      {/* Header */}
-      <header className="bg-black text-white">
-        <div className="container mx-auto px-4 py-4">
-          <div className="flex items-center justify-between">
-            <Link href="/" className="flex items-center space-x-3">
-              <Image
-                src="/logo-luneta.webp"
-                alt="Multiverso Studio"
-                width={40}
-                height={30}
-                className="object-contain brightness-0 invert"
-              />
-              <div>
-                <h1 className="text-xl font-bold">MULTIVERSO STUDIO</h1>
-                <p className="text-xs text-gray-400">Lojas dentro de lojas</p>
-              </div>
-            </Link>
-            <Link href="/">
-              <Button variant="ghost" className="text-white hover:text-gray-300">
-                <ArrowLeft className="w-4 h-4 mr-2" />
-                Voltar à Loja
-              </Button>
-            </Link>
-          </div>
-        </div>
-      </header>
+      {/* Navbar Principal */}
+      <Navbar />
 
       <div className="container mx-auto px-4 py-12">
         <div className="flex flex-col lg:grid lg:grid-cols-2 gap-12 items-start">

@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Creator: CorelDRAW 2020 (64 Bit) -->
+<svg xmlns="http://www.w3.org/2000/svg" xml:space="preserve" width="210mm" height="210mm" version="1.1" style="shape-rendering:geometricPrecision; text-rendering:geometricPrecision; image-rendering:optimizeQuality; fill-rule:evenodd; clip-rule:evenodd"
+viewBox="0 0 21000 21000"
+ xmlns:xlink="http://www.w3.org/1999/xlink"
+ xmlns:xodm="http://www.corel.com/coreldraw/odm/2003">
+ <defs>
+  <style type="text/css">
+   <![CDATA[
+    .str1 {stroke:#FEFEFE;stroke-width:441.23;stroke-miterlimit:22.9256}
+    .str0 {stroke:#373435;stroke-width:58.83;stroke-miterlimit:22.9256}
+    .fil0 {fill:none}
+    .fil2 {fill:#FEFEFE}
+    .fil1 {fill:#171717}
+   ]]>
+  </style>
+ </defs>
+ <g id="Camada_x0020_1">
+  <metadata id="CorelCorpID_0Corel-Layer"/>
+  <g id="_2423917095904">
+   <g>
+    <path class="fil0 str0" d="M10492.87 1852.66c4779.74,0 8654.47,3874.73 8654.47,8654.47 0,4779.74 -3874.73,8654.47 -8654.47,8654.47 -4779.74,0 -8654.47,-3874.73 -8654.47,-8654.47 0,-4779.74 3874.73,-8654.47 8654.47,-8654.47z"/>
+    <path id="1" class="fil1" d="M10492.87 1852.66c4779.74,0 8654.47,3874.73 8654.47,8654.47 0,4779.74 -3874.73,8654.47 -8654.47,8654.47 -4779.74,0 -8654.47,-3874.73 -8654.47,-8654.47 0,-4779.74 3874.73,-8654.47 8654.47,-8654.47z"/>
+   </g>
+   <g>
+    <polyline class="fil0 str1" points="5300.19,13220.53 8298.68,10075.02 10238.87,12250.4 10541.33,11961.55 12197.85,10379.67 "/>
+   </g>
+   <path class="fil2" d="M11753.84 9464.09c46.71,70.04 1221.85,1284.1 1221.85,1284.1 664.14,-658.93 1328.28,-1317.89 1992.42,-1976.83l918.37 -1354.21 -871.66 -933.94 -1182.99 887.25 -2077.99 2093.63z"/>
+   <polygon class="fil2" points="12578.79,8102.02 11426.95,9378.38 10267.31,9113.76 11333.56,8070.87 "/>
+   <polygon class="fil2" points="13131.45,11051.64 13357.15,12172.36 14446.75,11067.23 14400.04,9853.11 "/>
+   <polygon class="fil2" points="15341.89,6374.14 16073.47,7101.84 16404.25,6027.8 "/>
+   <circle class="fil0" cx="14633.83" cy="7837.22" r="190.67"/>
+   <circle class="fil0" cx="14633.83" cy="7837.22" r="544.77"/>
+  </g>
+ </g>
+</svg>

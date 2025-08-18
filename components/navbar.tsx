@@ -7,11 +7,21 @@ import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Input } from "@/components/ui/input"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
-import { Search, ShoppingCart, User, RotateCcw, Plus, Minus, X, ChevronDown, Menu } from "lucide-react"
+import { Search, Plus, Minus, X, ChevronDown, Menu, Loader2, AlertCircle, RefreshCw } from "lucide-react"
+// import { useCategories } from "@/contexts/categories-context"
 
 interface NavbarProps {
   searchQuery?: string
   setSearchQuery?: (query: string) => void
+}
+
+// Interface unificada para categorias
+interface UnifiedCategory {
+  name: string
+  href?: string
+  id?: string
+  children?: any[]
+  subcategories?: any[]
 }
 
 export default function Navbar({ searchQuery = "", setSearchQuery }: NavbarProps) {
@@ -22,64 +32,102 @@ export default function Navbar({ searchQuery = "", setSearchQuery }: NavbarProps
   const [isCartOpen, setIsCartOpen] = useState(false)
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
 
-  const categories = [
+  // Usar o hook de categorias monitoradas com fallback
+  // let categoriasData: any = {
+  //   categorias: [],
+  //   isLoading: false,
+  //   error: null,
+  //   hasCategories: false,
+  //   refreshCategorias: () => {},
+  //   getCategoriasPrincipais: () => []
+  // }
+
+  // try {
+  //   categoriasData = useCategories()
+  // } catch (err) {
+  //   // Fallback se o provider não estiver disponível
+  //   console.warn('CategoriesProvider não encontrado, usando categorias padrão')
+  // }
+
+  // const { 
+  //   categorias, 
+  //   isLoading, 
+  //   error, 
+  //   hasCategories, 
+  //   refreshCategorias,
+  //   getCategoriasPrincipais 
+  // } = categoriasData
+
+  // Categoria fixa "Personalizáveis"
+  // const categoriaPersonalizaveis = {
+  //   name: "Personalizáveis",
+  //   href: "/personalizar",
+  //   subcategories: [],
+  // }
+
+  // Combinar categorias da API com a categoria fixa
+  // const categoriasPrincipais = getCategoriasPrincipais()
+  // const allCategories: UnifiedCategory[] = [...categoriasPrincipais, categoriaPersonalizaveis]
+
+  // CATEGORIAS REAIS DO PROJETO - BASEADAS NO categoryConfigs
+  const allCategories: UnifiedCategory[] = [
     {
       name: "Canecas",
       href: "/categoria/canecas",
       subcategories: [
         { name: "Cerâmica", href: "/categoria/canecas/ceramica", description: "Canecas tradicionais de cerâmica" },
         { name: "Vidro", href: "/categoria/canecas/vidro", description: "Canecas transparentes de vidro" },
-        { name: "Térmica", href: "/categoria/canecas/termica", description: "Canecas que mantêm a temperatura" },
-        {
-          name: "Personalizada",
-          href: "/categoria/canecas/personalizada",
-          description: "Canecas com design personalizado",
-        },
-      ],
+        { name: "Chopp", href: "/categoria/canecas/chopp", description: "Canecas estilo chopp para cerveja" },
+        { name: "Jateada", href: "/categoria/canecas/jateada", description: "Canecas com acabamento jateado" },
+        { name: "Lisa", href: "/categoria/canecas/lisa", description: "Canecas lisas para personalização" },
+        { name: "Térmica", href: "/categoria/canecas/termica", description: "Canecas que mantêm a temperatura" }
+      ]
     },
     {
       name: "Vestuário",
       href: "/categoria/vestuario",
       subcategories: [
         { name: "Camisetas", href: "/categoria/vestuario/camisetas", description: "Camisetas básicas e estampadas" },
-        { name: "Moletons", href: "/categoria/vestuario/moletons", description: "Moletons e casacos confortáveis" },
-        { name: "Bonés", href: "/categoria/vestuario/bones", description: "Bonés e chapéus estilosos" },
+        { name: "Polo", href: "/categoria/vestuario/polo", description: "Camisetas polo elegantes" },
+        { name: "Tradicional", href: "/categoria/vestuario/tradicional", description: "Camisetas de corte tradicional" },
+        { name: "StreetWear", href: "/categoria/vestuario/streetwear", description: "Estilo urbano e moderno" },
+        { name: "BabyLook", href: "/categoria/vestuario/babylook", description: "Camisetas femininas" },
         { name: "Premium", href: "/categoria/vestuario/premium", description: "Linha premium de alta qualidade" },
-      ],
+        { name: "Moletons", href: "/categoria/vestuario/moletons", description: "Moletons e casacos" },
+        { name: "Regatas", href: "/categoria/vestuario/regatas", description: "Camisetas sem manga" },
+        { name: "Bonés", href: "/categoria/vestuario/bones", description: "Bonés e chapéus" }
+      ]
     },
     {
       name: "Kits Promocionais",
-      href: "/categoria/kits",
+      href: "/categoria/kits-promocionais",
       subcategories: [
-        { name: "Kit Café", href: "/categoria/kits/cafe", description: "Caneca + Camiseta temática" },
-        { name: "Kit Gamer", href: "/categoria/kits/gamer", description: "Produtos para gamers" },
-        { name: "Kit Escritório", href: "/categoria/kits/escritorio", description: "Produtos para o trabalho" },
-        { name: "Kit Presente", href: "/categoria/kits/presente", description: "Kits ideais para presentear" },
-      ],
+        { name: "Kit Café", href: "/categoria/kits-promocionais/cafe", description: "Caneca + Camiseta temática" },
+        { name: "Kit Gamer", href: "/categoria/kits-promocionais/gamer", description: "Produtos para gamers" },
+        { name: "Kit Completo", href: "/categoria/kits-promocionais/completo", description: "Vários produtos em combo" },
+        { name: "Kit Presente", href: "/categoria/kits-promocionais/presente", description: "Ideal para presentear" }
+      ]
     },
     {
       name: "Lançamentos",
       href: "/categoria/lancamentos",
       subcategories: [
-        { name: "Novidades", href: "/categoria/lancamentos/novidades", description: "Últimos lançamentos da semana" },
-        { name: "Pré-venda", href: "/categoria/lancamentos/pre-venda", description: "Produtos em pré-venda" },
-        {
-          name: "Edição Limitada",
-          href: "/categoria/lancamentos/edicao-limitada",
-          description: "Produtos de edição limitada",
-        },
-        {
-          name: "Exclusivos",
-          href: "/categoria/lancamentos/exclusivos",
-          description: "Produtos exclusivos da plataforma",
-        },
-      ],
+        { name: "Esta Semana", href: "/categoria/lancamentos/semana", description: "Lançamentos desta semana" },
+        { name: "Este Mês", href: "/categoria/lancamentos/mes", description: "Novidades do mês" },
+        { name: "Pré-Venda", href: "/categoria/lancamentos/pre-venda", description: "Produtos em pré-venda" },
+        { name: "Exclusivos", href: "/categoria/lancamentos/exclusivos", description: "Produtos exclusivos" }
+      ]
     },
     {
       name: "Personalizáveis",
-      href: "/personalizar",
-      subcategories: [],
-    },
+      href: "/categoria/personalizaveis",
+      subcategories: [
+        { name: "Camisetas", href: "/categoria/personalizaveis/camisetas", description: "Camisetas para personalizar" },
+        { name: "Canecas", href: "/categoria/personalizaveis/canecas", description: "Canecas para personalizar" },
+        { name: "Adesivos", href: "/categoria/personalizaveis/adesivos", description: "Adesivos personalizados" },
+        { name: "Chaveiros", href: "/categoria/personalizaveis/chaveiros", description: "Chaveiros únicos" }
+      ]
+    }
   ]
 
   const cartTotal = cartItems.reduce((total, item) => total + item.price * item.quantity, 0)
@@ -101,25 +149,25 @@ export default function Navbar({ searchQuery = "", setSearchQuery }: NavbarProps
     <>
       {/* Main Header */}
       <header className="bg-black text-white sticky top-0 z-50 shadow-lg">
-        <div className="container mx-auto px-4 py-4">
+        <div className="w-full px-4 py-4">
           <div className="flex items-center justify-between">
             {/* Logo */}
-            <Link href="/" className="flex items-center space-x-3">
+            <Link href="/" className="flex items-center space-x-2 md:space-x-3 flex-shrink-0">
               <Image
                 src="/logo-luneta.webp"
                 alt="Multiverso Studio"
-                width={50}
-                height={35}
-                className="object-contain brightness-0 invert"
+                width={70}
+                height={50}
+                className="object-contain w-12 h-8 md:w-[70px] md:h-[50px]"
               />
               <div className="text-center">
-                <h1 className="text-xl font-bold">MULTIVERSO</h1>
+                <h1 className="text-lg md:text-xl font-bold">MULTIVERSO</h1>
                 <p className="text-xs text-gray-400">STUDIO</p>
               </div>
             </Link>
 
-            {/* Search */}
-            <div className="flex-1 max-w-2xl mx-8 hidden md:block">
+            {/* Search - Desktop Only */}
+            <div className="hidden md:block flex-1 max-w-2xl mx-8">
               <div className="relative">
                 <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
                 <Input
@@ -132,32 +180,53 @@ export default function Navbar({ searchQuery = "", setSearchQuery }: NavbarProps
             </div>
 
             {/* User Actions */}
-            <div className="flex items-center space-x-4 md:space-x-6">
+            <div className="flex items-center space-x-2 md:space-x-4 lg:space-x-6 flex-shrink-0">
+              {/* Trocas - Desktop Only */}
               <Link href="/trocas" className="hidden md:block">
-                <Button variant="ghost" className="text-white hover:text-gray-300 text-sm">
-                  <RotateCcw className="w-4 h-4 mr-2" />
+                <Button variant="ghost" className="text-white hover:text-black hover:bg-white text-sm transition-colors group">
+                  <Image
+                    src="/icons/trocas icon.svg"
+                    alt="Troca"
+                    width={28}
+                    height={28}
+                    className="w-7 h-7 mr-2 brightness-0 invert group-hover:brightness-0 group-hover:invert-0 transition-all"
+                  />
                   Troca
                 </Button>
               </Link>
 
+              {/* Carrinho */}
               <Button
                 variant="ghost"
                 size="icon"
-                className="relative text-white hover:text-gray-300"
+                className="relative text-white hover:text-black hover:bg-white transition-colors group"
                 onClick={() => setIsCartOpen(true)}
               >
-                <ShoppingCart className="w-5 h-5" />
+                <Image
+                  src="/icons/mochila icon.svg"
+                  alt="Carrinho"
+                  width={32}
+                  height={32}
+                  className="w-6 h-6 md:w-8 md:h-8 brightness-0 invert group-hover:brightness-0 group-hover:invert-0 transition-all"
+                />
                 {cartItemsCount > 0 && (
-                  <Badge className="absolute -top-2 -right-2 w-5 h-5 rounded-full p-0 flex items-center justify-center text-xs bg-orange-500 text-white">
+                  <Badge className="absolute -top-1 -right-1 md:-top-2 md:-right-2 w-4 h-4 md:w-5 md:h-5 rounded-full p-0 flex items-center justify-center text-xs bg-orange-500 text-white">
                     {cartItemsCount}
                   </Badge>
                 )}
               </Button>
               
-              <Link href="/login">
-                <Button variant="ghost" className="text-white hover:text-gray-300 text-sm">
-                  <User className="w-4 h-4 mr-2" />
-                  <span className="hidden md:inline">Login</span>
+              {/* Login - Desktop Only */}
+              <Link href="/login" className="hidden md:block">
+                <Button variant="ghost" className="text-white hover:text-black hover:bg-white text-sm transition-colors group">
+                  <Image
+                    src="/icons/login icon.svg"
+                    alt="Login"
+                    width={28}
+                    height={28}
+                    className="w-7 h-7 mr-2 brightness-0 invert group-hover:brightness-0 group-hover:invert-0 transition-all"
+                  />
+                  Login
                 </Button>
               </Link>
 
@@ -166,54 +235,92 @@ export default function Navbar({ searchQuery = "", setSearchQuery }: NavbarProps
                 variant="ghost"
                 size="icon"
                 onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-                className="md:hidden text-white hover:text-gray-300"
+                className="md:hidden text-white hover:text-black hover:bg-white transition-colors"
               >
                 <Menu className="w-5 h-5" />
               </Button>
             </div>
           </div>
 
-          {/* Mobile Search */}
-          <div className="mt-4 md:hidden">
-            <div className="relative">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
-              <Input
-                placeholder="Buscar produtos..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery && setSearchQuery(e.target.value)}
-                className="pl-10 bg-gray-800 border-gray-700 text-white placeholder-gray-400 focus:border-white focus:ring-white"
-              />
+          {/* Mobile Search - Só aparece quando o menu estiver aberto */}
+          {isMobileMenuOpen && (
+            <div className="md:hidden mt-4 mb-4">
+              <div className="relative">
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+                <Input
+                  placeholder="Buscar produtos..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery && setSearchQuery(e.target.value)}
+                  className="pl-10 bg-gray-800 border-gray-700 text-white placeholder-gray-400 focus:border-white focus:ring-white w-full"
+                />
+              </div>
             </div>
-          </div>
+          )}
 
           {/* Mobile Menu */}
           {isMobileMenuOpen && (
-            <div className="md:hidden mt-4 pb-4 border-t border-gray-800 pt-4">
-              <div className="space-y-2">
-                {categories.map((category) => (
-                  <Link
-                    key={category.name}
-                    href={category.href}
-                    className="block px-3 py-2 text-white hover:text-gray-300 hover:bg-gray-800 rounded-md"
-                    onClick={() => setIsMobileMenuOpen(false)}
-                  >
-                    <span className="text-sm">{category.name}</span>
-                  </Link>
-                ))}
-                <div className="border-t border-gray-800 pt-2 mt-2">
+            <div className="md:hidden border-t border-gray-800 pt-4 pb-4">
+              <div className="space-y-1">
+                {/* Título do Menu */}
+                <div className="px-3 py-2 mb-3">
+                  <h3 className="text-sm font-semibold text-gray-300 uppercase tracking-wide">Menu</h3>
+                </div>
+                
+                {/* Categorias */}
+                <div className="space-y-1">
+                  {allCategories.map((category) => {
+                    // Verificar se é uma categoria da API ou a categoria fixa
+                    const isApiCategory = 'id' in category && 'children' in category
+                    const href = isApiCategory ? `/categoria/${category.id}` : category.href
+                    
+                    return (
+                      <Link
+                        key={category.name}
+                        href={href || '#'}
+                        className="flex items-center px-3 py-3 text-white hover:text-gray-300 hover:bg-gray-800 rounded-lg transition-colors w-full"
+                        onClick={() => setIsMobileMenuOpen(false)}
+                      >
+                        <span className="text-base font-medium truncate">{category.name}</span>
+                      </Link>
+                    )
+                  })}
+                </div>
+                
+                {/* Separador */}
+                <div className="border-t border-gray-700 my-3"></div>
+                
+                {/* Ações do Usuário */}
+                <div className="space-y-1">
+                  {/* Trocas */}
                   <Link
                     href="/trocas"
-                    className="block px-3 py-2 text-white hover:text-gray-300 hover:bg-gray-800 rounded-md"
+                    className="flex items-center px-3 py-3 text-white hover:text-gray-300 hover:bg-gray-800 rounded-lg transition-colors w-full"
                     onClick={() => setIsMobileMenuOpen(false)}
                   >
-                    Trocas
+                    <Image
+                      src="/icons/trocas icon.svg"
+                      alt="Troca"
+                      width={20}
+                      height={20}
+                      className="w-5 h-5 mr-3 brightness-0 invert flex-shrink-0"
+                    />
+                    <span className="text-base font-medium">Trocas</span>
                   </Link>
+                  
+                  {/* Login */}
                   <Link
                     href="/login"
-                    className="block px-3 py-2 text-white hover:text-gray-300 hover:bg-gray-800 rounded-md"
+                    className="flex items-center px-3 py-3 text-white hover:text-gray-300 hover:bg-gray-800 rounded-lg transition-colors w-full"
                     onClick={() => setIsMobileMenuOpen(false)}
                   >
-                    Login
+                    <Image
+                      src="/icons/login icon.svg"
+                      alt="Login"
+                      width={20}
+                      height={20}
+                      className="w-5 h-5 mr-3 brightness-0 invert flex-shrink-0"
+                    />
+                    <span className="text-base font-medium">Login</span>
                   </Link>
                 </div>
               </div>
@@ -224,14 +331,40 @@ export default function Navbar({ searchQuery = "", setSearchQuery }: NavbarProps
         {/* Category Navigation */}
         <div className="border-t border-gray-800 hidden md:block">
           <div className="container mx-auto px-4">
+            {/* Indicador de status das categorias - COMENTADO PARA TESTE ESTÁTICO */}
+            {/* {isLoading && (
+              <div className="flex items-center justify-center py-2 text-xs text-gray-400">
+                <Loader2 className="w-3 h-3 animate-spin mr-2" />
+                Atualizando categorias...
+              </div>
+            )} */}
+            
+            {/* {error && (
+              <div className="flex items-center justify-center py-2 text-xs text-red-400">
+                <AlertCircle className="w-3 h-3 mr-2" />
+                Erro ao carregar categorias
+                <button
+                  onClick={refreshCategorias}
+                  className="ml-2 text-blue-400 hover:text-blue-300 transition-colors"
+                >
+                  <RefreshCw className="w-3 h-3" />
+                </button>
+              </div>
+            )} */}
+
             <div className="flex items-center justify-center space-x-4 md:space-x-8 py-3 overflow-x-auto">
-              {categories.map((category) => (
-                category.subcategories.length > 0 ? (
+              {allCategories.map((category) => {
+                // Verificar se é uma categoria da API ou a categoria fixa
+                const isApiCategory = 'id' in category && 'children' in category
+                const subcategories = isApiCategory ? category.children : category.subcategories
+                const href = isApiCategory ? `/categoria/${category.id}` : category.href
+                
+                return subcategories && subcategories.length > 0 ? (
                   <DropdownMenu key={category.name}>
                     <DropdownMenuTrigger asChild>
                       <Button
                         variant="ghost"
-                        className="text-white hover:text-gray-300 transition-colors font-medium text-sm flex items-center space-x-2 group whitespace-nowrap"
+                        className="text-white hover:text-black hover:bg-white transition-colors font-medium text-sm flex items-center space-x-2 group whitespace-nowrap"
                       >
                         <span>{category.name}</span>
                         <ChevronDown className="w-4 h-4 group-hover:rotate-180 transition-transform" />
@@ -242,36 +375,38 @@ export default function Navbar({ searchQuery = "", setSearchQuery }: NavbarProps
                         <h3 className="text-lg font-bold text-gray-900 mb-3">{category.name}</h3>
                       </div>
                       <div className="grid grid-cols-1 gap-2">
-                        {category.subcategories.map((sub) => (
-                          <DropdownMenuItem key={sub.name} asChild className="p-0">
+                        {subcategories.map((sub: any) => (
+                          <DropdownMenuItem key={sub.name || sub.id} asChild className="p-0">
                             <Link
-                              href={sub.href}
+                              href={sub.href || `/categoria/${category.id}/${sub.id}`}
                               className="flex flex-col space-y-1 p-3 rounded-md hover:bg-gray-50 transition-colors"
                             >
                               <span className="font-semibold text-gray-900">{sub.name}</span>
-                              <span className="text-xs text-gray-500">{sub.description}</span>
+                              <span className="text-xs text-gray-500">
+                                {sub.description || `${sub.productCount || 0} produtos`}
+                              </span>
                             </Link>
                           </DropdownMenuItem>
                         ))}
                       </div>
                       <div className="mt-4 pt-3 border-t border-gray-100">
-                        <Link href={category.href} className="text-sm text-gray-600 hover:text-gray-900 font-medium">
+                        <Link href={href || '#'} className="text-sm text-gray-600 hover:text-gray-900 font-medium">
                           Ver todos em {category.name} →
                         </Link>
                       </div>
                     </DropdownMenuContent>
                   </DropdownMenu>
                 ) : (
-                  <Link key={category.name} href={category.href}>
+                  <Link key={category.name} href={href || '#'}>
                     <Button
                       variant="ghost"
-                      className="text-white hover:text-gray-300 transition-colors font-medium text-sm whitespace-nowrap"
+                      className="text-white hover:text-black hover:bg-white transition-colors font-medium text-sm whitespace-nowrap"
                     >
                       {category.name}
                     </Button>
                   </Link>
                 )
-              ))}
+              })}
             </div>
           </div>
         </div>
@@ -293,7 +428,13 @@ export default function Navbar({ searchQuery = "", setSearchQuery }: NavbarProps
               <div className="flex-1 overflow-y-auto p-6">
                 {cartItems.length === 0 ? (
                   <div className="text-center py-8">
-                    <ShoppingCart className="w-16 h-16 mx-auto text-gray-400 mb-4" />
+                    <Image
+                      src="/icons/mochila icon.svg"
+                      alt="Carrinho vazio"
+                      width={64}
+                      height={64}
+                      className="w-16 h-16 mx-auto mb-4 brightness-0 opacity-40"
+                    />
                     <p className="text-gray-600">Seu carrinho está vazio</p>
                   </div>
                 ) : (

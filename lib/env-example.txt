@@ -1,0 +1,16 @@
+# Exemplo de configuração para o arquivo .env.local
+# Copie este arquivo para .env.local na raiz do projeto e configure com suas informações
+
+# URL da API do seu CRM
+CRM_API_URL=https://sua-api-crm.com/api
+
+# Exemplos de URLs comuns:
+# CRM_API_URL=https://api.meucrm.com.br/v1
+# CRM_API_URL=https://crm.empresa.com/api
+# CRM_API_URL=http://localhost:3000/api (para desenvolvimento local)
+
+# IMPORTANTE:
+# 1. Crie um arquivo chamado .env.local na raiz do projeto
+# 2. Copie o conteúdo acima para o .env.local
+# 3. Substitua a URL pela URL real da sua API do CRM
+# 4. NUNCA commite o arquivo .env.local no Git
