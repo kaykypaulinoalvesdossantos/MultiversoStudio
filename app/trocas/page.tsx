@@ -29,7 +29,7 @@ import {
   Mail,
   MessageCircle,
 } from "lucide-react"
-import Navbar from "@/components/navbar"
+import { Navbar } from "@/components/navbar"
 import Footer from "@/components/footer"
 
 export default function TrocasPage() {
@@ -77,7 +77,7 @@ export default function TrocasPage() {
     <div className="min-h-screen bg-gray-50">
       <Navbar />
 
-      <div className="container mx-auto px-4 py-12">
+      <div className="container mx-auto px-4 py-12 pt-20">
         {/* Page Header */}
         <div className="text-center mb-12">
           <div className="flex items-center justify-center space-x-3 mb-4">

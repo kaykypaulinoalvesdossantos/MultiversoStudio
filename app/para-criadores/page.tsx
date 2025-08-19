@@ -29,7 +29,7 @@ import {
   Calculator,
   Sparkles,
 } from "lucide-react"
-import Navbar from "@/components/navbar"
+import { Navbar } from "@/components/navbar"
 import Footer from "@/components/footer"
 
 export default function ParaCriadoresPage() {
@@ -201,10 +201,10 @@ export default function ParaCriadoresPage() {
 
   return (
     <div className="min-h-screen bg-white">
-      <Navbar searchQuery="" setSearchQuery={() => {}} />
+      <Navbar />
 
       {/* Hero Section */}
-      <section className="py-12 md:py-20 bg-gradient-to-br from-purple-900 via-blue-900 to-indigo-900 text-white">
+      <section className="py-12 md:py-20 pt-20 bg-gradient-to-br from-purple-900 via-blue-900 to-indigo-900 text-white">
         <div className="container mx-auto px-4">
           <div className="grid lg:grid-cols-2 gap-8 md:gap-12 items-center">
             <div>
@@ -265,8 +265,6 @@ export default function ParaCriadoresPage() {
           </div>
         </div>
       </section>
-
->
 
       {/* Benefits */}
       <section className="py-12 md:py-20 bg-white">

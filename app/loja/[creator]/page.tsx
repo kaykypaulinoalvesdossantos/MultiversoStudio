@@ -23,7 +23,7 @@ import {
   MessageCircle,
   Filter,
 } from "lucide-react"
-import Navbar from "@/components/navbar"
+import { Navbar } from "@/components/navbar"
 import Footer from "@/components/footer"
 
 export default function CreatorStorePage({ params }: { params: Promise<{ creator: string }> }) {
@@ -161,10 +161,10 @@ export default function CreatorStorePage({ params }: { params: Promise<{ creator
 
   return (
     <div className="min-h-screen bg-white">
-      <Navbar searchQuery={searchQuery} setSearchQuery={setSearchQuery} />
+      <Navbar />
 
       {/* Store Header - RESPONSIVO */}
-      <div className="relative h-64 sm:h-52 md:h-60 lg:h-68 xl:h-80 -mx-4 sm:-mx-4 md:-mx-4 lg:-mx-4 xl:-mx-4">
+      <div className="relative h-64 sm:h-52 md:h-60 lg:h-68 xl:h-80 -mx-4 sm:-mx-4 md:-mx-4 lg:-mx-4 xl:-mx-4 mt-20">
         <Image
           src={store.coverImage || "/placeholder.svg"}
           alt={`${store.name} cover`}

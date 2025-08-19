@@ -18,7 +18,7 @@ import {
   ChevronRight,
   CheckCircle,
 } from "lucide-react"
-import Navbar from "@/components/navbar"
+import { Navbar } from "@/components/navbar"
 import Footer from "@/components/footer"
 import QuickBuyModal from "@/components/quick-buy-modal"
 
@@ -252,10 +252,10 @@ export default function HomePage() {
 
   return (
     <div className="min-h-screen bg-white">
-      <Navbar searchQuery={searchQuery} setSearchQuery={setSearchQuery} />
+      <Navbar />
 
       {/* Hero Banner */}
-      <section className="relative">
+      <section className="relative pt-20">
         <div className="relative h-[400px] md:h-[600px] overflow-hidden">
           <Image
             src={currentBannerData.image || "/placeholder.svg"}

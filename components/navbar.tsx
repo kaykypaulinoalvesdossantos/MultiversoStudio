@@ -1,493 +1,457 @@
 "use client"
 
-import { useState } from "react"
-import Image from "next/image"
-import Link from "next/link"
-import { Button } from "@/components/ui/button"
-import { Badge } from "@/components/ui/badge"
-import { Input } from "@/components/ui/input"
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
-import { Search, Plus, Minus, X, ChevronDown, Menu, Loader2, AlertCircle, RefreshCw } from "lucide-react"
-// import { useCategories } from "@/contexts/categories-context"
+import { useState, useEffect } from "react"
+import { Menu, X } from "lucide-react"
+import CartModal from "./cart-modal"
 
-interface NavbarProps {
-  searchQuery?: string
-  setSearchQuery?: (query: string) => void
-}
-
-// Interface unificada para categorias
-interface UnifiedCategory {
+interface CategoryItem {
   name: string
-  href?: string
-  id?: string
-  children?: any[]
-  subcategories?: any[]
+  href: string
+  hasSubs: boolean
+  subcategories?: string[]
 }
 
-export default function Navbar({ searchQuery = "", setSearchQuery }: NavbarProps) {
-  const [cartItems, setCartItems] = useState([
-    { id: 1, name: "Camiseta Cafézini", price: 79.9, quantity: 2, image: "/placeholder.svg?height=80&width=80" },
-    { id: 2, name: "Caneca Premium", price: 45.9, quantity: 1, image: "/placeholder.svg?height=80&width=80" },
-  ])
-  const [isCartOpen, setIsCartOpen] = useState(false)
+export function Navbar() {
+  const [isScrolled, setIsScrolled] = useState(false)
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
+  const [isHovered, setIsHovered] = useState(false)
+  const [expandedCategories, setExpandedCategories] = useState<string[]>([])
+  const [isCartOpen, setIsCartOpen] = useState(false)
 
-  // Usar o hook de categorias monitoradas com fallback
-  // let categoriasData: any = {
-  //   categorias: [],
-  //   isLoading: false,
-  //   error: null,
-  //   hasCategories: false,
-  //   refreshCategorias: () => {},
-  //   getCategoriasPrincipais: () => []
-  // }
-
-  // try {
-  //   categoriasData = useCategories()
-  // } catch (err) {
-  //   // Fallback se o provider não estiver disponível
-  //   console.warn('CategoriesProvider não encontrado, usando categorias padrão')
-  // }
-
-  // const { 
-  //   categorias, 
-  //   isLoading, 
-  //   error, 
-  //   hasCategories, 
-  //   refreshCategorias,
-  //   getCategoriasPrincipais 
-  // } = categoriasData
-
-  // Categoria fixa "Personalizáveis"
-  // const categoriaPersonalizaveis = {
-  //   name: "Personalizáveis",
-  //   href: "/personalizar",
-  //   subcategories: [],
-  // }
-
-  // Combinar categorias da API com a categoria fixa
-  // const categoriasPrincipais = getCategoriasPrincipais()
-  // const allCategories: UnifiedCategory[] = [...categoriasPrincipais, categoriaPersonalizaveis]
-
-  // CATEGORIAS REAIS DO PROJETO - BASEADAS NO categoryConfigs
-  const allCategories: UnifiedCategory[] = [
-    {
-      name: "Canecas",
-      href: "/categoria/canecas",
-      subcategories: [
-        { name: "Cerâmica", href: "/categoria/canecas/ceramica", description: "Canecas tradicionais de cerâmica" },
-        { name: "Vidro", href: "/categoria/canecas/vidro", description: "Canecas transparentes de vidro" },
-        { name: "Chopp", href: "/categoria/canecas/chopp", description: "Canecas estilo chopp para cerveja" },
-        { name: "Jateada", href: "/categoria/canecas/jateada", description: "Canecas com acabamento jateado" },
-        { name: "Lisa", href: "/categoria/canecas/lisa", description: "Canecas lisas para personalização" },
-        { name: "Térmica", href: "/categoria/canecas/termica", description: "Canecas que mantêm a temperatura" }
-      ]
-    },
-    {
-      name: "Vestuário",
-      href: "/categoria/vestuario",
-      subcategories: [
-        { name: "Camisetas", href: "/categoria/vestuario/camisetas", description: "Camisetas básicas e estampadas" },
-        { name: "Polo", href: "/categoria/vestuario/polo", description: "Camisetas polo elegantes" },
-        { name: "Tradicional", href: "/categoria/vestuario/tradicional", description: "Camisetas de corte tradicional" },
-        { name: "StreetWear", href: "/categoria/vestuario/streetwear", description: "Estilo urbano e moderno" },
-        { name: "BabyLook", href: "/categoria/vestuario/babylook", description: "Camisetas femininas" },
-        { name: "Premium", href: "/categoria/vestuario/premium", description: "Linha premium de alta qualidade" },
-        { name: "Moletons", href: "/categoria/vestuario/moletons", description: "Moletons e casacos" },
-        { name: "Regatas", href: "/categoria/vestuario/regatas", description: "Camisetas sem manga" },
-        { name: "Bonés", href: "/categoria/vestuario/bones", description: "Bonés e chapéus" }
-      ]
-    },
-    {
-      name: "Kits Promocionais",
-      href: "/categoria/kits-promocionais",
-      subcategories: [
-        { name: "Kit Café", href: "/categoria/kits-promocionais/cafe", description: "Caneca + Camiseta temática" },
-        { name: "Kit Gamer", href: "/categoria/kits-promocionais/gamer", description: "Produtos para gamers" },
-        { name: "Kit Completo", href: "/categoria/kits-promocionais/completo", description: "Vários produtos em combo" },
-        { name: "Kit Presente", href: "/categoria/kits-promocionais/presente", description: "Ideal para presentear" }
-      ]
-    },
-    {
-      name: "Lançamentos",
-      href: "/categoria/lancamentos",
-      subcategories: [
-        { name: "Esta Semana", href: "/categoria/lancamentos/semana", description: "Lançamentos desta semana" },
-        { name: "Este Mês", href: "/categoria/lancamentos/mes", description: "Novidades do mês" },
-        { name: "Pré-Venda", href: "/categoria/lancamentos/pre-venda", description: "Produtos em pré-venda" },
-        { name: "Exclusivos", href: "/categoria/lancamentos/exclusivos", description: "Produtos exclusivos" }
-      ]
-    },
-    {
-      name: "Personalizáveis",
-      href: "/categoria/personalizaveis",
-      subcategories: [
-        { name: "Camisetas", href: "/categoria/personalizaveis/camisetas", description: "Camisetas para personalizar" },
-        { name: "Canecas", href: "/categoria/personalizaveis/canecas", description: "Canecas para personalizar" },
-        { name: "Adesivos", href: "/categoria/personalizaveis/adesivos", description: "Adesivos personalizados" },
-        { name: "Chaveiros", href: "/categoria/personalizaveis/chaveiros", description: "Chaveiros únicos" }
-      ]
+  useEffect(() => {
+    const handleScroll = () => {
+      setIsScrolled(window.scrollY > 200)
     }
-  ]
 
-  const cartTotal = cartItems.reduce((total, item) => total + item.price * item.quantity, 0)
-  const cartItemsCount = cartItems.reduce((total, item) => total + item.quantity, 0)
+    window.addEventListener("scroll", handleScroll)
+    return () => window.removeEventListener("scroll", handleScroll)
+  }, [])
 
-  const updateCartQuantity = (id: number, newQuantity: number) => {
-    if (newQuantity === 0) {
-      setCartItems(cartItems.filter((item) => item.id !== id))
-    } else {
-      setCartItems(cartItems.map((item) => (item.id === id ? { ...item, quantity: newQuantity } : item)))
+  const toggleCategory = (categoryName: string) => {
+    setExpandedCategories(prev => 
+      prev.includes(categoryName) 
+        ? prev.filter(cat => cat !== categoryName)
+        : [...prev, categoryName]
+    )
+  }
+
+  // Categorias com subcategorias
+  const categoriesWithSubs: Record<string, CategoryItem> = {
+    "ÚLTIMA VIAGEM": { 
+      name: "ÚLTIMA VIAGEM",
+      href: "/categoria/lancamentos", 
+      hasSubs: false
+    },
+    "CANECAS": { 
+      name: "CANECAS",
+      href: "/categoria/canecas", 
+      hasSubs: true,
+      subcategories: ["Cerâmica", "Vidro", "Chopp", "Jateada", "Lisa", "Térmica"]
+    },
+    "VESTUÁRIO": { 
+      name: "VESTUÁRIO",
+      href: "/categoria/vestuario", 
+      hasSubs: true,
+      subcategories: ["Camisetas", "Polo", "Tradicional", "StreetWear", "BabyLook", "Premium", "Moletons", "Regatas", "Bonés"]
+    },
+    "PARCEIROS": { name: "PARCEIROS", href: "/para-criadores", hasSubs: false },
+    "PERSONALIZÁVEIS": { name: "PERSONALIZÁVEIS", href: "/personalizar", hasSubs: false },
+    "KITS": { 
+      name: "KITS",
+      href: "/categoria/kits-promocionais", 
+      hasSubs: true,
+      subcategories: ["Kit Café", "Kit Gamer", "Kit Completo", "Kit Presente"]
     }
   }
 
-  const removeFromCart = (id: number) => {
-    setCartItems(cartItems.filter((item) => item.id !== id))
+  const navigationItems: CategoryItem[] = [
+    { name: "ÚLTIMA VIAGEM", href: "/categoria/lancamentos", hasSubs: false },
+    { name: "CANECAS", href: "/categoria/canecas", hasSubs: true, subcategories: ["Cerâmica", "Vidro", "Chopp", "Jateada", "Lisa", "Térmica"] },
+    { name: "VESTUÁRIO", href: "/categoria/vestuario", hasSubs: true, subcategories: ["Camisetas", "Polo", "Tradicional", "StreetWear", "BabyLook", "Premium", "Moletons", "Regatas", "Bonés"] },
+    { name: "PARCEIROS", href: "/para-criadores", hasSubs: false },
+    { name: "PERSONALIZÁVEIS", href: "/personalizar", hasSubs: false },
+    { name: "KITS", href: "/categoria/kits-promocionais", hasSubs: true, subcategories: ["Kit Café", "Kit Gamer", "Kit Completo", "Kit Presente"] }
+  ]
+
+  const mobileMenuItems: CategoryItem[] = [
+    { name: "ÚLTIMA VIAGEM", href: "/categoria/lancamentos", hasSubs: false },
+    { name: "CANECAS", href: "/categoria/canecas", hasSubs: true, subcategories: ["Cerâmica", "Vidro", "Chopp", "Jateada", "Lisa", "Térmica"] },
+    { name: "VESTUÁRIO", href: "/categoria/vestuario", hasSubs: true, subcategories: ["Camisetas", "Polo", "Tradicional", "StreetWear", "BabyLook", "Premium", "Moletons", "Regatas", "Bonés"] },
+    { name: "PARCEIROS", href: "/para-criadores", hasSubs: false },
+    { name: "PERSONALIZÁVEIS", href: "/personalizar", hasSubs: false },
+    { name: "KITS", href: "/categoria/kits-promocionais", hasSubs: true, subcategories: ["Kit Café", "Kit Gamer", "Kit Completo", "Kit Presente"] },
+    { name: "TROCAS", href: "/trocas", hasSubs: false },
+    { name: "SOBRE NÓS", href: "/sobre", hasSubs: false }
+  ]
+
+  const IconWithTooltip = ({
+    iconSrc,
+    tooltip,
+    href,
+    width = 20,
+    height = 20,
+    isDarkBackground = false,
+    onClick,
+  }: {
+    iconSrc: string
+    tooltip: string
+    href: string
+    width?: number
+    height?: number
+    isDarkBackground?: boolean
+    onClick?: () => void
+  }) => {
+    const [isHovered, setIsHovered] = useState(false)
+    const [displayText, setDisplayText] = useState("")
+
+    useEffect(() => {
+      if (isHovered) {
+        let currentIndex = 0
+        const typingInterval = setInterval(() => {
+          if (currentIndex <= tooltip.length) {
+            setDisplayText(tooltip.slice(0, currentIndex))
+            currentIndex++
+    } else {
+            clearInterval(typingInterval)
+          }
+        }, 50) // 50ms delay between each character
+
+        return () => clearInterval(typingInterval)
+      } else {
+        setDisplayText("")
+      }
+    }, [isHovered, tooltip])
+
+    return (
+      <div
+        className="flex items-center"
+        onMouseEnter={() => setIsHovered(true)}
+        onMouseLeave={() => setIsHovered(false)}
+      >
+        {onClick ? (
+          <button onClick={onClick} className="flex items-center">
+            <svg
+              width={width}
+              height={height}
+              className={`cursor-pointer transition-opacity hover:opacity-70 ${isDarkBackground ? 'text-white' : 'text-gray-700'}`}
+              viewBox="0 0 100 100"
+              style={{ 
+                filter: isDarkBackground ? 'brightness(0) invert(1)' : 'none'
+              }}
+            >
+              <image href={iconSrc} width="100" height="100" />
+            </svg>
+            <span
+              className={`ml-2 text-sm font-medium transition-all duration-200 whitespace-nowrap cursor-pointer hover:text-orange-500 ${
+                isHovered ? "opacity-100 translate-x-0" : "opacity-0 -translate-x-2"
+              } ${
+                isDarkBackground ? "text-white" : "text-gray-700"
+              }`}
+              style={{ minWidth: isHovered ? "auto" : "0", overflow: "hidden" }}
+            >
+              {displayText}
+            </span>
+          </button>
+        ) : (
+          <a href={href} className="flex items-center">
+            <svg
+              width={width}
+              height={height}
+              className={`cursor-pointer transition-opacity hover:opacity-70 ${isDarkBackground ? 'text-white' : 'text-gray-700'}`}
+              viewBox="0 0 100 100"
+              style={{ 
+                filter: isDarkBackground ? 'brightness(0) invert(1)' : 'none'
+              }}
+            >
+              <image href={iconSrc} width="100" height="100" />
+            </svg>
+            <span
+              className={`ml-2 text-sm font-medium transition-all duration-200 whitespace-nowrap cursor-pointer hover:text-orange-500 ${
+                isHovered ? "opacity-100 translate-x-0" : "opacity-0 -translate-x-2"
+              } ${
+                isDarkBackground ? "text-white" : "text-gray-700"
+              }`}
+              style={{ minWidth: isHovered ? "auto" : "0", overflow: "hidden" }}
+            >
+              {displayText}
+            </span>
+          </a>
+        )}
+      </div>
+    )
   }
 
   return (
     <>
-      {/* Main Header */}
-      <header className="bg-black text-white sticky top-0 z-50 shadow-lg">
-        <div className="w-full px-4 py-4">
-          <div className="flex items-center justify-between">
-            {/* Logo */}
-            <Link href="/" className="flex items-center space-x-2 md:space-x-3 flex-shrink-0">
-              <Image
-                src="/logo-luneta.webp"
-                alt="Multiverso Studio"
-                width={70}
-                height={50}
-                className="object-contain w-12 h-8 md:w-[70px] md:h-[50px]"
-              />
-              <div className="text-center">
-                <h1 className="text-lg md:text-xl font-bold">MULTIVERSO</h1>
-                <p className="text-xs text-gray-400">STUDIO</p>
-              </div>
-            </Link>
-
-            {/* Search - Desktop Only */}
-            <div className="hidden md:block flex-1 max-w-2xl mx-8">
-              <div className="relative">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
-                <Input
-                  placeholder="Buscar por criadores, produtos, temas, etc..."
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery && setSearchQuery(e.target.value)}
-                  className="pl-10 bg-gray-800 border-gray-700 text-white placeholder-gray-400 focus:border-white focus:ring-white"
-                />
-              </div>
+      {/* Desktop Navbar */}
+      <nav
+        className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 hidden lg:block ${
+          isHovered
+            ? "bg-white shadow-lg border-b border-gray-200"
+            : isScrolled
+              ? "bg-white/10 backdrop-blur-md shadow-lg border-b border-white/10"
+              : "bg-white border-b border-gray-200"
+        }`}
+        onMouseEnter={() => setIsHovered(true)}
+        onMouseLeave={() => setIsHovered(false)}
+      >
+        <div className="max-w-7xl mx-auto px-6">
+          <div className="flex items-center justify-between h-20">
+            <div className="flex items-center">
+              <a href="/" className="flex items-center hover:opacity-80 transition-opacity">
+                <img src="/logo-luneta.webp" alt="Multiverso Studio" width={60} height={60} className="mr-4 object-contain" />
+                <span className={`text-3xl font-bold transition-colors text-black`}>MULTIVERSO</span>
+              </a>
             </div>
 
-            {/* User Actions */}
-            <div className="flex items-center space-x-2 md:space-x-4 lg:space-x-6 flex-shrink-0">
-              {/* Trocas - Desktop Only */}
-              <Link href="/trocas" className="hidden md:block">
-                <Button variant="ghost" className="text-white hover:text-black hover:bg-white text-sm transition-colors group">
-                  <Image
-                    src="/icons/trocas icon.svg"
-                    alt="Troca"
-                    width={28}
-                    height={28}
-                    className="w-7 h-7 mr-2 brightness-0 invert group-hover:brightness-0 group-hover:invert-0 transition-all"
-                  />
-                  Troca
-                </Button>
-              </Link>
-
-              {/* Carrinho */}
-              <Button
-                variant="ghost"
-                size="icon"
-                className="relative text-white hover:text-black hover:bg-white transition-colors group"
-                onClick={() => setIsCartOpen(true)}
-              >
-                <Image
-                  src="/icons/mochila icon.svg"
-                  alt="Carrinho"
-                  width={32}
-                  height={32}
-                  className="w-6 h-6 md:w-8 md:h-8 brightness-0 invert group-hover:brightness-0 group-hover:invert-0 transition-all"
-                />
-                {cartItemsCount > 0 && (
-                  <Badge className="absolute -top-1 -right-1 md:-top-2 md:-right-2 w-4 h-4 md:w-5 md:h-5 rounded-full p-0 flex items-center justify-center text-xs bg-orange-500 text-white">
-                    {cartItemsCount}
-                  </Badge>
-                )}
-              </Button>
-              
-              {/* Login - Desktop Only */}
-              <Link href="/login" className="hidden md:block">
-                <Button variant="ghost" className="text-white hover:text-black hover:bg-white text-sm transition-colors group">
-                  <Image
-                    src="/icons/login icon.svg"
-                    alt="Login"
-                    width={28}
-                    height={28}
-                    className="w-7 h-7 mr-2 brightness-0 invert group-hover:brightness-0 group-hover:invert-0 transition-all"
-                  />
-                  Login
-                </Button>
-              </Link>
-
-              {/* Mobile Menu Button */}
-              <Button
-                variant="ghost"
-                size="icon"
-                onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-                className="md:hidden text-white hover:text-black hover:bg-white transition-colors"
-              >
-                <Menu className="w-5 h-5" />
-              </Button>
-            </div>
-          </div>
-
-          {/* Mobile Search - Só aparece quando o menu estiver aberto */}
-          {isMobileMenuOpen && (
-            <div className="md:hidden mt-4 mb-4">
-              <div className="relative">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
-                <Input
-                  placeholder="Buscar produtos..."
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery && setSearchQuery(e.target.value)}
-                  className="pl-10 bg-gray-800 border-gray-700 text-white placeholder-gray-400 focus:border-white focus:ring-white w-full"
-                />
-              </div>
-            </div>
-          )}
-
-          {/* Mobile Menu */}
-          {isMobileMenuOpen && (
-            <div className="md:hidden border-t border-gray-800 pt-4 pb-4">
-              <div className="space-y-1">
-                {/* Título do Menu */}
-                <div className="px-3 py-2 mb-3">
-                  <h3 className="text-sm font-semibold text-gray-300 uppercase tracking-wide">Menu</h3>
-                </div>
-                
-                {/* Categorias */}
-                <div className="space-y-1">
-                  {allCategories.map((category) => {
-                    // Verificar se é uma categoria da API ou a categoria fixa
-                    const isApiCategory = 'id' in category && 'children' in category
-                    const href = isApiCategory ? `/categoria/${category.id}` : category.href
-                    
-                    return (
-                      <Link
-                        key={category.name}
-                        href={href || '#'}
-                        className="flex items-center px-3 py-3 text-white hover:text-gray-300 hover:bg-gray-800 rounded-lg transition-colors w-full"
-                        onClick={() => setIsMobileMenuOpen(false)}
-                      >
-                        <span className="text-base font-medium truncate">{category.name}</span>
-                      </Link>
-                    )
-                  })}
-                </div>
-                
-                {/* Separador */}
-                <div className="border-t border-gray-700 my-3"></div>
-                
-                {/* Ações do Usuário */}
-                <div className="space-y-1">
-                  {/* Trocas */}
-                  <Link
-                    href="/trocas"
-                    className="flex items-center px-3 py-3 text-white hover:text-gray-300 hover:bg-gray-800 rounded-lg transition-colors w-full"
-                    onClick={() => setIsMobileMenuOpen(false)}
+            {/* Navigation Links */}
+            <div className="hidden lg:flex items-center space-x-8">
+              {navigationItems.map((item) => (
+                <div key={item.name} className="relative group">
+                  <a
+                    href={item.href}
+                    className={`text-sm font-medium transition-colors hover:text-orange-500 text-gray-700 cursor-pointer`}
                   >
-                    <Image
-                      src="/icons/trocas icon.svg"
-                      alt="Troca"
-                      width={20}
-                      height={20}
-                      className="w-5 h-5 mr-3 brightness-0 invert flex-shrink-0"
-                    />
-                    <span className="text-base font-medium">Trocas</span>
-                  </Link>
+                    {item.name}
+                  </a>
                   
-                  {/* Login */}
-                  <Link
-                    href="/login"
-                    className="flex items-center px-3 py-3 text-white hover:text-gray-300 hover:bg-gray-800 rounded-lg transition-colors w-full"
-                    onClick={() => setIsMobileMenuOpen(false)}
-                  >
-                    <Image
-                      src="/icons/login icon.svg"
-                      alt="Login"
-                      width={20}
-                      height={20}
-                      className="w-5 h-5 mr-3 brightness-0 invert flex-shrink-0"
-                    />
-                    <span className="text-base font-medium">Login</span>
-                  </Link>
-                </div>
-              </div>
-            </div>
-          )}
-        </div>
-
-        {/* Category Navigation */}
-        <div className="border-t border-gray-800 hidden md:block">
-          <div className="container mx-auto px-4">
-            {/* Indicador de status das categorias - COMENTADO PARA TESTE ESTÁTICO */}
-            {/* {isLoading && (
-              <div className="flex items-center justify-center py-2 text-xs text-gray-400">
-                <Loader2 className="w-3 h-3 animate-spin mr-2" />
-                Atualizando categorias...
-              </div>
-            )} */}
-            
-            {/* {error && (
-              <div className="flex items-center justify-center py-2 text-xs text-red-400">
-                <AlertCircle className="w-3 h-3 mr-2" />
-                Erro ao carregar categorias
-                <button
-                  onClick={refreshCategorias}
-                  className="ml-2 text-blue-400 hover:text-blue-300 transition-colors"
-                >
-                  <RefreshCw className="w-3 h-3" />
-                </button>
-              </div>
-            )} */}
-
-            <div className="flex items-center justify-center space-x-4 md:space-x-8 py-3 overflow-x-auto">
-              {allCategories.map((category) => {
-                // Verificar se é uma categoria da API ou a categoria fixa
-                const isApiCategory = 'id' in category && 'children' in category
-                const subcategories = isApiCategory ? category.children : category.subcategories
-                const href = isApiCategory ? `/categoria/${category.id}` : category.href
-                
-                return subcategories && subcategories.length > 0 ? (
-                  <DropdownMenu key={category.name}>
-                    <DropdownMenuTrigger asChild>
-                      <Button
-                        variant="ghost"
-                        className="text-white hover:text-black hover:bg-white transition-colors font-medium text-sm flex items-center space-x-2 group whitespace-nowrap"
-                      >
-                        <span>{category.name}</span>
-                        <ChevronDown className="w-4 h-4 group-hover:rotate-180 transition-transform" />
-                      </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent className="w-80 bg-white shadow-2xl border-0 rounded-lg p-4 mt-2">
-                      <div className="mb-3">
-                        <h3 className="text-lg font-bold text-gray-900 mb-3">{category.name}</h3>
-                      </div>
-                      <div className="grid grid-cols-1 gap-2">
-                        {subcategories.map((sub: any) => (
-                          <DropdownMenuItem key={sub.name || sub.id} asChild className="p-0">
-                            <Link
-                              href={sub.href || `/categoria/${category.id}/${sub.id}`}
-                              className="flex flex-col space-y-1 p-3 rounded-md hover:bg-gray-50 transition-colors"
-                            >
-                              <span className="font-semibold text-gray-900">{sub.name}</span>
-                              <span className="text-xs text-gray-500">
-                                {sub.description || `${sub.productCount || 0} produtos`}
-                              </span>
-                            </Link>
-                          </DropdownMenuItem>
+                  {/* Dropdown das subcategorias */}
+                  {item.hasSubs && (
+                    <div className="absolute top-full left-0 mt-2 w-48 bg-white border border-gray-200 rounded-lg shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 transform origin-top scale-95 group-hover:scale-100 z-50">
+                      <div className="py-2">
+                        {item.subcategories?.map((subcat, index) => (
+                          <a
+                            key={subcat}
+                            href={`${item.href}/${subcat.toLowerCase().replace(/\s+/g, '-')}`}
+                            className="block px-4 py-2 text-sm text-gray-700 hover:bg-orange-50 hover:text-orange-600 transition-colors duration-200"
+                            style={{ animationDelay: `${index * 50}ms` }}
+                          >
+                            {subcat}
+                          </a>
                         ))}
                       </div>
-                      <div className="mt-4 pt-3 border-t border-gray-100">
-                        <Link href={href || '#'} className="text-sm text-gray-600 hover:text-gray-900 font-medium">
-                          Ver todos em {category.name} →
-                        </Link>
-                      </div>
-                    </DropdownMenuContent>
-                  </DropdownMenu>
-                ) : (
-                  <Link key={category.name} href={href || '#'}>
-                    <Button
-                      variant="ghost"
-                      className="text-white hover:text-black hover:bg-white transition-colors font-medium text-sm whitespace-nowrap"
-                    >
-                      {category.name}
-                    </Button>
-                  </Link>
-                )
-              })}
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
+
+            <div className="flex items-center space-x-4">
+              <IconWithTooltip iconSrc="/icons/rastreio icon.svg" tooltip="Rastreio" href="/rastreio" />
+              <IconWithTooltip iconSrc="/icons/dúvidas icon.svg" tooltip="Dúvidas" href="/duvidas" />
+              <IconWithTooltip iconSrc="/icons/trocas icon.svg" tooltip="Trocas" href="/trocas" />
+              <IconWithTooltip iconSrc="/icons/mochila icon.svg" tooltip="Carrinho" href="#" onClick={() => setIsCartOpen(true)} />
+              <IconWithTooltip iconSrc="/icons/login icon.svg" tooltip="Login" href="/login" />
             </div>
           </div>
         </div>
-      </header>
+      </nav>
 
-      {/* Cart Sidebar */}
-      {isCartOpen && (
-        <div className="fixed inset-0 z-50 overflow-hidden">
-          <div className="absolute inset-0 bg-black/50" onClick={() => setIsCartOpen(false)} />
-          <div className="absolute right-0 top-0 h-full w-full max-w-md bg-white shadow-2xl">
-            <div className="flex flex-col h-full">
-              <div className="flex items-center justify-between p-6 border-b">
-                <h2 className="text-2xl font-bold">Seu Carrinho</h2>
-                <Button size="icon" variant="ghost" onClick={() => setIsCartOpen(false)}>
-                  <X className="w-6 h-6" />
-                </Button>
-              </div>
+      {/* Tablet/Laptop Navbar */}
+      <nav
+        className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 hidden md:block lg:hidden ${
+          isScrolled ? "bg-black" : "bg-black"
+        }`}
+      >
+        <div className="px-6">
+          <div className="flex items-center justify-between h-20">
+            {/* Hamburger Menu */}
+            <button onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)} className="text-white">
+              {isMobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+            </button>
 
-              <div className="flex-1 overflow-y-auto p-6">
-                {cartItems.length === 0 ? (
-                  <div className="text-center py-8">
-                    <Image
-                      src="/icons/mochila icon.svg"
-                      alt="Carrinho vazio"
-                      width={64}
-                      height={64}
-                      className="w-16 h-16 mx-auto mb-4 brightness-0 opacity-40"
-                    />
-                    <p className="text-gray-600">Seu carrinho está vazio</p>
-                  </div>
-                ) : (
-                  <div className="space-y-4">
-                    {cartItems.map((item) => (
-                      <div key={item.id} className="flex items-center space-x-4 p-4 border rounded-lg">
-                        <Image
-                          src={item.image || "/placeholder.svg"}
-                          alt={item.name}
-                          width={80}
-                          height={80}
-                          className="rounded-lg object-cover"
-                        />
-                        <div className="flex-1">
-                          <h3 className="font-semibold">{item.name}</h3>
-                          <p className="text-green-600 font-bold">R$ {item.price.toFixed(2)}</p>
-                        </div>
-                        <div className="flex items-center space-x-2">
-                          <Button
-                            size="icon"
-                            variant="outline"
-                            onClick={() => updateCartQuantity(item.id, item.quantity - 1)}
-                          >
-                            <Minus className="w-4 h-4" />
-                          </Button>
-                          <span className="w-8 text-center">{item.quantity}</span>
-                          <Button
-                            size="icon"
-                            variant="outline"
-                            onClick={() => updateCartQuantity(item.id, item.quantity + 1)}
-                          >
-                            <Plus className="w-4 h-4" />
-                          </Button>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                )}
-              </div>
-
-              {cartItems.length > 0 && (
-                <div className="border-t p-6">
-                  <div className="flex justify-between items-center mb-4">
-                    <span className="text-lg font-semibold">Total:</span>
-                    <span className="text-2xl font-bold text-green-600">R$ {cartTotal.toFixed(2)}</span>
-                  </div>
-                  <Button className="w-full bg-black hover:bg-gray-800 h-12 text-lg">Finalizar Compra</Button>
+            <div className="flex items-center absolute left-1/2 transform -translate-x-1/2">
+              {isScrolled && (
+                <div className="flex items-center animate-fade-in">
+                  <a href="/" className="text-lg font-bold text-white hover:opacity-80 transition-opacity">MULTIVERSO</a>
                 </div>
               )}
+              {!isScrolled && (
+                <div className="flex items-center">
+                  <a href="/" className="flex items-center hover:opacity-80 transition-opacity">
+                    <img src="/logo-luneta.webp" alt="Multiverso Studio" width={80} height={80} className="mr-2" />
+                  </a>
+                </div>
+              )}
+            </div>
+
+            <div className="flex items-center space-x-3">
+              <IconWithTooltip iconSrc="/icons/trocas icon.svg" tooltip="Trocas" href="/trocas" isDarkBackground={true} />
+              <IconWithTooltip iconSrc="/icons/mochila icon.svg" tooltip="Carrinho" href="#" onClick={() => setIsCartOpen(true)} isDarkBackground={true} />
+            </div>
+          </div>
+        </div>
+      </nav>
+
+      {/* Mobile Navbar */}
+      <nav className="fixed top-0 left-0 right-0 z-50 bg-black md:hidden">
+        <div className="px-4">
+          <div className="flex items-center justify-between h-16">
+            {/* Hamburger Menu */}
+            <button onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)} className="text-white">
+              {isMobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+            </button>
+
+            <div className="flex items-center absolute left-1/2 transform -translate-x-1/2">
+              {isScrolled && (
+                <div className="flex items-center animate-fade-in">
+                  <a href="/" className="text-sm font-bold text-white hover:opacity-80 transition-opacity">MULTIVERSO</a>
+                </div>
+              )}
+              {!isScrolled && (
+                <div className="flex items-center">
+                  <a href="/" className="flex items-center hover:opacity-80 transition-opacity">
+                    <img src="/logo-luneta.webp" alt="Multiverso Studio" width={80} height={80} className="mr-2" />
+                  </a>
+                </div>
+              )}
+            </div>
+
+            <div className="flex items-center space-x-2">
+              <IconWithTooltip
+                iconSrc="/icons/rastreio icon.svg"
+                tooltip="Rastreio"
+                href="/rastreio"
+                width={16}
+                height={16}
+                isDarkBackground={true}
+              />
+              <IconWithTooltip
+                iconSrc="/icons/trocas icon.svg"
+                tooltip="Trocas"
+                href="/trocas"
+                width={16}
+                height={16}
+                isDarkBackground={true}
+              />
+                            <IconWithTooltip
+                iconSrc="/icons/mochila icon.svg"
+                tooltip="Carrinho"
+                href="#"
+                onClick={() => setIsCartOpen(true)}
+                width={16}
+                height={16}
+                isDarkBackground={true}
+              />
+              <IconWithTooltip iconSrc="/icons/login icon.svg" tooltip="Login" href="/login" width={16} height={16} isDarkBackground={true} />
+            </div>
+          </div>
+        </div>
+      </nav>
+
+      {/* Mobile Menu Overlay */}
+      {isMobileMenuOpen && (
+        <div className="fixed inset-0 z-40 bg-black md:hidden animate-in fade-in duration-300">
+          <div className="pt-16 px-4 animate-in slide-in-from-top-4 duration-300 delay-100">
+            {/* Action Buttons */}
+            <div className="mb-8 space-y-3 animate-in slide-in-from-left-4 duration-300 delay-100">
+              <button className="w-full py-3 border border-white text-white text-center rounded hover:bg-white hover:text-black transition-all duration-200">
+                JÁ SOU EXPLORADOR
+              </button>
+              <button className="w-full py-3 border border-white text-white text-center rounded hover:bg-white hover:text-black transition-all duration-200">CRIAR CONTA</button>
+            </div>
+
+            {/* Navigation Items */}
+            <div className="space-y-4">
+              {mobileMenuItems.map((item, index) => (
+                <div key={item.name}>
+                  <div 
+                    className="flex items-center justify-between py-2 border-b border-gray-800 animate-in slide-in-from-left-4 duration-300"
+                    style={{ animationDelay: `${(index + 2) * 100}ms` }}
+                  >
+                    <a href={item.href} className="text-white text-lg hover:text-orange-400 transition-colors duration-200">
+                      {item.name}
+                    </a>
+                    {item.hasSubs && (
+                      <button 
+                        onClick={() => toggleCategory(item.name)}
+                        className="text-white text-xl hover:text-orange-400 transition-colors duration-200"
+                      >
+                        {expandedCategories.includes(item.name) ? "−" : "+"}
+                      </button>
+                    )}
+                  </div>
+                  
+                  {/* Subcategorias expandidas */}
+                  {item.hasSubs && expandedCategories.includes(item.name) && (
+                    <div className="ml-4 mt-2 space-y-2 animate-in slide-in-from-left-4 duration-300">
+                      {categoriesWithSubs[item.name as keyof typeof categoriesWithSubs]?.subcategories?.map((subcat, subIndex) => (
+                        <div 
+                          key={subcat}
+                          className="py-1 animate-in slide-in-from-left-4 duration-300"
+                          style={{ animationDelay: `${(index + 2) * 100 + (subIndex + 1) * 50}ms` }}
+                        >
+                          <a 
+                            href={`${item.href}/${subcat.toLowerCase().replace(/\s+/g, '-')}`}
+                            className="text-gray-300 text-sm hover:text-orange-400 transition-colors duration-200 block"
+                          >
+                            {subcat}
+                          </a>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              ))}
             </div>
           </div>
         </div>
       )}
+
+      {/* Tablet Menu Overlay */}
+      {isMobileMenuOpen && (
+        <div className="fixed inset-0 z-40 bg-black/50 hidden md:block lg:hidden animate-in fade-in duration-300">
+          <div className="flex justify-start h-full">
+            <div className="w-1/2 bg-black/90 backdrop-blur-sm h-full pt-16 px-6 animate-in slide-in-from-left-4 duration-300">
+              <div className="space-y-6">
+                {mobileMenuItems.map((item, index) => (
+                  <div key={item.name}>
+                    <div 
+                      className="flex items-center justify-between py-3 border-b border-gray-800 animate-in slide-in-from-left-4 duration-300"
+                      style={{ animationDelay: `${(index + 1) * 100}ms` }}
+                    >
+                      <a href={item.href} className="text-white text-xl hover:text-orange-400 transition-colors duration-200">
+                        {item.name}
+                      </a>
+                      {item.hasSubs && (
+                        <button 
+                          onClick={() => toggleCategory(item.name)}
+                          className="text-white text-2xl hover:text-orange-400 transition-colors duration-200"
+                        >
+                          {expandedCategories.includes(item.name) ? "−" : "+"}
+                        </button>
+                      )}
+                    </div>
+                    
+                    {/* Subcategorias expandidas */}
+                    {item.hasSubs && expandedCategories.includes(item.name) && (
+                      <div className="ml-4 mt-2 space-y-2 animate-in slide-in-from-left-4 duration-300">
+                        {item.subcategories?.map((subcat, subIndex) => (
+                          <div 
+                            key={subcat}
+                            className="py-1 animate-in slide-in-from-left-4 duration-300"
+                            style={{ animationDelay: `${(index + 1) * 100 + (subIndex + 1) * 50}ms` }}
+                          >
+                            <a 
+                              href={`${item.href}/${subcat.toLowerCase().replace(/\s+/g, '-')}`}
+                              className="text-gray-300 text-sm hover:text-orange-400 transition-colors duration-200 block"
+                            >
+                              {subcat}
+                            </a>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Cart Modal */}
+      <CartModal isOpen={isCartOpen} onClose={() => setIsCartOpen(false)} />
     </>
   )
 }

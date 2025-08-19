@@ -8,7 +8,7 @@ import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Input } from "@/components/ui/input"
 import { Separator } from "@/components/ui/separator"
-import Navbar from "@/components/navbar"
+import { Navbar } from "@/components/navbar"
 import {
   Eye,
   EyeOff,
@@ -89,7 +89,7 @@ export default function LoginPage() {
       {/* Navbar Principal */}
       <Navbar />
 
-      <div className="container mx-auto px-4 py-12">
+      <div className="container mx-auto px-4 py-12 pt-20">
         <div className="flex flex-col lg:grid lg:grid-cols-2 gap-12 items-start">
           {/* Left Side - Promoções e Produtos */}
           <div className="space-y-8 lg:order-1 order-2">

@@ -22,7 +22,7 @@ import {
   MessageCircle,
   ArrowLeft,
 } from "lucide-react"
-import Navbar from "@/components/navbar"
+import { Navbar } from "@/components/navbar"
 import Footer from "@/components/footer"
 
 export default function ProductPage({ params }: { params: Promise<{ id: string }> }) {
@@ -126,10 +126,10 @@ export default function ProductPage({ params }: { params: Promise<{ id: string }
 
   return (
     <div className="min-h-screen bg-white">
-      <Navbar searchQuery="" setSearchQuery={() => {}} />
+      <Navbar />
 
       {/* Breadcrumb */}
-      <div className="bg-gray-50 py-4">
+      <div className="bg-gray-50 py-4 pt-20">
         <div className="container mx-auto px-4">
           <div className="flex items-center space-x-2 text-sm">
             <Link href="/" className="text-gray-600 hover:text-gray-900">

@@ -27,7 +27,7 @@ import {
   Truck,
 } from "lucide-react"
 import { useParams } from "next/navigation"
-import Navbar from "@/components/navbar"
+import { Navbar } from "@/components/navbar"
 import Footer from "@/components/footer"
 
 // Configurações por categoria
@@ -248,10 +248,10 @@ export default function CategoryPage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-50">
-      <Navbar searchQuery={searchQuery} setSearchQuery={setSearchQuery} />
+      <Navbar />
 
       {/* Hero Section da Categoria */}
-      <section className="relative overflow-hidden">
+      <section className="relative overflow-hidden pt-20">
         <div className="h-48 md:h-64 lg:h-80 relative">
           <div className={`absolute inset-0 bg-gradient-to-r ${categoryConfig.color}`} />
           <Image

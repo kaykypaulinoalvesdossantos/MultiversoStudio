@@ -27,7 +27,7 @@ import {
   Plus,
   MessageCircle,
 } from "lucide-react"
-import Navbar from "@/components/navbar"
+import { Navbar } from "@/components/navbar"
 import Footer from "@/components/footer"
 
 export default function PersonalizarPage() {
@@ -175,7 +175,7 @@ export default function PersonalizarPage() {
       <Navbar />
 
       {/* Progress Steps */}
-      <div className="bg-gray-50 py-6 md:py-8">
+      <div className="bg-gray-50 py-6 md:py-8 pt-20">
         <div className="container mx-auto px-4">
           <div className="flex items-center justify-center space-x-4 md:space-x-8">
             {steps.map((step, index) => {

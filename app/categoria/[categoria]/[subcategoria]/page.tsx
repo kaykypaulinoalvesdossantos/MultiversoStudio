@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
-import Navbar from "@/components/navbar"
+import { Navbar } from "@/components/navbar"
 import {
   Star,
   Grid3X3,
@@ -84,10 +84,10 @@ export default function SubcategoryPage() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-50">
       {/* Navbar */}
-      <Navbar searchQuery={searchQuery} setSearchQuery={setSearchQuery} />
+      <Navbar />
 
       {/* Breadcrumb */}
-      <section className="py-4 bg-white border-b">
+      <section className="py-4 bg-white border-b pt-20">
         <div className="container mx-auto px-4">
           <div className="flex items-center space-x-2 text-sm text-gray-600">
             <Link href="/" className="hover:text-gray-900">
