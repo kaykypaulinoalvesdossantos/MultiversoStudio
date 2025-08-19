@@ -164,12 +164,13 @@ export default function CreatorStorePage({ params }: { params: Promise<{ creator
       <Navbar searchQuery={searchQuery} setSearchQuery={setSearchQuery} />
 
       {/* Store Header - RESPONSIVO */}
-      <div className="relative h-64 sm:h-52 md:h-60 lg:h-68 xl:h-80 overflow-hidden">
+      <div className="relative h-64 sm:h-52 md:h-60 lg:h-68 xl:h-80 -mx-4 sm:-mx-4 md:-mx-4 lg:-mx-4 xl:-mx-4">
         <Image
           src={store.coverImage || "/placeholder.svg"}
           alt={`${store.name} cover`}
           fill
           className="object-cover"
+          style={{ transform: 'scale(1.03)' }}
           priority
         />
         <div className={`absolute inset-0 bg-gradient-to-t ${store.color} opacity-60`} />
@@ -401,6 +402,7 @@ export default function CreatorStorePage({ params }: { params: Promise<{ creator
                             ? "h-40 sm:h-44 md:h-48 lg:h-56" 
                             : "h-28 sm:h-32 md:h-36 lg:h-40"
                         }`}
+                        style={{ transform: 'scale(1.03)' }}
                       />
 
                       {/* Badges - RESPONSIVO */}
