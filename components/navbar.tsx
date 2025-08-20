@@ -133,7 +133,7 @@ export function Navbar() {
             <svg
               width={width}
               height={height}
-              className={`cursor-pointer transition-opacity hover:opacity-70 ${isDarkBackground ? 'text-white' : 'text-gray-700'}`}
+              className={`cursor-pointer transition-opacity hover:opacity-70 ${isDarkBackground ? 'text-white' : 'text-black'}`}
               viewBox="0 0 100 100"
               style={{ 
                 filter: isDarkBackground ? 'brightness(0) invert(1)' : 'none'
@@ -142,10 +142,9 @@ export function Navbar() {
               <image href={iconSrc} width="100" height="100" />
             </svg>
             <span
-              className={`ml-2 text-sm font-medium transition-all duration-200 whitespace-nowrap cursor-pointer hover:text-orange-500 ${
+              className={`ml-2 text-sm font-medium transition-all duration-200 whitespace-nowrap cursor-pointer ${
                 isHovered ? "opacity-100 translate-x-0" : "opacity-0 -translate-x-2"
-              } ${
-                isDarkBackground ? "text-white" : "text-gray-700"
+              } ${                isDarkBackground ? "text-white" : "text-black"
               }`}
               style={{ minWidth: isHovered ? "auto" : "0", overflow: "hidden" }}
             >
@@ -157,7 +156,7 @@ export function Navbar() {
             <svg
               width={width}
               height={height}
-              className={`cursor-pointer transition-opacity hover:opacity-70 ${isDarkBackground ? 'text-white' : 'text-gray-700'}`}
+              className={`cursor-pointer transition-opacity hover:opacity-70 ${isDarkBackground ? 'text-white' : 'text-black'}`}
               viewBox="0 0 100 100"
               style={{ 
                 filter: isDarkBackground ? 'brightness(0) invert(1)' : 'none'
@@ -166,10 +165,10 @@ export function Navbar() {
               <image href={iconSrc} width="100" height="100" />
             </svg>
             <span
-              className={`ml-2 text-sm font-medium transition-all duration-200 whitespace-nowrap cursor-pointer hover:text-orange-500 ${
+              className={`ml-2 text-sm font-medium transition-all duration-200 whitespace-nowrap cursor-pointer ${
                 isHovered ? "opacity-100 translate-x-0" : "opacity-0 -translate-x-2"
               } ${
-                isDarkBackground ? "text-white" : "text-gray-700"
+                isDarkBackground ? "text-white" : "text-black"
               }`}
               style={{ minWidth: isHovered ? "auto" : "0", overflow: "hidden" }}
             >
@@ -199,10 +198,9 @@ export function Navbar() {
           <div className="flex items-center justify-between h-20">
             <div className="flex items-center">
               <a href="/" className="flex items-center hover:opacity-80 transition-opacity">
-                <img src="/logo-luneta.webp" alt="Multiverso Studio" width={60} height={60} className="mr-4 object-contain" />
-                <span className={`text-3xl font-bold transition-colors text-black`}>MULTIVERSO</span>
+                <img src="/icons/LOGO PRETO PRA BRANCO.svg" alt="Multiverso Studio" width={120} height={120} className="mr-4 object-contain" />
               </a>
-            </div>
+              </div>
 
             {/* Navigation Links */}
             <div className="hidden lg:flex items-center space-x-8">
@@ -210,29 +208,35 @@ export function Navbar() {
                 <div key={item.name} className="relative group">
                   <a
                     href={item.href}
-                    className={`text-sm font-medium transition-colors hover:text-orange-500 text-gray-700 cursor-pointer`}
+                    className="group/link relative text-sm font-medium transition-all duration-200 text-black cursor-pointer"
                   >
-                    {item.name}
+                    <span className="font-medium group-hover/link:font-black transition-all duration-200">
+                      {item.name}
+                    </span>
+                    <span className="absolute bottom-0 left-0 right-0 h-0.5 bg-black transform scale-x-0 group-hover/link:scale-x-100 transition-transform duration-300 origin-left"></span>
                   </a>
                   
                   {/* Dropdown das subcategorias */}
                   {item.hasSubs && (
-                    <div className="absolute top-full left-0 mt-2 w-48 bg-white border border-gray-200 rounded-lg shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 transform origin-top scale-95 group-hover:scale-100 z-50">
-                      <div className="py-2">
+                    <div className="absolute top-full left-0 w-56 bg-white border border-gray-200 shadow-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 z-50">
+                      <div className="py-3">
                         {item.subcategories?.map((subcat, index) => (
                           <a
                             key={subcat}
                             href={`${item.href}/${subcat.toLowerCase().replace(/\s+/g, '-')}`}
-                            className="block px-4 py-2 text-sm text-gray-700 hover:bg-orange-50 hover:text-orange-600 transition-colors duration-200"
+                            className="group/item relative block px-6 py-3 text-sm text-gray-700 hover:text-gray-900 transition-all duration-200 hover:bg-gray-50"
                             style={{ animationDelay: `${index * 50}ms` }}
                           >
-                            {subcat}
+                            <span className="font-normal group-hover/item:font-black transition-all duration-200">
+                              {subcat}
+                            </span>
+                            <span className="absolute bottom-0 left-6 right-6 h-0.5 bg-black transform scale-x-0 group-hover/item:scale-x-100 transition-transform duration-300 origin-left"></span>
                           </a>
                         ))}
                       </div>
                     </div>
                   )}
-                </div>
+              </div>
               ))}
             </div>
 
@@ -263,13 +267,15 @@ export function Navbar() {
             <div className="flex items-center absolute left-1/2 transform -translate-x-1/2">
               {isScrolled && (
                 <div className="flex items-center animate-fade-in">
-                  <a href="/" className="text-lg font-bold text-white hover:opacity-80 transition-opacity">MULTIVERSO</a>
+                  <a href="/" className="flex items-center hover:opacity-80 transition-opacity">
+                    <img src="/icons/TIPOGRAFIA PARA PRETO.svg" alt="Multiverso Studio" width={120} height={120} className="mr-2 object-contain" />
+                  </a>
                 </div>
               )}
               {!isScrolled && (
                 <div className="flex items-center">
                   <a href="/" className="flex items-center hover:opacity-80 transition-opacity">
-                    <img src="/logo-luneta.webp" alt="Multiverso Studio" width={80} height={80} className="mr-2" />
+                    <img src="/icons/LUNETA PARA PRETO.svg" alt="Multiverso Studio" width={120} height={120} className="mr-2 object-contain" />
                   </a>
                 </div>
               )}
@@ -295,17 +301,19 @@ export function Navbar() {
             <div className="flex items-center absolute left-1/2 transform -translate-x-1/2">
               {isScrolled && (
                 <div className="flex items-center animate-fade-in">
-                  <a href="/" className="text-sm font-bold text-white hover:opacity-80 transition-opacity">MULTIVERSO</a>
+                  <a href="/" className="flex items-center hover:opacity-80 transition-opacity">
+                    <img src="/icons/TIPOGRAFIA PARA PRETO.svg" alt="Multiverso Studio" width={80} height={80} className="mr-2 object-contain" />
+                  </a>
                 </div>
               )}
               {!isScrolled && (
                 <div className="flex items-center">
                   <a href="/" className="flex items-center hover:opacity-80 transition-opacity">
-                    <img src="/logo-luneta.webp" alt="Multiverso Studio" width={80} height={80} className="mr-2" />
+                    <img src="/icons/LUNETA PARA PRETO.svg" alt="Multiverso Studio" width={80} height={80} className="mr-2 object-contain" />
                   </a>
                 </div>
               )}
-            </div>
+          </div>
 
             <div className="flex items-center space-x-2">
               <IconWithTooltip
@@ -340,7 +348,7 @@ export function Navbar() {
       </nav>
 
       {/* Mobile Menu Overlay */}
-      {isMobileMenuOpen && (
+          {isMobileMenuOpen && (
         <div className="fixed inset-0 z-40 bg-black md:hidden animate-in fade-in duration-300">
           <div className="pt-16 px-4 animate-in slide-in-from-top-4 duration-300 delay-100">
             {/* Action Buttons */}
@@ -354,44 +362,53 @@ export function Navbar() {
             {/* Navigation Items */}
             <div className="space-y-4">
               {mobileMenuItems.map((item, index) => (
-                <div key={item.name}>
-                  <div 
-                    className="flex items-center justify-between py-2 border-b border-gray-800 animate-in slide-in-from-left-4 duration-300"
-                    style={{ animationDelay: `${(index + 2) * 100}ms` }}
-                  >
-                    <a href={item.href} className="text-white text-lg hover:text-orange-400 transition-colors duration-200">
-                      {item.name}
-                    </a>
-                    {item.hasSubs && (
-                      <button 
-                        onClick={() => toggleCategory(item.name)}
-                        className="text-white text-xl hover:text-orange-400 transition-colors duration-200"
-                      >
-                        {expandedCategories.includes(item.name) ? "−" : "+"}
-                      </button>
-                    )}
-                  </div>
-                  
-                  {/* Subcategorias expandidas */}
-                  {item.hasSubs && expandedCategories.includes(item.name) && (
-                    <div className="ml-4 mt-2 space-y-2 animate-in slide-in-from-left-4 duration-300">
-                      {categoriesWithSubs[item.name as keyof typeof categoriesWithSubs]?.subcategories?.map((subcat, subIndex) => (
-                        <div 
-                          key={subcat}
-                          className="py-1 animate-in slide-in-from-left-4 duration-300"
-                          style={{ animationDelay: `${(index + 2) * 100 + (subIndex + 1) * 50}ms` }}
+                                  <div key={item.name}>
+                    <div 
+                      className="flex items-center justify-between py-2 border-b border-gray-800 animate-in slide-in-from-left-4 duration-300"
+                      style={{ animationDelay: `${(index + 2) * 100}ms` }}
+                    >
+                      <a href={item.href} className="group/link relative text-white text-lg transition-all duration-200">
+                        <span className="font-medium group-hover/link:font-black transition-all duration-200">
+                          {item.name}
+                        </span>
+                        <span className="absolute bottom-0 left-0 right-0 h-0.5 bg-white transform scale-x-0 group-hover/link:scale-x-100 transition-transform duration-300 origin-left"></span>
+                      </a>
+                      {item.hasSubs && (
+                        <button 
+                          onClick={() => toggleCategory(item.name)}
+                          className="text-white text-xl hover:text-white transition-colors duration-200"
                         >
-                          <a 
-                            href={`${item.href}/${subcat.toLowerCase().replace(/\s+/g, '-')}`}
-                            className="text-gray-300 text-sm hover:text-orange-400 transition-colors duration-200 block"
-                          >
-                            {subcat}
-                          </a>
+                          {expandedCategories.includes(item.name) ? "−" : "+"}
+                        </button>
+          )}
+        </div>
+
+                                                                              {/* Subcategorias expandidas */}
+                      {item.hasSubs && expandedCategories.includes(item.name) && (
+                        <div className="ml-4 mt-2 space-y-2 animate-in slide-in-from-left-4 duration-300">
+                          {categoriesWithSubs[item.name as keyof typeof categoriesWithSubs]?.subcategories?.map((subcat, subIndex) => (
+                            <div 
+                              key={subcat}
+                              className="py-1 animate-in slide-in-from-left-4 duration-300"
+                              style={{ animationDelay: `${(index + 2) * 100 + (subIndex + 1) * 50}ms` }}
+                            >
+                              <a 
+                                href={`${item.href}/${subcat.toLowerCase().replace(/\s+/g, '-')}`}
+                                className="group/subcat relative text-gray-300 text-sm hover:text-white transition-all duration-200 block flex items-center justify-between"
+                              >
+                                <div className="relative">
+                                  <span className="font-normal group-hover/subcat:font-black transition-all duration-200">
+                                    {subcat}
+                                  </span>
+                                  <span className="absolute bottom-0 left-0 right-0 h-0.5 bg-white transform scale-x-0 group-hover/subcat:scale-x-100 transition-transform duration-300 origin-left"></span>
+                                </div>
+                                <img src="/icons/SETA PARA PRETO icon.svg" alt="Seta" width={20} height={20} className="opacity-60 group-hover/subcat:opacity-100 transition-opacity duration-200" />
+                              </a>
+                            </div>
+                          ))}
                         </div>
-                      ))}
-                    </div>
-                  )}
-                </div>
+                      )}
+                      </div>
               ))}
             </div>
           </div>
@@ -410,20 +427,23 @@ export function Navbar() {
                       className="flex items-center justify-between py-3 border-b border-gray-800 animate-in slide-in-from-left-4 duration-300"
                       style={{ animationDelay: `${(index + 1) * 100}ms` }}
                     >
-                      <a href={item.href} className="text-white text-xl hover:text-orange-400 transition-colors duration-200">
-                        {item.name}
+                      <a href={item.href} className="group/link relative text-white text-xl transition-all duration-200">
+                        <span className="font-medium group-hover/link:font-black transition-all duration-200">
+                          {item.name}
+                        </span>
+                        <span className="absolute bottom-0 left-0 right-0 h-0.5 bg-white transform scale-x-0 group-hover/link:scale-x-100 transition-transform duration-300 origin-left"></span>
                       </a>
                       {item.hasSubs && (
                         <button 
                           onClick={() => toggleCategory(item.name)}
-                          className="text-white text-2xl hover:text-orange-400 transition-colors duration-200"
+                          className="text-white text-2xl hover:text-white transition-colors duration-200"
                         >
                           {expandedCategories.includes(item.name) ? "−" : "+"}
                         </button>
                       )}
-                    </div>
-                    
-                    {/* Subcategorias expandidas */}
+              </div>
+
+                                        {/* Subcategorias expandidas */}
                     {item.hasSubs && expandedCategories.includes(item.name) && (
                       <div className="ml-4 mt-2 space-y-2 animate-in slide-in-from-left-4 duration-300">
                         {item.subcategories?.map((subcat, subIndex) => (
@@ -434,17 +454,23 @@ export function Navbar() {
                           >
                             <a 
                               href={`${item.href}/${subcat.toLowerCase().replace(/\s+/g, '-')}`}
-                              className="text-gray-300 text-sm hover:text-orange-400 transition-colors duration-200 block"
+                              className="group/subcat relative text-gray-300 text-sm hover:text-white transition-all duration-200 block flex items-center justify-between"
                             >
-                              {subcat}
+                              <div className="relative">
+                                <span className="font-normal group-hover/subcat:font-black transition-all duration-200">
+                                  {subcat}
+                                </span>
+                                <span className="absolute bottom-0 left-0 right-0 h-0.5 bg-white transform scale-x-0 group-hover/subcat:scale-x-100 transition-transform duration-300 origin-left"></span>
+                              </div>
+                              <img src="/icons/SETA PARA PRETO icon.svg" alt="Seta" width={20} height={20} className="opacity-60 group-hover/subcat:opacity-100 transition-opacity duration-200" />
                             </a>
                           </div>
                         ))}
                       </div>
                     )}
-                  </div>
-                ))}
               </div>
+                ))}
+                </div>
             </div>
           </div>
         </div>
