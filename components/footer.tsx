@@ -5,6 +5,8 @@ import { Button } from "@/components/ui/button"
 export default function Footer() {
   return (
     <>
+
+
       {/* 🎨 Imagens SVG Decorativas - SEM BORDA BRANCA */}
       <div className="relative w-full overflow-hidden z-10 -mb-1 -mr-2">
         {/* Desktop */}

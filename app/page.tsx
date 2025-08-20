@@ -5,7 +5,7 @@ import Image from "next/image"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
-import { Badge } from "@/components/ui/badge"
+import { div } from "@/components/ui/badge"
 import {
   Star,
   Truck,
@@ -21,12 +21,23 @@ import {
 import { Navbar } from "@/components/navbar"
 import Footer from "@/components/footer"
 import QuickBuyModal from "@/components/quick-buy-modal"
+import Marquee from "react-fast-marquee"
 
 export default function HomePage() {
   const [searchQuery, setSearchQuery] = useState("")
   const [currentBanner, setCurrentBanner] = useState(0)
   const [quickBuyProduct, setQuickBuyProduct] = useState(null)
   const [currentProductIndex, setCurrentProductIndex] = useState(0)
+  const [currentMultiversoIndex, setCurrentMultiversoIndex] = useState(0)
+
+  // Textos para o carrossel dos botões COMPRAR
+  const buttonTexts = [
+    "COMPRAR", 
+    "COMPRAR", 
+    "COMPRAR", 
+    "COMPRAR", 
+    "COMPRAR", 
+  ]
 
   // Banners promocionais rotativos
   const banners = [
@@ -38,7 +49,7 @@ export default function HomePage() {
       image: "/banner-cafezini.webp",
       primaryColor: "#F59E0B",
       buttonText: "Ver Coleção",
-      badges: ["Lançamento", "Frete Grátis"],
+      badges: ["Lançamento", "FRETE GRÁTIS"],
     },
     {
       id: 2,
@@ -218,7 +229,7 @@ export default function HomePage() {
   const benefits = [
     {
       icon: Truck,
-      title: "Frete Grátis",
+      title: "FRETE GRÁTIS",
       description: "Acima de R$ 99",
     },
     {
@@ -250,6 +261,14 @@ export default function HomePage() {
     setCurrentProductIndex((prev) => (prev - 2 < 0 ? Math.max(0, trendingProducts.length - 2) : prev - 2))
   }
 
+  const prevMultiverso = () => {
+    setCurrentMultiversoIndex((prev) => (prev - 2 < 0 ? Math.max(0, multiversoProducts.length - 2) : prev - 2))
+  }
+
+  const nextMultiverso = () => {
+    setCurrentMultiversoIndex((prev) => (prev + 2 >= multiversoProducts.length ? 0 : prev + 2))
+  }
+
   return (
     <div className="min-h-screen bg-white">
       <Navbar />
@@ -266,54 +285,24 @@ export default function HomePage() {
           />
           <div className="absolute inset-0 bg-black/30" />
 
-          {/* Navigation Arrows - Hidden on mobile */}
-          <Button
-            size="icon"
-            className="absolute left-4 top-1/2 transform -translate-y-1/2 bg-white/20 hover:bg-white/30 text-white border-0 hidden md:flex"
-            onClick={() => setCurrentBanner(currentBanner === 0 ? banners.length - 1 : currentBanner - 1)}
-          >
-            <ChevronLeft className="w-6 h-6" />
-          </Button>
-          <Button
-            size="icon"
-            className="absolute right-4 top-1/2 transform -translate-y-1/2 bg-white/20 hover:bg-white/30 text-white border-0 hidden md:flex"
-            onClick={() => setCurrentBanner((currentBanner + 1) % banners.length)}
-          >
-            <ChevronRight className="w-6 h-6" />
-          </Button>
 
-          {/* Banner Content */}
-          <div className="absolute bottom-4 md:bottom-8 left-4 md:left-8 right-4 md:right-8">
-            <div className="bg-white/95 backdrop-blur-sm rounded-2xl p-4 md:p-8 max-w-lg">
-              <div className="flex items-center space-x-2 mb-4">
-                {currentBannerData.badges.map((badge, index) => (
-                  <Badge
-                    key={index}
-                    className="text-white text-xs"
-                    style={{ backgroundColor: currentBannerData.primaryColor }}
-                  >
-                    {badge}
-                  </Badge>
-                ))}
-              </div>
-              <h2 className="text-2xl md:text-3xl font-bold text-gray-900 mb-3">{currentBannerData.title}</h2>
-              <p className="text-gray-700 mb-6 text-base md:text-lg">{currentBannerData.description}</p>
-              <Button
-                className="text-white px-6 md:px-8 py-2 md:py-3 text-base md:text-lg"
-                style={{ backgroundColor: currentBannerData.primaryColor }}
-              >
-                {currentBannerData.buttonText}
-                <ArrowRight className="w-4 md:w-5 h-4 md:h-5 ml-2" />
-              </Button>
-            </div>
+
+          {/* Banner Content - Botão Personalizado para Cada Banner */}
+          <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2">
+            <Button
+              className="bg-white/95 hover:bg-white text-gray-900 font-bold px-8 md:px-12 py-3 md:py-4 text-lg md:text-xl rounded-full shadow-2xl backdrop-blur-sm border-0 hover:scale-105 transition-all duration-300"
+              style={{ backgroundColor: currentBannerData.primaryColor }}
+            >
+              {currentBannerData.buttonText}
+            </Button>
           </div>
 
-          {/* Dots Indicator */}
-          <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 flex space-x-2">
+          {/* Squares Indicator - Canto Direito */}
+          <div className="absolute bottom-4 right-4 flex space-x-2">
             {banners.map((_, index) => (
               <button
                 key={index}
-                className={`w-3 h-3 rounded-full transition-all duration-300 ${
+                className={`w-3 h-3 transition-all duration-300 ${
                   index === currentBanner ? "bg-white" : "bg-white/50"
                 }`}
                 onClick={() => setCurrentBanner(index)}
@@ -323,24 +312,20 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* Benefits */}
-      <section className="py-8 md:py-12 bg-white">
-        <div className="container mx-auto px-4">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-8">
-            {benefits.map((benefit, index) => {
-              const IconComponent = benefit.icon
-              return (
-                <div key={index} className="flex items-center space-x-2 md:space-x-4 text-black">
-                  <IconComponent className="w-6 md:w-8 h-6 md:h-8 text-black" />
-                  <div>
-                    <h3 className="font-bold text-gray-900 text-sm md:text-base">{benefit.title}</h3>
-                    <p className="text-xs md:text-sm text-gray-600">{benefit.description}</p>
-                  </div>
-                </div>
-              )
-            })}
-          </div>
-        </div>
+      {/* Banner de Promoções Rodando */}
+      <section className="py-3 bg-black border-t border-gray-800">
+        <Marquee
+          speed={40}
+          gradient={false}
+          className="text-white text-base"
+        >
+          <span className="mx-8"> FRETE ÚNICO DE R$9,99 ACIMA DE R$219,00</span>
+          <span className="mx-8"> FRETE GRÁTIS ACIMA DE R$499,00</span>
+          <span className="mx-8"> 2% DE DESCONTO NO PIX</span>
+          <span className="mx-8"> TROCA FÁCIL E GRÁTIS</span>
+          <span className="mx-8"> ENVIO PARA TODO O MUNDO</span>
+          <span className="mx-8"> BRINDES A PARTIR DE R$401,00</span>
+        </Marquee>
       </section>
 
       {/* Products Grid */}
@@ -358,16 +343,36 @@ export default function HomePage() {
                 />
               </div>
               <div>
-                <h2 className="text-2xl md:text-4xl font-bold">Produtos em Alta</h2>
-                <p className="text-base md:text-xl text-gray-600">Os mais desejados da semana</p>
+                <h2 className="text-2xl md:text-4xl font-bold uppercase">PRODUTOS EM ALTA</h2>
+                <p className="text-base md:text-xl text-gray-600 uppercase">OS MAIS DESEJADOS DA SEMANA</p>
               </div>
             </div>
-            <Link href="/multiverso" className="hidden md:block">
-              <Button variant="outline" className="text-gray-600 border-gray-300 hover:bg-gray-50 bg-transparent">
-                Ver Todos
-                <ArrowRight className="w-4 h-4 ml-2" />
-              </Button>
-            </Link>
+            <div className="flex items-center space-x-4">
+              <Link href="/multiverso" className="hidden md:block">
+                <Button variant="outline" className="text-black border-black hover:bg-black hover:text-white bg-transparent rounded-none font-bold uppercase">
+                  VER TODOS
+                </Button>
+              </Link>
+              {/* Carousel Navigation Arrows */}
+              <div className="flex space-x-2">
+                <Button
+                  size="icon"
+                  variant="outline"
+                  className="w-8 h-8 border-black text-black hover:bg-black hover:text-white rounded-none"
+                  onClick={prevProducts}
+                >
+                  <ChevronLeft className="w-4 h-4" />
+                </Button>
+                <Button
+                  size="icon"
+                  variant="outline"
+                  className="w-8 h-8 border-black text-black hover:bg-black hover:text-white rounded-none"
+                  onClick={nextProducts}
+                >
+                  <ChevronRight className="w-4 h-4" />
+                </Button>
+              </div>
+            </div>
           </div>
 
           {/* Desktop Grid */}
@@ -378,30 +383,47 @@ export default function HomePage() {
                   <Image src={product.image || "/placeholder.svg"} alt={product.name} fill className="object-cover" />
 
                   <div className="absolute top-4 left-4 flex flex-col space-y-2">
-                    <Badge
-                      className={`${product.badgeColor} text-white text-xs opacity-70 group-hover:opacity-100 transition-opacity`}
-                    >
+                    <div className="text-black text-xs font-bold uppercase px-2 py-1 hover:bg-black hover:text-white transition-all duration-200 cursor-pointer">
                       {product.badge}
-                    </Badge>
+                    </div>
                     {product.discount && (
-                      <Badge className="bg-green-500 text-white text-xs opacity-70 group-hover:opacity-100 transition-opacity">
+                      <div className="text-black text-xs font-bold uppercase px-2 py-1 hover:bg-black hover:text-white transition-all duration-200 cursor-pointer">
                         {product.discount}
-                      </Badge>
+                      </div>
                     )}
                     {product.freeShipping && (
-                      <Badge className="bg-blue-500 text-white text-xs opacity-70 group-hover:opacity-100 transition-opacity">
-                        Frete Grátis
-                      </Badge>
+                      <div className="text-black text-xs font-bold uppercase px-2 py-1 hover:bg-black hover:text-white transition-all duration-200 cursor-pointer">
+                        FRETE GRÁTIS
+                      </div>
                     )}
+                  </div>
+                  
+                  {/* Color Swatches */}
+                  <div className="absolute top-4 right-4 flex flex-col space-y-1">
+                    <div className="w-4 h-4 bg-black border border-white"></div>
+                    <div className="w-4 h-4 bg-white border border-gray-300"></div>
+                    <div className="w-4 h-4 bg-red-500 border border-white"></div>
+                    <div className="w-4 h-4 bg-gray-400 border border-white text-black text-xs font-bold flex items-center justify-center">+</div>
                   </div>
 
                   {/* Quick Buy Button - Bottom of image, full width */}
-                  <div className="absolute bottom-0 left-0 right-0">
+                  <div className="absolute bottom-0 left-0 right-0 overflow-hidden">
                     <Button
-                      className="w-full opacity-0 group-hover:opacity-100 transition-opacity bg-black/80 hover:bg-black text-white rounded-none"
+                      className="w-full opacity-0 group-hover:opacity-100 transition-opacity bg-black hover:bg-black text-white rounded-none"
                       onClick={() => handleQuickBuy(product)}
                     >
-                      Compra Rápida
+                      <Marquee
+                        speed={40}
+                        gradient={false}
+                        className="text-white font-bold"
+                        pauseOnHover={true}
+                      >
+                        {buttonTexts.map((text, index) => (
+                          <span key={index} className="mx-2">
+                            {text}
+                          </span>
+                        ))}
+                      </Marquee>
                     </Button>
                   </div>
                 </div>
@@ -409,7 +431,7 @@ export default function HomePage() {
                 <div className="space-y-2">
                   <p className="text-sm text-gray-600">{product.store}</p>
                   <Link href={`/produto/${product.id}`}>
-                    <h3 className="font-semibold text-lg line-clamp-2 hover:text-amber-600 transition-colors">
+                    <h3 className="font-semibold text-lg line-clamp-2 hover:text-amber-600 transition-colors uppercase">
                       {product.name}
                     </h3>
                   </Link>
@@ -424,7 +446,7 @@ export default function HomePage() {
                       <span className="text-lg text-gray-500 line-through">R$ {product.originalPrice.toFixed(2)}</span>
                     )}
                   </div>
-                  <p className="text-xs text-gray-500">{product.sales} vendidos</p>
+                  <p className="text-xs text-gray-500 uppercase font-bold">{product.sales} VENDIDOS</p>
                 </div>
               </div>
             ))}
@@ -445,18 +467,29 @@ export default function HomePage() {
                       />
 
                       <div className="absolute top-2 left-2 flex flex-col space-y-1">
-                        <Badge className={`${product.badgeColor} text-white text-xs`}>{product.badge}</Badge>
+                        <div className="text-black text-xs font-bold uppercase px-2 py-1 hover:bg-black hover:text-white transition-all duration-200 cursor-pointer">{product.badge}</div>
                         {product.discount && (
-                          <Badge className="bg-green-500 text-white text-xs">{product.discount}</Badge>
+                          <div className="text-black text-xs font-bold uppercase px-2 py-1 hover:bg-black hover:text-white transition-all duration-200 cursor-pointer">{product.discount}</div>
                         )}
                       </div>
 
-                      <div className="absolute bottom-0 left-0 right-0">
+                      <div className="absolute bottom-0 left-0 right-0 overflow-hidden">
                         <Button
                           className="w-full opacity-0 group-hover:opacity-100 transition-opacity bg-black/80 hover:bg-black text-white rounded-none text-xs py-2"
                           onClick={() => handleQuickBuy(product)}
                         >
-                          Comprar
+                          <Marquee
+                            speed={50}
+                            gradient={false}
+                            className="text-white font-bold text-xs"
+                            pauseOnHover={true}
+                          >
+                            {buttonTexts.map((text, index) => (
+                              <span key={index} className="mx-1">
+                                {text}
+                              </span>
+                            ))}
+                          </Marquee>
                         </Button>
                       </div>
                     </div>
@@ -506,7 +539,7 @@ export default function HomePage() {
             <div className="mt-6 text-center">
               <Link href="/multiverso">
                 <Button variant="outline" className="text-gray-600 border-gray-300 hover:bg-gray-50 bg-transparent">
-                  Ver Todos os Produtos
+                  VER TODOS OS PRODUTOS
                   <ArrowRight className="w-4 h-4 ml-2" />
                 </Button>
               </Link>
@@ -530,49 +563,89 @@ export default function HomePage() {
                 />
               </div>
               <div>
-                <h2 className="text-2xl md:text-4xl font-bold">Produtos Exclusivos Multiverso</h2>
-                <p className="text-base md:text-xl text-gray-600">Criados especialmente pela nossa equipe</p>
+                <h2 className="text-2xl md:text-4xl font-bold uppercase">PRODUTOS EXCLUSIVOS MULTIVERSO</h2>
+                <p className="text-base md:text-xl text-gray-600 uppercase">CRIADOS ESPECIALMENTE PELA NOSSA EQUIPE</p>
               </div>
             </div>
-            <Link href="/multiverso" className="hidden md:block">
-              <Button variant="outline" className="text-gray-600 border-gray-300 hover:bg-gray-50 bg-transparent">
-                Ver Loja Completa
-                <ArrowRight className="w-4 h-4 ml-2" />
-              </Button>
-            </Link>
+            <div className="flex items-center space-x-4">
+              <Link href="/multiverso" className="hidden md:block">
+                <Button variant="outline" className="text-black border-black hover:bg-black hover:text-white bg-transparent rounded-none font-bold uppercase">
+                  VER TODOS
+                </Button>
+              </Link>
+              {/* Carousel Navigation Arrows */}
+              <div className="flex space-x-2">
+                <Button
+                  size="icon"
+                  variant="outline"
+                  className="w-8 h-8 border-black text-black hover:bg-black hover:text-white rounded-none"
+                  onClick={prevMultiverso}
+                >
+                  <ChevronLeft className="w-4 h-4" />
+                </Button>
+                <Button
+                  size="icon"
+                  variant="outline"
+                  className="w-8 h-8 border-black text-black hover:bg-black hover:text-white rounded-none"
+                  onClick={nextMultiverso}
+                >
+                  <ChevronRight className="w-4 h-4" />
+                </Button>
+              </div>
+            </div>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-8">
+          {/* Desktop Grid */}
+          <div className="hidden md:grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
             {multiversoProducts.map((product) => (
               <div key={product.id} className="group cursor-pointer">
-                <div className="relative aspect-square overflow-hidden bg-gray-50 mb-4 rounded-lg">
+                <div className="relative aspect-square overflow-hidden bg-gray-50 mb-4 ">
                   <Image src={product.image || "/placeholder.svg"} alt={product.name} fill className="object-cover" />
 
                   <div className="absolute top-4 left-4 flex flex-col space-y-2">
-                    <Badge
-                      className={`${product.badgeColor} text-white text-xs opacity-70 group-hover:opacity-100 transition-opacity`}
+                    <div
+                      className="text-black text-xs font-bold uppercase px-2 py-1 hover:bg-black hover:text-white transition-all duration-200 cursor-pointer"
                     >
                       {product.badge}
-                    </Badge>
+                    </div>
                     {product.discount && (
-                      <Badge className="bg-green-500 text-white text-xs opacity-70 group-hover:opacity-100 transition-opacity">
+                      <div className="text-black text-xs font-bold uppercase px-2 py-1 hover:bg-black hover:text-white transition-all duration-200 cursor-pointer">
                         {product.discount}
-                      </Badge>
+                      </div>
                     )}
                     {product.freeShipping && (
-                      <Badge className="bg-blue-500 text-white text-xs opacity-70 group-hover:opacity-100 transition-opacity">
-                        Frete Grátis
-                      </Badge>
+                      <div className="text-black text-xs font-bold uppercase px-2 py-1 hover:bg-black hover:text-white transition-all duration-200 cursor-pointer">
+                        FRETE GRÁTIS
+                      </div>
                     )}
+                  </div>
+                  
+                  {/* Color Swatches */}
+                  <div className="absolute top-4 right-4 flex flex-col space-y-1">
+                    <div className="w-4 h-4 bg-black border border-white"></div>
+                    <div className="w-4 h-4 bg-white border border-gray-300"></div>
+                    <div className="w-4 h-4 bg-red-500 border border-white"></div>
+                    <div className="w-4 h-4 bg-gray-400 border border-white text-black text-xs font-bold flex items-center justify-center">+</div>
                   </div>
 
                   {/* Quick Buy Button - Bottom of image, full width */}
-                  <div className="absolute bottom-0 left-0 right-0">
+                  <div className="absolute bottom-0 left-0 right-0 overflow-hidden">
                     <Button
-                      className="w-full opacity-0 group-hover:opacity-100 transition-opacity bg-black/80 hover:bg-black text-white rounded-none"
+                      className="w-full opacity-0 group-hover:opacity-100 transition-opacity bg-black hover:bg-black text-white rounded-none"
                       onClick={() => handleQuickBuy(product)}
                     >
-                      Compra Rápida
+                      <Marquee
+                        speed={45}
+                        gradient={false}
+                        className="text-white font-bold"
+                        pauseOnHover={true}
+                      >
+                        {buttonTexts.map((text, index) => (
+                          <span key={index} className="mx-2">
+                            {text}
+                          </span>
+                        ))}
+                      </Marquee>
                     </Button>
                   </div>
                 </div>
@@ -580,7 +653,7 @@ export default function HomePage() {
                 <div className="space-y-2">
                   <p className="text-sm text-gray-600">{product.store}</p>
                   <Link href={`/produto/${product.id}`}>
-                    <h3 className="font-semibold text-lg line-clamp-2 hover:text-blue-600 transition-colors">
+                    <h3 className="font-semibold text-lg line-clamp-2 hover:text-amber-600 transition-colors uppercase">
                       {product.name}
                     </h3>
                   </Link>
@@ -602,12 +675,93 @@ export default function HomePage() {
             ))}
           </div>
 
+          {/* Mobile Carousel */}
+          <div className="md:hidden">
+            <div className="flex space-x-4 overflow-x-auto pb-4" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
+              {multiversoProducts.slice(currentMultiversoIndex, currentMultiversoIndex + 2).map((product) => (
+                <div key={product.id} className="group cursor-pointer min-w-[280px] flex-shrink-0">
+                  <div className="relative aspect-square overflow-hidden bg-gray-50 mb-4">
+                    <Image src={product.image || "/placeholder.svg"} alt={product.name} fill className="object-cover" />
+
+                    <div className="absolute top-4 left-4 flex flex-col space-y-2">
+                      <div
+                        className="text-black text-xs font-bold uppercase px-2 py-1 hover:bg-black hover:text-white transition-all duration-200 cursor-pointer"
+                      >
+                        {product.badge}
+                      </div>
+                      {product.discount && (
+                        <div className="text-black text-xs font-bold uppercase px-2 py-1 hover:bg-black hover:text-white transition-all duration-200 cursor-pointer">
+                          {product.discount}
+                        </div>
+                      )}
+                      {product.freeShipping && (
+                        <div className="text-black text-xs font-bold uppercase px-2 py-1 hover:bg-black hover:text-white transition-all duration-200 cursor-pointer">
+                          FRETE GRÁTIS
+                        </div>
+                      )}
+                    </div>
+                    
+                    {/* Color Swatches */}
+                    <div className="absolute top-4 right-4 flex flex-col space-y-1">
+                      <div className="w-4 h-4 bg-black border border-white"></div>
+                      <div className="w-4 h-4 bg-white border border-gray-300"></div>
+                      <div className="w-4 h-4 bg-red-500 border border-white"></div>
+                      <div className="w-4 h-4 bg-gray-400 border border-white text-black text-xs font-bold flex items-center justify-center">+</div>
+                    </div>
+
+                    {/* Quick Buy Button - Bottom of image, full width */}
+                    <div className="absolute bottom-0 left-0 right-0 overflow-hidden">
+                      <Button
+                        className="w-full opacity-0 group-hover:opacity-100 transition-opacity bg-black hover:bg-black text-white rounded-none"
+                        onClick={() => handleQuickBuy(product)}
+                      >
+                        <Marquee
+                          speed={50}
+                          gradient={false}
+                          className="text-white font-bold text-xs"
+                          pauseOnHover={true}
+                        >
+                          {buttonTexts.map((text, index) => (
+                            <span key={index} className="mx-1">
+                              {text}
+                            </span>
+                          ))}
+                        </Marquee>
+                      </Button>
+                    </div>
+                  </div>
+
+                  <div className="space-y-2">
+                    <p className="text-sm text-gray-600">{product.store}</p>
+                    <Link href={`/produto/${product.id}`}>
+                      <h3 className="font-semibold text-lg line-clamp-2 hover:text-amber-600 transition-colors uppercase">
+                        {product.name}
+                      </h3>
+                    </Link>
+                    <div className="flex items-center space-x-1">
+                      <Star className="w-4 h-4 fill-yellow-400 text-yellow-400" />
+                      <span className="text-sm text-gray-600">{product.rating}</span>
+                      <span className="text-xs text-gray-500">({product.reviews})</span>
+                    </div>
+                    <div className="flex items-center space-x-2">
+                      <span className="text-xl md:text-2xl font-bold">R$ {product.price.toFixed(2)}</span>
+                      {product.originalPrice && (
+                        <span className="text-base md:text-lg text-gray-500 line-through">
+                          R$ {product.originalPrice.toFixed(2)}
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+
           {/* Mobile View All Button */}
           <div className="mt-6 text-center md:hidden">
             <Link href="/multiverso">
-              <Button variant="outline" className="text-gray-600 border-gray-300 hover:bg-gray-50 bg-transparent">
-                Ver Loja Completa
-                <ArrowRight className="w-4 h-4 ml-2" />
+              <Button variant="outline" className="text-black border-black hover:bg-black hover:text-white bg-transparent rounded-none font-bold uppercase">
+                VER LOJA COMPLETA
               </Button>
             </Link>
           </div>
@@ -618,7 +772,7 @@ export default function HomePage() {
       <section className="py-12 md:py-20 bg-white">
         <div className="container mx-auto px-4">
           <div className="text-center mb-12 md:mb-16">
-            <h2 className="text-2xl md:text-4xl font-bold mb-4">Criadores em Destaque</h2>
+            <h2 className="text-2xl md:text-4xl font-bold mb-4">Multiverso dos Parceiros</h2>
             <p className="text-base md:text-xl text-gray-600 max-w-2xl mx-auto">
               Conheça os criadores mais populares da plataforma
             </p>

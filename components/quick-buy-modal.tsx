@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
 import { Label } from "@/components/ui/label"
-import { X, Star, Plus, Minus, ShoppingCart } from "lucide-react"
+import { X, Star, Plus, Minus, ShoppingCart, Truck } from "lucide-react"
 
 interface QuickBuyModalProps {
   product: any
@@ -46,12 +46,12 @@ export default function QuickBuyModal({ product, isOpen, onClose, onAddToCart }:
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-      <div className="absolute inset-0 bg-black/50" onClick={onClose} />
-      <div className="relative bg-white rounded-lg shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+      <div className="absolute inset-0 bg-black" onClick={onClose} />
+      <div className="relative bg-white rounded-lg shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto animate-in slide-in-from-bottom-4 duration-300">
         <div className="flex flex-col">
           {/* Header */}
           <div className="flex items-center justify-between p-6 border-b">
-            <h2 className="text-2xl font-bold">Compra Rápida</h2>
+            <h2 className="text-2xl font-bold">COMPRAR</h2>
             <Button size="icon" variant="ghost" onClick={onClose}>
               <X className="w-6 h-6" />
             </Button>
@@ -79,6 +79,17 @@ export default function QuickBuyModal({ product, isOpen, onClose, onAddToCart }:
                     <span className="text-sm text-gray-600">{product.rating}</span>
                     <span className="text-xs text-gray-500">({product.reviews} avaliações)</span>
                   </div>
+                  
+                  {/* Frete Grátis com Animação */}
+                  {product.freeShipping && (
+                    <div className="flex items-center space-x-2 mb-4 p-3 bg-green-50 border border-green-200 rounded-lg hover:bg-green-100 transition-all duration-300 animate-in slide-in-from-left-4 delay-200">
+                      <div className="relative">
+                        <Truck className="w-5 h-5 text-green-600 animate-spin" style={{ animationDuration: '3s' }} />
+                        <div className="absolute inset-0 w-5 h-5 bg-green-400 rounded-full opacity-20 animate-ping"></div>
+                      </div>
+                      <span className="text-sm font-semibold text-green-700">FRETE GRÁTIS</span>
+                    </div>
+                  )}
                   <div className="flex items-center space-x-2 mb-4">
                     <span className="text-3xl font-bold">R$ {product.price.toFixed(2)}</span>
                     {product.originalPrice && (

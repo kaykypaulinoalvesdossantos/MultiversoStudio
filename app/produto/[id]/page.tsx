@@ -359,7 +359,7 @@ export default function ProductPage({ params }: { params: Promise<{ id: string }
               <div className="flex items-center space-x-2">
                 <Truck className="w-5 h-5 text-black" />
                 <div>
-                  <p className="font-semibold text-sm">Frete Grátis</p>
+                  <p className="font-semibold text-sm">Frete Grátis teste</p>
                   <p className="text-xs text-gray-600">Acima de R$ 99</p>
                 </div>
               </div>

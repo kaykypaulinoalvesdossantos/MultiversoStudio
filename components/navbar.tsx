@@ -405,8 +405,8 @@ export function Navbar() {
                                 <img src="/icons/SETA PARA PRETO icon.svg" alt="Seta" width={20} height={20} className="opacity-60 group-hover/subcat:opacity-100 transition-opacity duration-200" />
                               </a>
                             </div>
-                          ))}
-                        </div>
+                        ))}
+                      </div>
                       )}
                       </div>
               ))}
@@ -461,13 +461,13 @@ export function Navbar() {
                                   {subcat}
                                 </span>
                                 <span className="absolute bottom-0 left-0 right-0 h-0.5 bg-white transform scale-x-0 group-hover/subcat:scale-x-100 transition-transform duration-300 origin-left"></span>
-                              </div>
+                        </div>
                               <img src="/icons/SETA PARA PRETO icon.svg" alt="Seta" width={20} height={20} className="opacity-60 group-hover/subcat:opacity-100 transition-opacity duration-200" />
                             </a>
-                          </div>
-                        ))}
                       </div>
-                    )}
+                    ))}
+                  </div>
+                )}
               </div>
                 ))}
                 </div>
@@ -475,6 +475,8 @@ export function Navbar() {
           </div>
         </div>
       )}
+
+
 
       {/* Cart Modal */}
       <CartModal isOpen={isCartOpen} onClose={() => setIsCartOpen(false)} />
