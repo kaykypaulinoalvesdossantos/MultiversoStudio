@@ -36,11 +36,11 @@ export default function SubcategoryPage() {
   const products = [
     {
       id: 1,
-      name: `${subcategoria} Multiverso Studio - Edição Especial`,
+      name: `${subcategoria} Multiverso Estudio - Edição Especial`,
       price: 69.9,
       originalPrice: 89.9,
       image: "/placeholder.svg?height=400&width=400",
-      store: "Multiverso Studio",
+      store: "Multiverso Estudio",
       storeColor: "#6B46C1",
       rating: 4.9,
       reviews: 567,

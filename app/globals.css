@@ -360,3 +360,36 @@
 .marquee-button .marquee-content {
   white-space: nowrap;
 }
+
+/* Estilos para os carrosséis horizontais */
+.trending-carousel,
+.multiverso-carousel {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+  scroll-snap-type: x mandatory;
+}
+
+.trending-carousel::-webkit-scrollbar,
+.multiverso-carousel::-webkit-scrollbar {
+  display: none;
+}
+
+.trending-carousel > div,
+.multiverso-carousel > div {
+  scroll-snap-align: start;
+}
+
+/* Hover effect para os produtos */
+.group:hover .group-hover\:opacity-100 {
+  opacity: 1 !important;
+}
+
+/* Scrollbar personalizada para o carrossel dos exploradores */
+.explorers-carousel::-webkit-scrollbar {
+  display: none;
+}
+
+.explorers-carousel {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}

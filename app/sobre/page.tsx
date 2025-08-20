@@ -15,7 +15,7 @@ export default function SobrePage() {
           <div className="text-center mb-12">
             <h1 className="text-4xl font-bold text-gray-900 mb-4">Sobre Nós</h1>
             <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-              Conheça a história e missão do Multiverso Studio
+              Conheça a história e missão do Multiverso Estudio
             </p>
           </div>
 
@@ -23,7 +23,7 @@ export default function SobrePage() {
             <div className="bg-white rounded-lg shadow-lg p-8 border border-gray-200">
               <h2 className="text-2xl font-bold text-gray-900 mb-4">Nossa Missão</h2>
               <p className="text-gray-600 leading-relaxed">
-                O Multiverso Studio é uma plataforma inovadora que conecta criadores e fãs através de produtos únicos e exclusivos. 
+                O Multiverso Estudio é uma plataforma inovadora que conecta criadores e fãs através de produtos únicos e exclusivos. 
                 Nossa missão é democratizar o acesso a produtos de qualidade, permitindo que cada criador tenha sua própria loja 
                 dentro da nossa plataforma.
               </p>

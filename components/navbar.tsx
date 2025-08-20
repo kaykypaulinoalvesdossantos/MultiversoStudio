@@ -198,7 +198,7 @@ export function Navbar() {
           <div className="flex items-center justify-between h-20">
             <div className="flex items-center">
               <a href="/" className="flex items-center hover:opacity-80 transition-opacity">
-                <img src="/icons/LOGO PRETO PRA BRANCO.svg" alt="Multiverso Studio" width={120} height={120} className="mr-4 object-contain" />
+                <img src="/icons/LOGO PRETO PRA BRANCO.svg" alt="Multiverso Estudio" width={120} height={120} className="mr-4 object-contain" />
               </a>
               </div>
 
@@ -268,14 +268,14 @@ export function Navbar() {
               {isScrolled && (
                 <div className="flex items-center animate-fade-in">
                   <a href="/" className="flex items-center hover:opacity-80 transition-opacity">
-                    <img src="/icons/TIPOGRAFIA PARA PRETO.svg" alt="Multiverso Studio" width={120} height={120} className="mr-2 object-contain" />
+                    <img src="/icons/TIPOGRAFIA PARA PRETO.svg" alt="Multiverso Estudio" width={120} height={120} className="mr-2 object-contain" />
                   </a>
                 </div>
               )}
               {!isScrolled && (
                 <div className="flex items-center">
                   <a href="/" className="flex items-center hover:opacity-80 transition-opacity">
-                    <img src="/icons/LUNETA PARA PRETO.svg" alt="Multiverso Studio" width={120} height={120} className="mr-2 object-contain" />
+                    <img src="/icons/LUNETA PARA PRETO.svg" alt="Multiverso Estudio" width={120} height={120} className="mr-2 object-contain" />
                   </a>
                 </div>
               )}
@@ -302,14 +302,14 @@ export function Navbar() {
               {isScrolled && (
                 <div className="flex items-center animate-fade-in">
                   <a href="/" className="flex items-center hover:opacity-80 transition-opacity">
-                    <img src="/icons/TIPOGRAFIA PARA PRETO.svg" alt="Multiverso Studio" width={80} height={80} className="mr-2 object-contain" />
+                    <img src="/icons/TIPOGRAFIA PARA PRETO.svg" alt="Multiverso Estudio" width={80} height={80} className="mr-2 object-contain" />
                   </a>
                 </div>
               )}
               {!isScrolled && (
                 <div className="flex items-center">
                   <a href="/" className="flex items-center hover:opacity-80 transition-opacity">
-                    <img src="/icons/LUNETA PARA PRETO.svg" alt="Multiverso Studio" width={80} height={80} className="mr-2 object-contain" />
+                    <img src="/icons/LUNETA PARA PRETO.svg" alt="Multiverso Estudio" width={80} height={80} className="mr-2 object-contain" />
                   </a>
                 </div>
               )}

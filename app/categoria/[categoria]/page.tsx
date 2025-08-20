@@ -145,11 +145,11 @@ export default function CategoryPage() {
   const products = [
     {
       id: 1,
-      name: `${categoryConfig.name} Multiverso Studio - Edição Especial`,
+      name: `${categoryConfig.name} Multiverso Estudio - Edição Especial`,
       price: 69.9,
       originalPrice: 89.9,
       image: "/placeholder.svg?height=400&width=400",
-      store: "Multiverso Studio",
+      store: "Multiverso Estudio",
       storeColor: "#6B46C1",
       rating: 4.9,
       reviews: 567,
@@ -224,11 +224,11 @@ export default function CategoryPage() {
     },
     {
       id: 6,
-      name: `${categoryConfig.name} Multiverso Studio - Premium Line`,
+      name: `${categoryConfig.name} Multiverso Estudio - Premium Line`,
       price: 99.9,
       originalPrice: 129.9,
       image: "/placeholder.svg?height=400&width=400",
-      store: "Multiverso Studio",
+      store: "Multiverso Estudio",
       storeColor: "#6B46C1",
       rating: 4.8,
       reviews: 345,
@@ -390,7 +390,7 @@ export default function CategoryPage() {
                     <div className="space-y-2">
                       {[
                         "Todas",
-                        "Multiverso Studio",
+                        "Multiverso Estudio",
                         "Sacocheio.tv",
                         "Canal do Gamer",
                         "Cinemagrath",

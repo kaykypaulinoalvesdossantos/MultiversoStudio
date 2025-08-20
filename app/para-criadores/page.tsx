@@ -101,7 +101,7 @@ export default function ParaCriadoresPage() {
       followers: "1.8M",
       sales: "50K+",
       quote:
-        "A Multiverso Studio transformou minha relação com meus fãs. Agora posso oferecer produtos únicos que realmente representam meu conteúdo!",
+        "A Multiverso Estudio transformou minha relação com meus fãs. Agora posso oferecer produtos únicos que realmente representam meu conteúdo!",
       rating: 5,
     },
     {
@@ -270,7 +270,7 @@ export default function ParaCriadoresPage() {
       <section className="py-12 md:py-20 bg-white">
         <div className="container mx-auto px-4">
           <div className="text-center mb-12 md:mb-16">
-            <h2 className="text-3xl md:text-4xl font-bold mb-4">Por que escolher a Multiverso Studio?</h2>
+            <h2 className="text-3xl md:text-4xl font-bold mb-4">Por que escolher a Multiverso Estudio?</h2>
             <p className="text-lg md:text-xl text-gray-600 max-w-3xl mx-auto">
               Oferecemos tudo que você precisa para criar uma loja de sucesso e focar no que faz de melhor: criar
               conteúdo

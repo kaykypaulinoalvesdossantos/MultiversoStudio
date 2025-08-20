@@ -49,11 +49,11 @@ export default function MultiversoStorePage() {
   const launchProducts = [
     {
       id: 1,
-      name: "Camiseta Multiverso Studio - Edição Especial 2024",
+      name: "Camiseta Multiverso Estudio - Edição Especial 2024",
       price: 89.9,
       originalPrice: 119.9,
       image: "/placeholder.svg?height=400&width=400",
-      store: "Multiverso Studio",
+      store: "Multiverso Estudio",
       rating: 4.9,
       reviews: 567,
       sales: 2345,
@@ -69,7 +69,7 @@ export default function MultiversoStorePage() {
       price: 149.9,
       originalPrice: 199.9,
       image: "/placeholder.svg?height=400&width=400",
-      store: "Multiverso Studio",
+      store: "Multiverso Estudio",
       rating: 4.8,
       reviews: 234,
       sales: 1234,
@@ -85,7 +85,7 @@ export default function MultiversoStorePage() {
       price: 49.9,
       originalPrice: 69.9,
       image: "/placeholder.svg?height=400&width=400",
-      store: "Multiverso Studio",
+      store: "Multiverso Estudio",
       rating: 4.7,
       reviews: 156,
       sales: 856,
@@ -169,11 +169,11 @@ export default function MultiversoStorePage() {
     // Produtos próprios da Multiverso
     {
       id: 4,
-      name: "Camiseta Multiverso Studio - Logo Oficial",
+      name: "Camiseta Multiverso Estudio - Logo Oficial",
       price: 69.9,
       originalPrice: 89.9,
       image: "/placeholder.svg?height=400&width=400",
-      store: "Multiverso Studio",
+      store: "Multiverso Estudio",
       storeSlug: "multiverso",
       storeColor: "#6B46C1",
       rating: 4.9,
@@ -193,7 +193,7 @@ export default function MultiversoStorePage() {
       price: 39.9,
       originalPrice: 49.9,
       image: "/placeholder.svg?height=400&width=400",
-      store: "Multiverso Studio",
+      store: "Multiverso Estudio",
       storeSlug: "multiverso",
       storeColor: "#6B46C1",
       rating: 4.8,
@@ -342,7 +342,7 @@ export default function MultiversoStorePage() {
                   </div>
 
                   <h1 className="text-6xl font-black mb-4 text-white drop-shadow-lg gradient-text">
-                    MULTIVERSO STUDIO
+                    Multiverso Estudio
                   </h1>
 
                   <p className="text-2xl font-bold mb-2 text-purple-200">LOJAS DENTRO DE LOJAS</p>
@@ -383,7 +383,7 @@ export default function MultiversoStorePage() {
               </div>
               <div>
                 <h2 className="text-4xl font-bold">Lançamentos Exclusivos</h2>
-                <p className="text-xl text-gray-600">Os produtos mais recentes da Multiverso Studio</p>
+                <p className="text-xl text-gray-600">Os produtos mais recentes da Multiverso Estudio</p>
               </div>
             </div>
             <Button variant="outline" className="text-lg px-8 py-3 bg-transparent hover-lift">

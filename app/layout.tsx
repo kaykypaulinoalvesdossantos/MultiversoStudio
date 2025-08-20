@@ -7,7 +7,7 @@ import "./globals.css"
 const inter = Inter({ subsets: ["latin"] })
 
 export const metadata: Metadata = {
-  title: "Multiverso Studio - Lojas dentro de lojas",
+  title: "Multiverso Estudio - Lojas dentro de lojas",
   description:
     "A plataforma que conecta criadores e fãs através de produtos únicos e exclusivos. Cada loja é um universo próprio.",
     generator: 'v0.dev'
