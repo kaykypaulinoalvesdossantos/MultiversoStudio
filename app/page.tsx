@@ -35,6 +35,12 @@ export default function HomePage() {
   const [isExplorerDragging, setIsExplorerDragging] = useState(false)
   const [explorerStartX, setExplorerStartX] = useState(0)
   const [explorerScrollLeft, setExplorerScrollLeft] = useState(0)
+  const [isTrendingDragging, setIsTrendingDragging] = useState(false)
+  const [trendingStartX, setTrendingStartX] = useState(0)
+  const [trendingScrollLeft, setTrendingScrollLeft] = useState(0)
+  const [isMultiversoDragging, setIsMultiversoDragging] = useState(false)
+  const [multiversoStartX, setMultiversoStartX] = useState(0)
+  const [multiversoScrollLeft, setMultiversoScrollLeft] = useState(0)
 
   // Dados para o carrossel secundário
   const secondaryBanners = [
@@ -157,47 +163,7 @@ export default function HomePage() {
     return () => clearInterval(interval)
   }, [banners.length])
 
-  // Auto-rotate trending products carousel
-  useEffect(() => {
-    const interval = setInterval(() => {
-      const carousel = document.querySelector('.trending-carousel')
-      if (carousel) {
-        const currentScroll = carousel.scrollLeft
-        const maxScroll = carousel.scrollWidth - carousel.clientWidth
-        
-        if (currentScroll >= maxScroll) {
-          // Volta ao início quando chega ao final
-          carousel.scrollTo({ left: 0, behavior: 'smooth' })
-        } else {
-          // Avança para o próximo produto
-          carousel.scrollBy({ left: 320, behavior: 'smooth' })
-        }
-      }
-    }, 4000) // Muda a cada 4 segundos
-    
-    return () => clearInterval(interval)
-  }, [])
 
-  // Auto-rotate multiverso products carousel
-  useEffect(() => {
-    const interval = setInterval(() => {
-      const carousel = document.querySelector('.multiverso-carousel')
-      if (carousel) {
-        const currentScroll = carousel.scrollLeft
-        const maxScroll = carousel.scrollWidth - carousel.clientWidth
-        
-        if (currentScroll >= maxScroll) {
-          // Volta ao início quando chega ao final
-          carousel.scrollTo({ left: 0, behavior: 'smooth' })
-        } else {
-          // Avança para o próximo produto
-          carousel.scrollBy({ left: 320, behavior: 'smooth' })
-        }
-      }
-    }, 5000) // Muda a cada 5 segundos (diferente do trending para não sincronizar)
-    
-    return () => clearInterval(interval)
-  }, [])
 
   // Auto-rotate secondary banners carousel
   useEffect(() => {
@@ -515,6 +481,56 @@ export default function HomePage() {
     },
   ]
 
+  // Auto-rotate trending products carousel
+  useEffect(() => {
+    const interval = setInterval(() => {
+      if (isTrendingDragging) return // Pausa quando está arrastando
+      
+      const carousel = document.querySelector('.trending-carousel')
+      if (carousel) {
+        const cardWidth = 320 // Largura do card + gap
+        const currentScroll = carousel.scrollLeft
+        
+        // Avança continuamente
+        carousel.scrollBy({ left: cardWidth, behavior: 'smooth' })
+        
+        // Se chegou ao final da primeira cópia, volta ao início suavemente
+        if (currentScroll >= (trendingProducts.length * cardWidth)) {
+          setTimeout(() => {
+            carousel.scrollTo({ left: 0, behavior: 'auto' })
+          }, 500) // Pequeno delay para transição suave
+        }
+      }
+    }, 3000) // Muda a cada 3 segundos para ser mais dinâmico
+    
+    return () => clearInterval(interval)
+  }, [trendingProducts.length, isTrendingDragging])
+
+  // Auto-rotate multiverso products carousel
+  useEffect(() => {
+    const interval = setInterval(() => {
+      if (isMultiversoDragging) return // Pausa quando está arrastando
+      
+      const carousel = document.querySelector('.multiverso-carousel')
+      if (carousel) {
+        const cardWidth = 320 // Largura do card + gap
+        const currentScroll = carousel.scrollLeft
+        
+        // Avança continuamente
+        carousel.scrollBy({ left: cardWidth, behavior: 'smooth' })
+        
+        // Se chegou ao final da primeira cópia, volta ao início suavemente
+        if (currentScroll >= (multiversoProducts.length * cardWidth)) {
+          setTimeout(() => {
+            carousel.scrollTo({ left: 0, behavior: 'auto' })
+          }, 500) // Pequeno delay para transição suave
+        }
+      }
+    }, 3500) // Muda a cada 3.5 segundos (diferente do trending para não sincronizar)
+    
+    return () => clearInterval(interval)
+  }, [multiversoProducts.length, isMultiversoDragging])
+
   const benefits = [
     {
       icon: Truck,
@@ -621,6 +637,78 @@ export default function HomePage() {
     setIsExplorerDragging(false)
   }
 
+  // Funções para drag do mouse no carrossel dos produtos em alta
+  const handleTrendingMouseDown = (e: React.MouseEvent) => {
+    setIsTrendingDragging(true)
+    setTrendingStartX(e.pageX - (e.currentTarget as HTMLElement).offsetLeft)
+    setTrendingScrollLeft((e.currentTarget as HTMLElement).scrollLeft)
+  }
+
+  const handleTrendingMouseMove = (e: React.MouseEvent) => {
+    if (!isTrendingDragging) return
+    e.preventDefault()
+    const x = e.pageX - (e.currentTarget as HTMLElement).offsetLeft
+    const walk = (x - trendingStartX) * 2
+    ;(e.currentTarget as HTMLElement).scrollLeft = trendingScrollLeft - walk
+  }
+
+  const handleTrendingMouseUp = () => {
+    setIsTrendingDragging(false)
+  }
+
+  const handleTrendingTouchStart = (e: React.TouchEvent) => {
+    setIsTrendingDragging(true)
+    setTrendingStartX(e.touches[0].pageX - (e.currentTarget as HTMLElement).offsetLeft)
+    setTrendingScrollLeft((e.currentTarget as HTMLElement).scrollLeft)
+  }
+
+  const handleTrendingTouchMove = (e: React.TouchEvent) => {
+    if (!isTrendingDragging) return
+    const x = e.touches[0].pageX - (e.currentTarget as HTMLElement).offsetLeft
+    const walk = (x - trendingStartX) * 2
+    ;(e.currentTarget as HTMLElement).scrollLeft = trendingScrollLeft - walk
+  }
+
+  const handleTrendingTouchEnd = () => {
+    setIsTrendingDragging(false)
+  }
+
+  // Funções para drag do mouse no carrossel dos produtos exclusivos
+  const handleMultiversoMouseDown = (e: React.MouseEvent) => {
+    setIsMultiversoDragging(true)
+    setMultiversoStartX(e.pageX - (e.currentTarget as HTMLElement).offsetLeft)
+    setMultiversoScrollLeft((e.currentTarget as HTMLElement).scrollLeft)
+  }
+
+  const handleMultiversoMouseMove = (e: React.MouseEvent) => {
+    if (!isMultiversoDragging) return
+    e.preventDefault()
+    const x = e.pageX - (e.currentTarget as HTMLElement).offsetLeft
+    const walk = (x - multiversoStartX) * 2
+    ;(e.currentTarget as HTMLElement).scrollLeft = multiversoScrollLeft - walk
+  }
+
+  const handleMultiversoMouseUp = () => {
+    setIsMultiversoDragging(false)
+  }
+
+  const handleMultiversoTouchStart = (e: React.TouchEvent) => {
+    setIsMultiversoDragging(true)
+    setMultiversoStartX(e.touches[0].pageX - (e.currentTarget as HTMLElement).offsetLeft)
+    setMultiversoScrollLeft((e.currentTarget as HTMLElement).scrollLeft)
+  }
+
+  const handleMultiversoTouchMove = (e: React.TouchEvent) => {
+    if (!isMultiversoDragging) return
+    const x = e.touches[0].pageX - (e.currentTarget as HTMLElement).offsetLeft
+    const walk = (x - multiversoStartX) * 2
+    ;(e.currentTarget as HTMLElement).scrollLeft = multiversoScrollLeft - walk
+  }
+
+  const handleMultiversoTouchEnd = () => {
+    setIsMultiversoDragging(false)
+  }
+
 
   return (
     <div className="min-h-screen bg-white">
@@ -636,24 +724,14 @@ export default function HomePage() {
             className="object-cover transition-all duration-1000"
             priority
           />
-          <div className="absolute inset-0 bg-black/40" />
-
-          {/* Banner Content - Centralizado */}
-          <div className="absolute inset-0 flex items-center justify-center">
-            <div className="text-center text-white px-4">
-              <h1 className="text-5xl md:text-7xl lg:text-8xl font-bold mb-6 leading-tight">
-                {currentBannerData.title}
-              </h1>
-              <p className="text-xl md:text-2xl lg:text-3xl mb-8 max-w-4xl mx-auto leading-relaxed">
-                {currentBannerData.description}
-              </p>
-              <Button
-                className="bg-white/95 hover:bg-white text-gray-900 font-bold px-8 md:px-12 py-3 md:py-4 text-lg md:text-xl rounded-full shadow-2xl backdrop-blur-sm border-0 hover:scale-105 transition-all duration-300"
-                style={{ backgroundColor: currentBannerData.primaryColor }}
-              >
-                {currentBannerData.buttonText}
-              </Button>
-            </div>
+          {/* Banner Content */}
+          <div className="absolute inset-0 flex flex-col items-center justify-end pb-32 text-white z-10">
+            <button
+              className="px-12 py-5 text-xl font-bold rounded-xl transition-all duration-300 hover:scale-110 hover:shadow-2xl shadow-lg"
+              style={{ backgroundColor: currentBannerData.primaryColor }}
+            >
+              {currentBannerData.buttonText}
+            </button>
           </div>
 
           {/* Squares Indicator - Canto Direito */}
@@ -683,13 +761,14 @@ export default function HomePage() {
           <span className="mx-8"> 2% DE DESCONTO NO PIX</span>
           <span className="mx-8"> TROCA FÁCIL E GRÁTIS</span>
           <span className="mx-8"> ENVIO PARA TODO O MUNDO</span>
-          <span className="mx-8"> BRINDES A PARTIR DE R$401,00</span>
+          <span className="mx-8"> BRINDES A PARTIR DE R$300,00</span>
         </Marquee>
       </section>
 
       {/* Products Grid */}
       <section className="py-20 md:py-32 bg-white">
-        <div className="container mx-auto px-4">
+        <div className="max-w-7xl mx-auto px-4">
+            
           <div className="flex items-center justify-between mb-8 md:mb-12">
             <div className="flex items-center space-x-4">
               <div className="p-3">
@@ -706,39 +785,43 @@ export default function HomePage() {
                 <div className="mt-4">
                   <Link href="/multiverso">
                     <Button variant="outline" className="text-black border-black hover:bg-black hover:text-white bg-transparent rounded-none font-bold uppercase px-6 py-2">
-                      VER TODOS
-                    </Button>
-                  </Link>
+                  VER TODOS
+                </Button>
+              </Link>
                 </div>
               </div>
             </div>
-            {/* Carousel Navigation Arrows */}
-            <div className="flex space-x-2">
-              <Button
-                size="icon"
-                variant="outline"
-                className="w-8 h-8 border-black text-black hover:bg-black hover:text-white rounded-none"
-                onClick={prevProducts}
-              >
-                <ChevronLeft className="w-4 h-4" />
-              </Button>
-              <Button
-                size="icon"
-                variant="outline"
-                className="w-8 h-8 border-black text-black hover:bg-black hover:text-white rounded-none"
-                onClick={nextProducts}
-              >
-                <ChevronRight className="w-4 h-4" />
-              </Button>
+              {/* Carousel Navigation Arrows */}
+              <div className="flex space-x-2">
+                <Button
+                  size="icon"
+                  variant="outline"
+                  className="w-8 h-8 border-black text-black hover:bg-black hover:text-white rounded-none"
+                  onClick={prevProducts}
+                >
+                  <ChevronLeft className="w-4 h-4" />
+                </Button>
+                <Button
+                  size="icon"
+                  variant="outline"
+                  className="w-8 h-8 border-black text-black hover:bg-black hover:text-white rounded-none"
+                  onClick={nextProducts}
+                >
+                  <ChevronRight className="w-4 h-4" />
+                </Button>
+              </div>
             </div>
-          </div>
 
-          {/* Desktop Carousel */}
+          {/* Desktop Carousel - Marquee Infinito */}
           <div className="hidden md:block relative">
-            <div className="flex space-x-3 overflow-hidden trending-carousel" style={{ scrollBehavior: 'smooth' }}>
+            <Marquee
+              speed={60}
+              gradient={false}
+              className="py-4"
+            >
               {trendingProducts.map((product) => (
-                <div key={product.id} className="group cursor-pointer flex-shrink-0 w-80">
-                  <div className="relative aspect-square overflow-hidden bg-gray-50 mb-1">
+                <div key={product.id} className="group cursor-pointer flex-shrink-0 w-80 mx-3">
+                  <div className="relative aspect-[2300/3066] overflow-hidden bg-gray-50 mb-1">
                     <Image src={product.image || "/placeholder.svg"} alt={product.name} fill className="object-cover" />
 
                     <div className="absolute top-4 left-4 flex flex-col space-y-0.5">
@@ -772,10 +855,9 @@ export default function HomePage() {
                         onClick={() => handleQuickBuy(product)}
                       >
                         <Marquee
-                          speed={40}
+                          speed={50}
                           gradient={false}
                           className="text-white font-bold"
-                          pauseOnHover={false}
                         >
                           {buttonTexts.map((text, index) => (
                             <span key={index} className="mx-2">
@@ -787,29 +869,43 @@ export default function HomePage() {
                     </div>
                   </div>
 
-                  <div className="space-y-0">
-                    <p className="text-sm text-gray-600 uppercase font-bold">{product.store}</p>
+                  <div className="space-y-1">
+                    {/* Store Name */}
+                    <p className="text-xs text-gray-600 uppercase font-bold">{product.store}</p>
+                    
+                    {/* Product Name */}
                     <Link href={`/produto/${product.id}`}>
-                      <h3 className="font-semibold text-lg line-clamp-2 transition-colors uppercase">
+                      <h3 className="font-bold text-sm leading-tight uppercase text-black">
                         {product.name}
                       </h3>
                     </Link>
+                    
+                    {/* Rating */}
                     <div className="flex items-center space-x-1">
-                      <Star className="w-4 h-4 fill-yellow-400 text-yellow-400" />
-                      <span className="text-sm text-gray-600">{product.rating}</span>
+                      <Star className="w-3 h-3 fill-yellow-400 text-yellow-400" />
+                      <span className="text-xs text-gray-600">{product.rating}</span>
                       <span className="text-xs text-gray-500">({product.reviews})</span>
                     </div>
+                    
+                    {/* Pricing */}
                     <div className="flex items-center space-x-2">
-                      <span className="text-2xl font-bold">R$ {product.price.toFixed(2)}</span>
+                      <span className="text-lg font-bold text-black">R$ {product.price.toFixed(2).replace(".", ",")}</span>
                       {product.originalPrice && (
-                        <span className="text-lg text-gray-500 line-through">R$ {product.originalPrice.toFixed(2)}</span>
+                        <span className="text-sm text-gray-500 line-through">
+                          R$ {product.originalPrice.toFixed(2).replace(".", ",")}
+                        </span>
                       )}
                     </div>
-                    <p className="text-xs text-gray-500 uppercase font-bold">{product.sales} VENDIDOS</p>
+                    
+                    {/* Payment Terms */}
+                    <div className="text-xs text-green-600 font-semibold">3X SEM JUROS</div>
+                    
+                    {/* Sales Count */}
+                    <div className="text-xs text-gray-500 font-medium">{Math.floor(Math.random() * 1000) + 100} VENDIDOS</div>
                   </div>
                 </div>
               ))}
-            </div>
+            </Marquee>
           </div>
 
 
@@ -817,10 +913,19 @@ export default function HomePage() {
           {/* Mobile Carousel */}
           <div className="md:hidden">
             <div className="relative">
-              <div className="flex space-x-1 overflow-hidden">
+              <div 
+                className="flex space-x-1 overflow-hidden cursor-grab active:cursor-grabbing select-none"
+                onMouseDown={handleTrendingMouseDown}
+                onMouseMove={handleTrendingMouseMove}
+                onMouseUp={handleTrendingMouseUp}
+                onMouseLeave={handleTrendingMouseUp}
+                onTouchStart={handleTrendingTouchStart}
+                onTouchMove={handleTrendingTouchMove}
+                onTouchEnd={handleTrendingTouchEnd}
+              >
                 {trendingProducts.slice(currentProductIndex, currentProductIndex + 2).map((product) => (
                   <div key={product.id} className="flex-shrink-0 w-[calc(50%-8px)] group cursor-pointer">
-                    <div className="relative aspect-square overflow-hidden bg-gray-50 mb-4">
+                    <div className="relative aspect-[2300/3066] overflow-hidden bg-gray-50 mb-4">
                       <Image
                         src={product.image || "/placeholder.svg"}
                         alt={product.name}
@@ -844,7 +949,7 @@ export default function HomePage() {
                           speed={50}
                           gradient={false}
                           className="text-white font-bold text-xs"
-                          pauseOnHover={false}
+                          pauseOnHover={true}
                         >
                             {buttonTexts.map((text, index) => (
                               <span key={index} className="mx-1">
@@ -856,25 +961,39 @@ export default function HomePage() {
                       </div>
                     </div>
 
-                    <div className="space-y-0">
-                      <p className="text-xs text-gray-600">{product.store}</p>
+                    <div className="space-y-1">
+                      {/* Store Name */}
+                      <p className="text-xs text-gray-600 uppercase font-bold">{product.store}</p>
+                      
+                      {/* Product Name */}
                       <Link href={`/produto/${product.id}`}>
-                        <h3 className="font-semibold text-sm line-clamp-2 transition-colors">
+                        <h3 className="font-bold text-xs leading-tight uppercase text-black">
                           {product.name}
                         </h3>
                       </Link>
+                      
+                      {/* Rating */}
                       <div className="flex items-center space-x-1">
                         <Star className="w-3 h-3 fill-yellow-400 text-yellow-400" />
                         <span className="text-xs text-gray-600">{product.rating}</span>
+                        <span className="text-xs text-gray-500">({product.reviews})</span>
                       </div>
+                      
+                      {/* Pricing */}
                       <div className="flex items-center space-x-1">
-                        <span className="text-lg font-bold">R$ {product.price.toFixed(2)}</span>
+                        <span className="text-sm font-bold text-black">R$ {product.price.toFixed(2).replace(".", ",")}</span>
                         {product.originalPrice && (
-                          <span className="text-sm text-gray-500 line-through">
-                            R$ {product.originalPrice.toFixed(2)}
+                          <span className="text-xs text-gray-500 line-through">
+                            R$ {product.originalPrice.toFixed(2).replace(".", ",")}
                           </span>
                         )}
                       </div>
+                      
+                      {/* Payment Terms */}
+                      <div className="text-xs text-green-600 font-semibold">3X SEM JUROS</div>
+                      
+                      {/* Sales Count */}
+                      <div className="text-xs text-gray-500 font-medium">{Math.floor(Math.random() * 1000) + 100} VENDIDOS</div>
                     </div>
                   </div>
                 ))}
@@ -920,6 +1039,7 @@ export default function HomePage() {
                 index === currentSecondaryBanner ? 'opacity-100' : 'opacity-0'
               }`}
             >
+              {/* Background Image */}
               <Image
                 src={banner.image}
                 alt={banner.title}
@@ -927,25 +1047,11 @@ export default function HomePage() {
                 className="object-cover"
                 priority={index === 0}
               />
-              <div className="absolute inset-0 bg-black/40" />
               
-              {/* Banner Content - Centralizado */}
-              <div className="absolute inset-0 flex items-center justify-center">
-                <div className="text-center text-white px-4">
-                  <h2 className="text-4xl md:text-6xl lg:text-7xl font-bold mb-6 leading-tight">
-                    {banner.title}
-                  </h2>
-                  <p className="text-lg md:text-xl lg:text-2xl mb-8 max-w-3xl mx-auto leading-relaxed">
-                    {banner.description}
-                  </p>
-                </div>
-              </div>
-
-              {/* Botão Centralizado na Parte Inferior */}
-              <div className="absolute bottom-16 left-1/2 transform -translate-x-1/2">
+              {/* Content */}
+              <div className="relative z-10 flex flex-col items-center justify-center h-full text-white px-8">
                 <Button
-                  className="bg-white/95 hover:bg-white text-gray-900 font-bold px-10 md:px-16 py-4 md:py-5 text-lg md:text-xl rounded-full shadow-2xl backdrop-blur-sm border-0 hover:scale-110 transition-all duration-300 hover:shadow-white/20 hover:shadow-2xl"
-                  style={{ backgroundColor: banner.primaryColor }}
+                  className="absolute bottom-8 left-1/2 transform -translate-x-1/2 bg-black hover:bg-gray-800 text-white font-bold px-12 py-4 text-xl rounded-none shadow-lg border-2 border-white hover:scale-105 transition-all duration-300 hover:shadow-white/20"
                 >
                   {banner.buttonText}
                 </Button>
@@ -972,7 +1078,7 @@ export default function HomePage() {
 
       {/* Multiverso Exclusive Products */}
       <section className="py-20 md:py-32 bg-gray-50">
-        <div className="container mx-auto px-4">
+        <div className="max-w-7xl mx-auto px-4">
           <div className="flex items-center justify-between mb-8 md:mb-12">
             <div className="flex items-center space-x-4">
               <div className="p-3">
@@ -992,8 +1098,8 @@ export default function HomePage() {
                       VER TODOS
                     </Button>
                   </Link>
-                </div>
               </div>
+            </div>
             </div>
             {/* Carousel Navigation Arrows */}
             <div className="flex space-x-2">
@@ -1016,12 +1122,16 @@ export default function HomePage() {
             </div>
           </div>
 
-          {/* Desktop Carousel */}
+          {/* Desktop Carousel - Marquee Infinito */}
           <div className="hidden md:block relative">
-            <div className="flex space-x-3 overflow-hidden multiverso-carousel" style={{ scrollBehavior: 'smooth' }}>
+            <Marquee
+              speed={60}
+              gradient={false}
+              className="py-4"
+            >
               {multiversoProducts.map((product) => (
-                <div key={product.id} className="group cursor-pointer flex-shrink-0 w-80">
-                  <div className="relative aspect-square overflow-hidden bg-gray-50 mb-1">
+                <div key={product.id} className="group cursor-pointer flex-shrink-0 w-80 mx-3">
+                  <div className="relative aspect-[2300/3066] overflow-hidden bg-gray-50 mb-1">
                     <Image src={product.image || "/placeholder.svg"} alt={product.name} fill className="object-cover" />
 
                     <div className="absolute top-4 left-4 flex flex-col space-y-0.5">
@@ -1060,7 +1170,6 @@ export default function HomePage() {
                           speed={45}
                           gradient={false}
                           className="text-white font-bold"
-                          pauseOnHover={false}
                         >
                           {buttonTexts.map((text, index) => (
                             <span key={index} className="mx-2">
@@ -1072,40 +1181,63 @@ export default function HomePage() {
                     </div>
                   </div>
 
-                  <div className="space-y-0">
-                    <p className="text-sm text-gray-600 uppercase font-bold">{product.store}</p>
+                  <div className="space-y-1">
+                    {/* Store Name */}
+                    <p className="text-xs text-gray-600 uppercase font-bold">{product.store}</p>
+                    
+                    {/* Product Name */}
                     <Link href={`/produto/${product.id}`}>
-                      <h3 className="font-semibold text-lg line-clamp-2 transition-colors uppercase">
+                      <h3 className="font-bold text-sm leading-tight uppercase text-black">
                         {product.name}
                       </h3>
                     </Link>
+                    
+                    {/* Rating */}
                     <div className="flex items-center space-x-1">
-                      <Star className="w-4 h-4 fill-yellow-400 text-yellow-400" />
-                      <span className="text-sm text-gray-600">{product.rating}</span>
+                      <Star className="w-3 h-3 fill-yellow-400 text-yellow-400" />
+                      <span className="text-xs text-gray-600">{product.rating}</span>
                       <span className="text-xs text-gray-500">({product.reviews})</span>
                     </div>
+                    
+                    {/* Pricing */}
                     <div className="flex items-center space-x-2">
-                      <span className="text-xl md:text-2xl font-bold">R$ {product.price.toFixed(2)}</span>
+                      <span className="text-lg font-bold text-black">R$ {product.price.toFixed(2).replace(".", ",")}</span>
                       {product.originalPrice && (
-                        <span className="text-base md:text-lg text-gray-500 line-through">
-                          R$ {product.originalPrice.toFixed(2)}
+                        <span className="text-sm text-gray-500 line-through">
+                          R$ {product.originalPrice.toFixed(2).replace(".", ",")}
                         </span>
                       )}
                     </div>
+                    
+                    {/* Payment Terms */}
+                    <div className="text-xs text-green-600 font-semibold">3X SEM JUROS</div>
+                    
+                    {/* Sales Count */}
+                    <div className="text-xs text-gray-500 font-medium">{Math.floor(Math.random() * 1000) + 100} VENDIDOS</div>
                   </div>
                 </div>
               ))}
-            </div>
+            </Marquee>
           </div>
 
 
 
           {/* Mobile Carousel */}
           <div className="md:hidden">
-            <div className="flex space-x-2 overflow-x-auto pb-4" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
+            <div 
+              className="flex space-x-2 overflow-x-auto pb-4 cursor-grab active:cursor-grabbing select-none" 
+              style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
+              onMouseDown={handleMultiversoMouseDown}
+              onMouseMove={handleMultiversoMouseMove}
+              onMouseUp={handleMultiversoMouseUp}
+              onMouseLeave={handleMultiversoMouseUp}
+              onTouchStart={handleMultiversoTouchStart}
+              onTouchMove={handleMultiversoTouchMove}
+              onTouchEnd={handleMultiversoTouchEnd}
+            >
               {multiversoProducts.slice(currentMultiversoIndex, currentMultiversoIndex + 2).map((product) => (
                 <div key={product.id} className="group cursor-pointer min-w-[280px] flex-shrink-0">
-                  <div className="relative aspect-square overflow-hidden bg-gray-50 mb-4">
+                  <div className="relative aspect-[2300/3066] overflow-hidden bg-gray-50 mb-4">
                     <Image src={product.image || "/placeholder.svg"} alt={product.name} fill className="object-cover" />
 
                     <div className="absolute top-4 left-4 flex flex-col space-y-0.5">
@@ -1144,7 +1276,7 @@ export default function HomePage() {
                           speed={50}
                           gradient={false}
                           className="text-white font-bold text-xs"
-                          pauseOnHover={false}
+                          pauseOnHover={true}
                         >
                           {buttonTexts.map((text, index) => (
                             <span key={index} className="mx-1">
@@ -1156,29 +1288,42 @@ export default function HomePage() {
                     </div>
                   </div>
 
-                  <div className="space-y-0">
-                    <p className="text-sm text-gray-600">{product.store}</p>
+                  <div className="space-y-1">
+                    {/* Store Name */}
+                    <p className="text-xs text-gray-600 uppercase font-bold">{product.store}</p>
+                    
+                    {/* Product Name */}
                     <Link href={`/produto/${product.id}`}>
-                      <h3 className="font-semibold text-lg line-clamp-2 transition-colors uppercase">
+                      <h3 className="font-bold text-sm leading-tight uppercase text-black">
                         {product.name}
                       </h3>
                     </Link>
+                    
+                    {/* Rating */}
                     <div className="flex items-center space-x-1">
-                      <Star className="w-4 h-4 fill-yellow-400 text-yellow-400" />
-                      <span className="text-sm text-gray-600">{product.rating}</span>
+                      <Star className="w-3 h-3 fill-yellow-400 text-yellow-400" />
+                      <span className="text-xs text-gray-600">{product.rating}</span>
                       <span className="text-xs text-gray-500">({product.reviews})</span>
                     </div>
+                    
+                    {/* Pricing */}
                     <div className="flex items-center space-x-2">
-                      <span className="text-xl md:text-2xl font-bold">R$ {product.price.toFixed(2)}</span>
+                      <span className="text-lg font-bold text-black">R$ {product.price.toFixed(2).replace(".", ",")}</span>
                       {product.originalPrice && (
-                        <span className="text-base md:text-lg text-gray-500 line-through">
-                          R$ {product.originalPrice.toFixed(2)}
+                        <span className="text-sm text-gray-500 line-through">
+                          R$ {product.originalPrice.toFixed(2).replace(".", ",")}
                         </span>
                       )}
                     </div>
+                    
+                    {/* Payment Terms */}
+                    <div className="text-xs text-green-600 font-semibold">3X SEM JUROS</div>
+                    
+                    {/* Sales Count */}
+                    <div className="text-xs text-gray-500 font-medium">{Math.floor(Math.random() * 1000) + 100} VENDIDOS</div>
                   </div>
-                </div>
-              ))}
+              </div>
+            ))}
             </div>
           </div>
 
@@ -1193,13 +1338,13 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* Featured Stores - New Card Design */}
-      <section className="py-12 md:py-20 bg-white">
-        <div className="container mx-auto px-4">
-          <div className="text-center mb-12 md:mb-16">
-            <h2 className="text-2xl md:text-4xl font-bold mb-4">Multiverso dos Parceiros</h2>
-            <p className="text-base md:text-xl text-gray-600 max-w-2xl mx-auto">
-              Conheça os criadores mais populares da plataforma
+      {/* Featured Stores */}
+      <section className="py-20 md:py-32 bg-white">
+        <div className="max-w-7xl mx-auto px-4">
+          <div className="text-center mb-16">
+            <h2 className="text-4xl md:text-5xl font-bold text-black mb-4">MULTIVERSO DOS PARCEIROS</h2>
+            <p className="text-xl text-gray-600 max-w-3xl mx-auto">
+              EXPLORE OUTRAS JORNADAS
             </p>
           </div>
 
@@ -1243,18 +1388,18 @@ export default function HomePage() {
                         <div className="flex justify-center gap-8 mb-5 text-sm">
                           <div className="text-center">
                             <div className="font-bold text-gray-900 text-lg">{store.followers}</div>
-                            <div className="text-gray-600 text-xs">Seguidores</div>
+                            <div className="text-gray-600 text-xs">SEGUIDORES</div>
                           </div>
                           <div className="text-center">
                             <div className="font-bold text-gray-900 text-lg">{store.products}</div>
-                            <div className="text-gray-600 text-xs">Produtos</div>
+                            <div className="text-gray-600 text-xs">PRODUTOS</div>
                           </div>
                         </div>
 
                         {/* Visit Store Button */}
                         <Link href={`/loja/${store.slug}`}>
                           <Button className="w-full bg-black hover:bg-gray-800 text-white text-sm py-3 rounded-none">
-                            Visitar Loja
+                            VISITAR LOJA
                           </Button>
                         </Link>
                       </div>
@@ -1284,34 +1429,27 @@ export default function HomePage() {
               </span>
             </h2>
             <p className="text-xl text-gray-600 max-w-2xl mx-auto leading-relaxed">
-              Descubra como nossos exploradores estão espalhando o multiverso pelo mundo. Marque{" "}
-              <span className="font-semibold text-black">@multiversoestudio</span> e faça parte desta jornada.
+              DESCOBRA COMO NOSSOS EXPLORADORES ESTÃO ESPALHANDO O MULTIVERSO PELO MUNDO. MARQUE{" "}
+              <span className="font-semibold text-black">@MULTIVERSOESTUDIO</span> E FAÇA PARTE DESTA JORNADA.
             </p>
           </div>
 
-          {/* Carousel with navigation */}
+          {/* Carrossel Instagram com Marquee Infinito */}
           <div className="relative mb-12">
-            {/* Carousel Container */}
-            <div
-              className="explorers-carousel flex gap-8 px-12 scroll-smooth cursor-grab active:cursor-grabbing select-none overflow-hidden"
-              style={{ 
-                scrollbarWidth: "none", 
-                msOverflowStyle: "none",
-                scrollBehavior: "smooth"
-              }}
-              onMouseDown={handleExplorerMouseDown}
-              onMouseMove={handleExplorerMouseMove}
-              onMouseUp={handleExplorerMouseUp}
-              onMouseLeave={handleExplorerMouseUp}
-              onTouchStart={handleExplorerTouchStart}
-              onTouchMove={handleExplorerTouchMove}
-              onTouchEnd={handleExplorerTouchEnd}
-            >
+            {/* Container do Marquee */}
+            <div className="overflow-hidden">
+              <Marquee
+                speed={30}
+                gradient={false}
+                className="py-4"
+                pauseOnHover={false}
+              >
+                <div className="flex gap-8 px-12">
               {/* Primeira cópia dos posts */}
               {explorerPosts.map((post) => (
                 <div key={`first-${post.id}`} className="flex-none w-80 group cursor-pointer" onClick={() => setSelectedExplorerPost(post)}>
                   <div className="relative overflow-hidden bg-white shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-1 w-80">
-                    <div className="aspect-square relative overflow-hidden">
+                    <div className="aspect-[2300/3066] relative overflow-hidden">
                       <Image
                         src={post.image || "/placeholder.svg"}
                         alt={`Post by ${post.username}`}
@@ -1339,11 +1477,11 @@ export default function HomePage() {
                 </div>
               ))}
               
-              {/* Segunda cópia dos posts para rolagem infinita */}
+              {/* Segunda cópia dos posts para continuidade perfeita */}
               {explorerPosts.map((post) => (
                 <div key={`second-${post.id}`} className="flex-none w-80 group cursor-pointer" onClick={() => setSelectedExplorerPost(post)}>
                   <div className="relative overflow-hidden bg-white shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-1 w-80">
-                    <div className="aspect-square relative overflow-hidden">
+                    <div className="aspect-[2300/3066] relative overflow-hidden">
                       <Image
                         src={post.image || "/placeholder.svg"}
                         alt={`Post by ${post.username}`}
@@ -1370,23 +1508,11 @@ export default function HomePage() {
                   </div>
                 </div>
               ))}
+                </div>
+              </Marquee>
             </div>
 
-            {/* Navegação com indicadores */}
-            <div className="flex justify-center mt-8">
-              {/* Carousel Indicators */}
-              <div className="flex gap-2">
-                {explorerPosts.map((_, index) => (
-                  <button
-                    key={index}
-                    onClick={() => scrollToExplorerIndex(index)}
-                    className={`w-3 h-3 transition-all duration-300 ${
-                      index === currentExplorerIndex ? "bg-black" : "bg-gray-300 hover:bg-gray-400"
-                    }`}
-                  />
-                ))}
-              </div>
-            </div>
+
           </div>
 
           {/* Call to Action */}
@@ -1406,13 +1532,13 @@ export default function HomePage() {
                 </div>
                 
                 <h3 className="text-3xl md:text-4xl font-bold text-black mb-4">
-                  Seja o próximo explorador
+                  SEJA O PRÓXIMO EXPLORADOR
                 </h3>
                 
                 <p className="text-gray-700 mb-8 max-w-lg text-lg leading-relaxed">
-                  Compartilhe sua aventura com nossos produtos e marque
+                  COMPARTILHE SUA AVENTURA COM NOSSOS PRODUTOS E MARQUE
                   <span className="font-bold text-black">
-                    {" "}@multiversoestudio
+                    {" "}@MULTIVERSOESTUDIO
                   </span>
                 </p>
                 
@@ -1439,7 +1565,7 @@ export default function HomePage() {
             onClick={() => setSelectedExplorerPost(null)}
           >
             <div className="bg-white max-w-2xl w-full max-h-[90vh] overflow-hidden" onClick={(e) => e.stopPropagation()}>
-              <div className="aspect-square relative">
+              <div className="aspect-[2300/3066] relative">
                 <Image
                   src={selectedExplorerPost.image || "/placeholder.svg"}
                   alt={`Post by ${selectedExplorerPost.username}`}

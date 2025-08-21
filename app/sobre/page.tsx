@@ -2,76 +2,81 @@
 
 import { Navbar } from "@/components/navbar"
 import Footer from "@/components/footer"
-import { Button } from "@/components/ui/button"
 import Link from "next/link"
 
 export default function SobrePage() {
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen">
       <Navbar />
       
-      <main className="pt-20">
-        <div className="container mx-auto px-4 py-12">
-          <div className="text-center mb-12">
-            <h1 className="text-4xl font-bold text-gray-900 mb-4">Sobre Nós</h1>
-            <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-              Conheça a história e missão do Multiverso Estudio
-            </p>
-          </div>
+      <main id="quem-somos" className="pt-20">
+        {/* HERO */}
+        <section className="max-w-6xl mx-auto px-6 lg:px-8 pt-16 pb-8">
+          <h1 className="text-3xl md:text-5xl font-black uppercase tracking-tight text-black">
+            QUEM SOMOS
+          </h1>
+          <div className="mt-4 h-[2px] w-24 bg-black"></div>
+        </section>
 
-          <div className="max-w-4xl mx-auto space-y-8">
-            <div className="bg-white rounded-lg shadow-lg p-8 border border-gray-200">
-              <h2 className="text-2xl font-bold text-gray-900 mb-4">Nossa Missão</h2>
-              <p className="text-gray-600 leading-relaxed">
-                O Multiverso Estudio é uma plataforma inovadora que conecta criadores e fãs através de produtos únicos e exclusivos. 
-                Nossa missão é democratizar o acesso a produtos de qualidade, permitindo que cada criador tenha sua própria loja 
-                dentro da nossa plataforma.
+        {/* CONTEÚDO */}
+        <section className="max-w-6xl mx-auto px-6 lg:px-8 pb-20">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-10">
+            {/* TEXTO PRINCIPAL */}
+            <div className="lg:col-span-8 space-y-6">
+              <p className="text-base md:text-lg leading-7 md:leading-8 text-gray-700">
+                O Multiverso Estúdio nasce da necessidade de criar não apenas um espaço, mas um
+                movimento: um ponto de convergência onde artistas materializam, através de sua visão,
+                ideias vindas de outros universos — os clientes.
+              </p>
+
+              <div className="border-l-4 border-black pl-5">
+                <p className="text-base md:text-lg leading-7 md:leading-8 text-black">
+                  Acreditamos em uma simbiose benéfica, onde cada criação é fruto da fusão entre a
+                  identidade do artista e o imaginário do cliente. Dessa troca nascem peças únicas,
+                  carregadas de experiências, decisões, anseios, esperança e de uma visão singular.
+                </p>
+              </div>
+
+              <p className="text-base md:text-lg leading-7 md:leading-8 text-gray-700">
+                Somos exploradores criativos em constante expansão, transformando ideias em realidades
+                e conduzindo cada projeto como parte de uma
+                <span className="font-semibold text-black">jornada exploratória simbiótica</span>.
               </p>
             </div>
 
-            <div className="bg-white rounded-lg shadow-lg p-8 border border-gray-200">
-              <h2 className="text-2xl font-bold text-gray-900 mb-4">Como Funciona</h2>
-              <p className="text-gray-600 leading-relaxed mb-4">
-                Criadores podem abrir suas lojas personalizadas, oferecendo produtos exclusivos para seus fãs. 
-                Cada loja é um universo próprio, com identidade visual única e produtos selecionados.
-              </p>
-              <p className="text-gray-600 leading-relaxed">
-                Os fãs podem navegar entre diferentes lojas, descobrindo produtos únicos e apoiando seus criadores favoritos.
-              </p>
-            </div>
+            {/* LATERAL */}
+            <aside className="lg:col-span-4">
+              <div className="sticky top-6 space-y-4">
+                <div className="bg-white border border-gray-200 rounded-2xl p-5 shadow-lg">
+                  <h2 className="uppercase text-sm font-bold tracking-wider text-black">ESSÊNCIA</h2>
+                  <p className="mt-3 text-sm leading-6 text-gray-700">
+                    Convergimos visões. Unimos artista e cliente. Criamos peças que carregam história,
+                    intenção e futuro — sempre com propósito e precisão.
+                  </p>
+                </div>
 
-            <div className="bg-white rounded-lg shadow-lg p-8 border border-gray-200">
-              <h2 className="text-2xl font-bold text-gray-900 mb-4">Nossos Valores</h2>
-              <ul className="space-y-3 text-gray-600">
-                <li className="flex items-center">
-                  <span className="w-2 h-2 bg-orange-500 rounded-full mr-3"></span>
-                  <strong>Inovação:</strong> Sempre buscando novas formas de conectar criadores e fãs
-                </li>
-                <li className="flex items-center">
-                  <span className="w-2 h-2 bg-orange-500 rounded-full mr-3"></span>
-                  <strong>Qualidade:</strong> Produtos selecionados com rigor para garantir a satisfação
-                </li>
-                <li className="flex items-center">
-                  <span className="w-2 h-2 bg-orange-500 rounded-full mr-3"></span>
-                  <strong>Comunidade:</strong> Fomentando conexões genuínas entre criadores e fãs
-                </li>
-                <li className="flex items-center">
-                  <span className="w-2 h-2 bg-orange-500 rounded-full mr-3"></span>
-                  <strong>Sustentabilidade:</strong> Práticas responsáveis em toda nossa operação
-                </li>
-              </ul>
-            </div>
+                <div className="grid grid-cols-2 gap-3">
+                  <div className="bg-white border border-gray-200 rounded-xl p-4 shadow-lg">
+                    <span className="block text-[11px] uppercase tracking-wider text-gray-500">PILARES</span>
+                    <ul className="mt-2 space-y-1 text-sm text-gray-700">
+                      <li>Co-criação</li>
+                      <li>Precisão estética</li>
+                      <li>Funcionalidade</li>
+                    </ul>
+                  </div>
+                  <div className="bg-white border border-gray-200 rounded-xl p-4 shadow-lg">
+                    <span className="block text-[11px] uppercase tracking-wider text-gray-500">MÉTODO</span>
+                    <ul className="mt-2 space-y-1 text-sm text-gray-700">
+                      <li>Escuta ativa</li>
+                      <li>Prototipagem ágil</li>
+                      <li>Entrega sob medida</li>
+                    </ul>
+                  </div>
+                </div>
+              </div>
+            </aside>
           </div>
-
-          <div className="text-center mt-12">
-            <Link href="/para-criadores">
-              <Button className="mr-4">Seja um Criador</Button>
-            </Link>
-            <Link href="/">
-              <Button variant="outline">Voltar ao Início</Button>
-            </Link>
-          </div>
-        </div>
+        </section>
       </main>
 
       <Footer />

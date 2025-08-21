@@ -1,10 +1,7 @@
 import type React from "react"
 import type { Metadata } from "next"
-import { Inter } from "next/font/google"
 import "./globals.css"
 // import { CategoriesProvider } from "@/contexts/categories-context"
-
-const inter = Inter({ subsets: ["latin"] })
 
 export const metadata: Metadata = {
   title: "Multiverso Estudio - Lojas dentro de lojas",
@@ -20,7 +17,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="pt-BR">
-      <body className={inter.className}>
+      <body className="font-gotham">
         {/* <CategoriesProvider> */}
           {children}
         {/* </CategoriesProvider> */}

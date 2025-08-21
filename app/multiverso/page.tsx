@@ -396,7 +396,7 @@ export default function MultiversoStorePage() {
             {launchProducts.map((product) => (
               <Link key={product.id} href={`/produto/${product.id}`}>
                 <Card className="overflow-hidden hover:shadow-2xl transition-all duration-500 group cursor-pointer h-full hover-lift">
-                  <div className="relative aspect-square overflow-hidden">
+                  <div className="relative aspect-[2300/3066] overflow-hidden">
                     <Image
                       src={product.image || "/placeholder.svg"}
                       alt={product.name}

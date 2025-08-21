@@ -92,6 +92,7 @@ export function Navbar() {
     height = 20,
     isDarkBackground = false,
     onClick,
+    noAnimation = false,
   }: {
     iconSrc: string
     tooltip: string
@@ -100,27 +101,32 @@ export function Navbar() {
     height?: number
     isDarkBackground?: boolean
     onClick?: () => void
+    noAnimation?: boolean
   }) => {
     const [isHovered, setIsHovered] = useState(false)
     const [displayText, setDisplayText] = useState("")
 
     useEffect(() => {
       if (isHovered) {
-        let currentIndex = 0
-        const typingInterval = setInterval(() => {
-          if (currentIndex <= tooltip.length) {
-            setDisplayText(tooltip.slice(0, currentIndex))
-            currentIndex++
-    } else {
-            clearInterval(typingInterval)
-          }
-        }, 50) // 50ms delay between each character
+        if (noAnimation) {
+          setDisplayText(tooltip)
+        } else {
+          let currentIndex = 0
+          const typingInterval = setInterval(() => {
+            if (currentIndex <= tooltip.length) {
+              setDisplayText(tooltip.slice(0, currentIndex))
+              currentIndex++
+            } else {
+              clearInterval(typingInterval)
+            }
+          }, 50) // 50ms delay between each character
 
-        return () => clearInterval(typingInterval)
+          return () => clearInterval(typingInterval)
+        }
       } else {
         setDisplayText("")
       }
-    }, [isHovered, tooltip])
+    }, [isHovered, tooltip, noAnimation])
 
     return (
       <div
@@ -241,11 +247,10 @@ export function Navbar() {
             </div>
 
             <div className="flex items-center space-x-4">
-              <IconWithTooltip iconSrc="/icons/rastreio icon.svg" tooltip="Rastreio" href="/rastreio" />
-              <IconWithTooltip iconSrc="/icons/dúvidas icon.svg" tooltip="Dúvidas" href="/duvidas" />
-              <IconWithTooltip iconSrc="/icons/trocas icon.svg" tooltip="Trocas" href="/trocas" />
-              <IconWithTooltip iconSrc="/icons/mochila icon.svg" tooltip="Carrinho" href="#" onClick={() => setIsCartOpen(true)} />
-              <IconWithTooltip iconSrc="/icons/login icon.svg" tooltip="Login" href="/login" />
+              <IconWithTooltip iconSrc="/icons/pesquisa icon.svg" tooltip="Pesquisar" href="/pesquisa" />
+              <IconWithTooltip iconSrc="/icons/dúvidas icon.svg" tooltip="Dúvidas" href="/duvidas" noAnimation={true} />
+              <IconWithTooltip iconSrc="/icons/mochila icon.svg" tooltip="Mochila" href="#" onClick={() => setIsCartOpen(true)} />
+              <IconWithTooltip iconSrc="/icons/login icon.svg" tooltip="Login/Cadastro" href="/login" />
             </div>
           </div>
         </div>
@@ -282,8 +287,10 @@ export function Navbar() {
             </div>
 
             <div className="flex items-center space-x-3">
-              <IconWithTooltip iconSrc="/icons/trocas icon.svg" tooltip="Trocas" href="/trocas" isDarkBackground={true} />
-              <IconWithTooltip iconSrc="/icons/mochila icon.svg" tooltip="Carrinho" href="#" onClick={() => setIsCartOpen(true)} isDarkBackground={true} />
+              <IconWithTooltip iconSrc="/icons/pesquisa icon.svg" tooltip="Pesquisar" href="/pesquisa" isDarkBackground={true} />
+              <IconWithTooltip iconSrc="/icons/dúvidas icon.svg" tooltip="Dúvidas" href="/duvidas" isDarkBackground={true} noAnimation={true} />
+              <IconWithTooltip iconSrc="/icons/mochila icon.svg" tooltip="Mochila" href="#" onClick={() => setIsCartOpen(true)} isDarkBackground={true} />
+              <IconWithTooltip iconSrc="/icons/login icon.svg" tooltip="Login/Cadastro" href="/login" isDarkBackground={true} />
             </div>
           </div>
         </div>
@@ -317,31 +324,39 @@ export function Navbar() {
 
             <div className="flex items-center space-x-2">
               <IconWithTooltip
-                iconSrc="/icons/rastreio icon.svg"
-                tooltip="Rastreio"
-                href="/rastreio"
+                iconSrc="/icons/pesquisa icon.svg"
+                tooltip="Pesquisar"
+                href="/pesquisa"
                 width={16}
                 height={16}
                 isDarkBackground={true}
               />
               <IconWithTooltip
-                iconSrc="/icons/trocas icon.svg"
-                tooltip="Trocas"
-                href="/trocas"
+                iconSrc="/icons/dúvidas icon.svg"
+                tooltip="Dúvidas"
+                href="/duvidas"
                 width={16}
                 height={16}
                 isDarkBackground={true}
+                noAnimation={true}
               />
-                            <IconWithTooltip
+              <IconWithTooltip
                 iconSrc="/icons/mochila icon.svg"
-                tooltip="Carrinho"
+                tooltip="Mochila"
                 href="#"
                 onClick={() => setIsCartOpen(true)}
                 width={16}
                 height={16}
                 isDarkBackground={true}
               />
-              <IconWithTooltip iconSrc="/icons/login icon.svg" tooltip="Login" href="/login" width={16} height={16} isDarkBackground={true} />
+              <IconWithTooltip 
+                iconSrc="/icons/login icon.svg" 
+                tooltip="Login/Cadastro" 
+                href="/login" 
+                width={16} 
+                height={16} 
+                isDarkBackground={true} 
+              />
             </div>
           </div>
         </div>

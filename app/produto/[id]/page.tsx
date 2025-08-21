@@ -121,7 +121,6 @@ export default function ProductPage({ params }: { params: Promise<{ id: string }
       type: selectedType,
       quantity,
     })
-    alert("Produto adicionado ao carrinho!")
   }
 
   return (
@@ -347,7 +346,7 @@ export default function ProductPage({ params }: { params: Promise<{ id: string }
                 disabled={!selectedSize || !selectedColor || !selectedType}
               >
                 <ShoppingCart className="w-5 h-5 mr-2" />
-                Adicionar ao Carrinho - R$ {(product.price * quantity).toFixed(2)}
+                Adicionar a Mochila - R$ {(product.price * quantity).toFixed(2)}
               </Button>
               <Button variant="outline" className="w-full h-12 text-lg bg-transparent">
                 Comprar Agora
@@ -359,7 +358,7 @@ export default function ProductPage({ params }: { params: Promise<{ id: string }
               <div className="flex items-center space-x-2">
                 <Truck className="w-5 h-5 text-black" />
                 <div>
-                  <p className="font-semibold text-sm">Frete Grátis teste</p>
+                  <p className="font-semibold text-sm">Frete Grátis</p>
                   <p className="text-xs text-gray-600">Acima de R$ 99</p>
                 </div>
               </div>
@@ -437,7 +436,7 @@ export default function ProductPage({ params }: { params: Promise<{ id: string }
             {relatedProducts.map((relatedProduct) => (
               <Link key={relatedProduct.id} href={`/produto/${relatedProduct.id}`}>
                 <div className="group cursor-pointer">
-                  <div className="relative aspect-square overflow-hidden bg-gray-50 mb-4 rounded-lg">
+                  <div className="relative aspect-[2300/3066] overflow-hidden bg-gray-50 mb-4 rounded-lg">
                     <Image
                       src={relatedProduct.image || "/placeholder.svg"}
                       alt={relatedProduct.name}

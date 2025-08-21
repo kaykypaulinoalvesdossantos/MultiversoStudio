@@ -12,6 +12,30 @@ const config: Config = {
   ],
   theme: {
   	extend: {
+  		fontFamily: {
+  			sans: ['Gotham', '-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', 'Helvetica Neue', 'Arial', 'sans-serif'],
+  			gotham: ['Gotham', '-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', 'Helvetica Neue', 'Arial', 'sans-serif'],
+  			'gotham-thin': ['Gotham', 'sans-serif'],
+  			'gotham-extralight': ['Gotham', 'sans-serif'],
+  			'gotham-light': ['Gotham', 'sans-serif'],
+  			'gotham-book': ['Gotham', 'sans-serif'],
+  			'gotham-medium': ['Gotham', 'sans-serif'],
+  			'gotham-semibold': ['Gotham', 'sans-serif'],
+  			'gotham-bold': ['Gotham', 'sans-serif'],
+  			'gotham-extrabold': ['Gotham', 'sans-serif'],
+  			'gotham-black': ['Gotham', 'sans-serif'],
+  		},
+  		fontWeight: {
+  			'thin': '100',
+  			'extralight': '200',
+  			'light': '300',
+  			'normal': '400',
+  			'medium': '500',
+  			'semibold': '600',
+  			'bold': '700',
+  			'extrabold': '800',
+  			'black': '900',
+  		},
   		colors: {
   			background: 'hsl(var(--background))',
   			foreground: 'hsl(var(--foreground))',
