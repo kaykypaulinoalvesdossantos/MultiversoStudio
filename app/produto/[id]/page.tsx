@@ -1,485 +1,583 @@
 "use client"
 
-import { use, useState } from "react"
+import { useState, useEffect } from "react"
 import Image from "next/image"
-import Link from "next/link"
 import { Button } from "@/components/ui/button"
-import { Badge } from "@/components/ui/badge"
-import { Card, CardContent } from "@/components/ui/card"
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
-import { Label } from "@/components/ui/label"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import {
-  Star,
-  Heart,
-  Share2,
-  ShoppingCart,
-  Plus,
-  Minus,
-  Truck,
-  Shield,
-  RotateCcw,
-  MessageCircle,
-  ArrowLeft,
-} from "lucide-react"
 import { Navbar } from "@/components/navbar"
 import Footer from "@/components/footer"
+import QuickBuyModal from "@/components/quick-buy-modal"
 
-export default function ProductPage({ params }: { params: Promise<{ id: string }> }) {
-  const { id } = use(params)
-  const [selectedSize, setSelectedSize] = useState("")
-  const [selectedColor, setSelectedColor] = useState("")
-  const [selectedType, setSelectedType] = useState("")
+interface ProductPageProps {
+  params: {
+    id: string
+  }
+}
+
+export default function ProductPage({ params }: ProductPageProps) {
+  const [selectedModel, setSelectedModel] = useState("REGULAR")
+  const [selectedSize, setSelectedSize] = useState("P")
+  const [selectedColor, setSelectedColor] = useState("PRETO")
   const [quantity, setQuantity] = useState(1)
-  const [selectedImage, setSelectedImage] = useState(0)
+  const [isQuickBuyOpen, setIsQuickBuyOpen] = useState(false)
+  const [currentImageIndex, setCurrentImageIndex] = useState(0)
 
-  // Mock product data - in real app, fetch based on id
+  // Dados do produto (em produção real, viria de uma API)
+  // Para acessar o Multiverso de 100% use: /produto/multiverso-100
+  // Para acessar o Multiverso Estúdio use: /produto/multiverso-estudio
   const product = {
-    id,
-    name: "Camiseta Cafézini Garganttinni - Edição Limitada",
-    price: 79.9,
-    originalPrice: 99.9,
-    images: [
-      "/placeholder.svg?height=600&width=600",
-      "/placeholder.svg?height=600&width=600",
-      "/placeholder.svg?height=600&width=600",
-      "/placeholder.svg?height=600&width=600",
-    ],
-    store: "Sacocheio.tv",
-    rating: 4.8,
-    reviews: 234,
-    sales: 856,
-    badge: "Lançamento",
-    badgeColor: "bg-amber-500",
-    discount: "20% OFF",
+    id: params.id,
+    name: params.id === "multiverso-100" 
+      ? "CAMISETA MULTIVERSO DE 100% — LOGO OFICIAL"
+      : "CAMISETA MULTIVERSO ESTÚDIO — LOGO OFICIAL",
+    store: "MULTIVERSO ESTÚDIO",
+    price: params.id === "multiverso-100" ? 79.90 : 69.90,
+    originalPrice: params.id === "multiverso-100" ? 99.90 : 89.90,
+    badge: params.id === "multiverso-100" ? "LIMITADA" : "EXCLUSIVO",
     freeShipping: true,
-    description:
-      "Camiseta exclusiva da coleção Cafézini, feita em 100% algodão premium. Design único que combina humor e qualidade em uma peça confortável e estilosa.",
-    features: [
-      "100% Algodão Premium",
-      "Estampa de alta qualidade",
-      "Corte moderno e confortável",
-      "Resistente a lavagem",
-      "Edição limitada",
-    ],
-    sizes: ["PP", "P", "M", "G", "GG", "XG", "EXG"],
-    types: ["Regular", "Oversized", "Babylook", "Infantil"],
-    colors: [
-      { name: "Preto", value: "#000000" },
-      { name: "Branco", value: "#FFFFFF" },
-      { name: "Cinza", value: "#808080" },
-      { name: "Azul", value: "#0066CC" },
-    ],
-    specifications: {
-      material: "100% Algodão",
-      weight: "180g/m²",
-      origin: "Brasil",
-      care: "Lavar à máquina até 40°C",
-    },
+    image: params.id === "multiverso-100" 
+      ? "/imgs/produtos/multiverso-100-2300x3066.png"
+      : "/imgs/produtos/prod-01-2300x3066.png",
+    images: params.id === "multiverso-100" 
+      ? [
+          "/imgs/produtos/multiverso-100-2300x3066.png",
+          "/imgs/produtos/multiverso-100-02-2300x3066.png",
+          "/imgs/produtos/multiverso-100-03-2300x3066.png"
+        ]
+      : [
+          "/imgs/produtos/prod-01-2300x3066.png",
+          "/imgs/produtos/prod-02-2300x3066.png",
+          "/imgs/produtos/prod-03-2300x3066.png"
+        ],
+    description: params.id === "multiverso-100"
+      ? "Malha premium 100% algodão, modelagens Regular / Oversized / Babylook / Infantil. Estampa oficial do Multiverso de 100% - Edição Limitada."
+      : "Malha premium, modelagens Regular / Oversized / Babylook / Infantil. Estampa oficial do Multiverso Estúdio."
   }
 
-  const relatedProducts = [
-    {
-      id: 2,
-      name: "Caneca Cafézini Premium",
-      price: 45.9,
-      originalPrice: 55.9,
-      image: "/placeholder.svg?height=300&width=300",
-      store: "Sacocheio.tv",
-      rating: 4.9,
-      badge: "Best Seller",
-      badgeColor: "bg-green-500",
-    },
-    {
-      id: 3,
-      name: "Kit Cafézini Completo",
-      price: 119.9,
-      originalPrice: 149.9,
-      image: "/placeholder.svg?height=300&width=300",
-      store: "Sacocheio.tv",
-      rating: 4.8,
-      badge: "Kit",
-      badgeColor: "bg-blue-500",
-    },
-    {
-      id: 4,
-      name: "Moletom Cafézini",
-      price: 159.9,
-      image: "/placeholder.svg?height=300&width=300",
-      store: "Sacocheio.tv",
-      rating: 4.7,
-      badge: "Novo",
-      badgeColor: "bg-purple-500",
-    },
+  const models = ["REGULAR", "OVERSIZED", "BABYLOOK", "INFANTIL"]
+  const sizes = ["PP", "P", "M", "G", "GG", "XG", "EXG"]
+  const colors = [
+    { name: "PRETO", value: "PRETO", hex: "bg-black" },
+    { name: "BRANCO", value: "BRANCO", hex: "bg-white ring-1 ring-gray-300" },
+    { name: "CINZA", value: "CINZA", hex: "bg-gray-600" },
+    { name: "AZUL", value: "AZUL", hex: "bg-[#1e3a8a]" }
   ]
 
-  const handleAddToCart = () => {
-    console.log("Added to cart:", {
-      product,
-      size: selectedSize,
-      color: selectedColor,
-      type: selectedType,
-      quantity,
-    })
+  const totalPrice = product.price * quantity
+
+  const handleQuantityChange = (newQuantity: number) => {
+    if (newQuantity >= 1 && newQuantity <= 10) {
+      setQuantity(newQuantity)
+    }
   }
 
-  return (
-    <div className="min-h-screen bg-white">
-      <Navbar />
+  const handleQuickBuy = () => {
+    setIsQuickBuyOpen(true)
+  }
 
+  const scrollToImage = (index: number) => {
+    setCurrentImageIndex(index)
+    const gallery = document.getElementById('galeria')
+    if (gallery) {
+      const imageWidth = gallery.clientWidth
+      gallery.scrollTo({ left: index * imageWidth, behavior: 'smooth' })
+    }
+  }
+
+  const handlePrevImage = () => {
+    const newIndex = currentImageIndex > 0 ? currentImageIndex - 1 : product.images.length - 1
+    scrollToImage(newIndex)
+  }
+
+  const handleNextImage = () => {
+    const newIndex = currentImageIndex < product.images.length - 1 ? currentImageIndex + 1 : 0
+    scrollToImage(newIndex)
+  }
+
+  useEffect(() => {
+    // Scroll para o topo quando a página carregar
+    window.scrollTo(0, 0)
+  }, [])
+
+  return (
+    <main className="bg-white text-black font-gotham min-h-screen">
+      <Navbar />
+      
       {/* Breadcrumb */}
-      <div className="bg-gray-50 py-4 pt-20">
-        <div className="container mx-auto px-4">
-          <div className="flex items-center space-x-2 text-sm">
-            <Link href="/" className="text-gray-600 hover:text-gray-900">
-              Início
-            </Link>
-            <span className="text-gray-400">/</span>
-            <Link href={`/loja/${product.store.toLowerCase()}`} className="text-gray-600 hover:text-gray-900">
+      <nav className="max-w-6xl mx-auto px-4 md:px-6 pt-24 text-[11px] md:text-xs text-gray-500 uppercase tracking-wider font-gotham-medium">
+        <a href="/" className="hover:text-black transition-colors">MULTIVERSO</a> /
+        <a href="/vestuario" className="hover:text-black transition-colors">VESTUÁRIO</a> /
+        <span className="text-gray-800">
+          {params.id === "multiverso-100" ? "MULTIVERSO DE 100%" : "CAMISETAS"}
+        </span>
+      </nav>
+
+      {/* GRID: agora já em md (tablet) vira 12 colunas */}
+      <section className="max-w-6xl mx-auto px-0 md:px-6 pb-28 md:pb-24 grid md:grid-cols-12 md:gap-8">
+        
+        {/* ESQ: título/infos (aparece de md pra cima) */}
+        <header className="hidden md:block md:col-span-3 pt-2">
+          <p className="text-[11px] uppercase tracking-wider text-gray-500 font-gotham-bold">
               {product.store}
-            </Link>
-            <span className="text-gray-400">/</span>
-            <span className="text-gray-900">{product.name}</span>
+          </p>
+          <h1 className="uppercase font-black tracking-wide leading-snug text-[22px] xl:text-[26px] font-gotham-black">
+            {product.name}
+          </h1>
+          <div className="mt-3 flex items-baseline gap-3">
+            <span className="text-xl font-black font-gotham-black">
+              R$ {product.price.toFixed(2).replace(".", ",")}
+            </span>
+            <span className="text-xs text-gray-400 line-through font-gotham-medium">
+              R$ {product.originalPrice?.toFixed(2).replace(".", ",")}
+            </span>
           </div>
-        </div>
+          <p className="text-xs text-gray-600 mt-2 font-gotham-book">
+            {params.id === "multiverso-100" 
+              ? "100% algodão premium · 5–10 dias úteis de produção"
+              : "Feito sob demanda · 5–10 dias úteis de produção"
+            }
+          </p>
+
+          {/* Menus recolhíveis compactos */}
+          <details className="group border-t border-gray-300 mt-6 pt-3">
+            <summary className="flex items-center justify-between cursor-pointer select-none">
+              <span className="uppercase text-xs font-semibold font-gotham-bold">Descrição</span>
+              <span className="text-lg leading-none transition group-open:rotate-45 font-gotham-black">+</span>
+            </summary>
+            <p className="mt-2 text-[13px] text-gray-800 leading-6 font-gotham-book">
+              {product.description}
+            </p>
+          </details>
+          <details className="group border-t border-gray-300 pt-3">
+            <summary className="flex items-center justify-between cursor-pointer select-none">
+              <span className="uppercase text-xs font-semibold font-gotham-bold">Trocas e Devoluções</span>
+              <span className="text-lg leading-none transition group-open:rotate-45 font-gotham-black">+</span>
+            </summary>
+            <p className="mt-2 text-[13px] text-gray-800 leading-6 font-gotham-book">
+              7 dias corridos para arrependimento. Veja termos em{" "}
+              <a className="underline hover:text-gray-600 transition-colors" href="/trocas">
+                /trocas
+              </a>.
+            </p>
+          </details>
+        </header>
+
+        {/* CENTRO: galeria lateral (vai pro lado) */}
+        <section className="relative md:col-span-6">
+          <div className="absolute z-10 left-2 top-2 flex gap-2">
+            <span className="px-2 py-1 text-[10px] font-semibold bg-black text-white font-gotham-bold">
+              {product.badge}
+            </span>
+            {product.freeShipping && (
+              <span className="px-2 py-1 text-[10px] font-semibold bg-gray-200 text-gray-900 font-gotham-bold">
+                FRETE GRÁTIS
+              </span>
+            )}
       </div>
 
-      <div className="container mx-auto px-4 py-8">
-        {/* Back Button */}
-        <div className="mb-6">
-          <Button
-            variant="ghost"
-            className="text-gray-600 hover:text-gray-900 p-0"
-            onClick={() => window.history.back()}
-          >
-            <ArrowLeft className="w-4 h-4 mr-2" />
-            Voltar
-          </Button>
-        </div>
+          <div className="relative">
+            <button 
+              type="button" 
+              onClick={handlePrevImage}
+              className="hidden md:block absolute left-0 top-1/2 -translate-y-1/2 z-10 px-3 py-10 bg-black/5 hover:bg-black/10 transition-colors font-gotham-black text-2xl"
+            >
+              ‹
+            </button>
+            <button 
+              type="button" 
+              onClick={handleNextImage}
+              className="hidden md:block absolute right-0 top-1/2 -translate-y-1/2 z-10 px-3 py-10 bg-black/5 hover:bg-black/10 transition-colors font-gotham-black text-2xl"
+            >
+              ›
+            </button>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12">
-          {/* Product Images */}
-          <div className="space-y-4">
-            {/* Main Image */}
-            <div className="relative aspect-square overflow-hidden bg-gray-50 rounded-lg">
+            <div 
+              id="galeria"
+              className="flex overflow-x-auto snap-x snap-mandatory gap-6 md:gap-8 scroll-smooth"
+              style={{ scrollbarWidth: "none" }}
+            >
+              {product.images.map((image, index) => (
+                <figure key={index} className="min-w-full md:min-w-[640px] lg:min-w-[720px] snap-start border border-gray-300 bg-white">
+                  <div className="aspect-[3/4] grid place-items-center">
               <Image
-                src={product.images[selectedImage] || "/placeholder.svg"}
-                alt={product.name}
-                fill
-                className="object-cover"
-                priority
-              />
-              <div className="absolute top-4 left-4 flex flex-col space-y-2">
-                <Badge className={`${product.badgeColor} text-white`}>{product.badge}</Badge>
-                {product.discount && <Badge className="bg-green-500 text-white">{product.discount}</Badge>}
-                {product.freeShipping && <Badge className="bg-blue-500 text-white">Frete Grátis</Badge>}
+                      src={image}
+                      width={2300}
+                      height={3066}
+                      className="w-full h-full object-contain"
+                      alt={`Imagem ${index + 1}`}
+                      priority={index === 0}
+                    />
               </div>
+                </figure>
+              ))}
             </div>
 
-            {/* Thumbnail Images */}
-            <div className="grid grid-cols-4 gap-2">
-              {product.images.map((image, index) => (
+            {/* Indicadores de imagem */}
+            <div className="hidden md:flex justify-center mt-4 gap-2">
+              {product.images.map((_, index) => (
                 <button
                   key={index}
-                  className={`relative aspect-square overflow-hidden bg-gray-50 rounded-lg border-2 transition-colors ${
-                    selectedImage === index ? "border-black" : "border-gray-200 hover:border-gray-300"
+                  onClick={() => scrollToImage(index)}
+                  className={`w-2 h-2 rounded-full transition-colors ${
+                    index === currentImageIndex ? "bg-black" : "bg-gray-300"
                   }`}
-                  onClick={() => setSelectedImage(index)}
-                >
-                  <Image
-                    src={image || "/placeholder.svg"}
-                    alt={`${product.name} ${index + 1}`}
-                    fill
-                    className="object-cover"
-                  />
-                </button>
+                />
               ))}
             </div>
           </div>
+        </section>
 
-          {/* Product Info */}
-          <div className="space-y-6">
-            {/* Header */}
-            <div>
-              <div className="flex items-center justify-between mb-2">
-                <Link
-                  href={`/loja/${product.store.toLowerCase()}`}
-                  className="text-amber-600 hover:text-amber-700 font-medium"
-                >
-                  {product.store}
-                </Link>
-                <div className="flex items-center space-x-2">
-                  <Button variant="ghost" size="icon" className="text-gray-600 hover:text-red-500">
-                    <Heart className="w-5 h-5" />
-                  </Button>
-                  <Button variant="ghost" size="icon" className="text-gray-600 hover:text-blue-500">
-                    <Share2 className="w-5 h-5" />
-                  </Button>
-                </div>
-              </div>
-              <h1 className="text-2xl md:text-3xl font-bold mb-4">{product.name}</h1>
-              <div className="flex items-center space-x-4 mb-4">
-                <div className="flex items-center space-x-1">
-                  <Star className="w-5 h-5 fill-yellow-400 text-yellow-400" />
-                  <span className="font-semibold">{product.rating}</span>
-                  <span className="text-gray-600">({product.reviews} avaliações)</span>
-                </div>
-                <span className="text-gray-600">{product.sales} vendidos</span>
-              </div>
+        {/* DIR: painel quadrado/sticky a partir de md (tablet/desktop) */}
+        <aside className="hidden md:block md:col-span-3">
+          <div className="sticky top-6 border border-gray-800 p-5 bg-white">
+            
+            {/* Modelo */}
+            <p className="text-[11px] font-semibold uppercase text-gray-700 mb-2 font-gotham-bold">MODELO</p>
+            <div className="grid grid-cols-2 gap-2 mb-4">
+              {models.map((model) => (
+                <label key={model} className="chip cursor-pointer">
+                  <input 
+                    type="radio" 
+                    name="modelo" 
+                    value={model}
+                    checked={selectedModel === model}
+                    onChange={(e) => setSelectedModel(e.target.value)}
+                    className="peer sr-only" 
+                  />
+                  <span className="font-gotham-bold">{model}</span>
+                </label>
+              ))}
             </div>
 
-            {/* Price */}
-            <div className="space-y-2">
-              <div className="flex items-center space-x-3">
-                <span className="text-3xl font-bold">R$ {product.price.toFixed(2)}</span>
-                {product.originalPrice && (
-                  <span className="text-xl text-gray-500 line-through">R$ {product.originalPrice.toFixed(2)}</span>
-                )}
-              </div>
-              {product.originalPrice && (
-                <p className="text-green-600 font-semibold">
-                  Economia de R$ {(product.originalPrice - product.price).toFixed(2)} ({product.discount})
-                </p>
-              )}
+            {/* Tamanho */}
+            <details className="group border-t border-gray-300 pt-4 open">
+              <summary className="flex items-center justify-between cursor-pointer select-none">
+                <span className="text-[11px] font-semibold uppercase text-gray-700 font-gotham-bold">TAMANHO</span>
+                <span className="text-lg leading-none transition group-open:rotate-45 font-gotham-black">+</span>
+              </summary>
+            </details>
+            <div className="mt-3 grid grid-cols-7 gap-2">
+              {sizes.map((size) => (
+                <label key={size} className="chip cursor-pointer">
+                  <input 
+                    type="radio" 
+                    name="tamanho" 
+                    value={size}
+                    checked={selectedSize === size}
+                    onChange={(e) => setSelectedSize(e.target.value)}
+                    className="peer sr-only" 
+                  />
+                  <span className="font-gotham-bold">{size}</span>
+                </label>
+              ))}
             </div>
 
-            {/* Type Selection */}
-            <div>
-              <Label className="text-base font-semibold mb-3 block">Tipo</Label>
-              <RadioGroup value={selectedType} onValueChange={setSelectedType}>
+            {/* Cor */}
+            <div className="border-t border-gray-300 pt-4 mt-4">
+              <p className="text-[11px] font-semibold uppercase text-gray-700 mb-2 font-gotham-bold">COR</p>
                 <div className="grid grid-cols-2 gap-2">
-                  {product.types.map((type) => (
-                    <div key={type} className="relative">
-                      <RadioGroupItem value={type} id={type} className="sr-only" />
-                      <Label
-                        htmlFor={type}
-                        className={`block p-3 border-2 rounded-lg cursor-pointer text-center transition-colors ${
-                          selectedType === type
-                            ? "border-black bg-black text-white"
-                            : "border-gray-200 hover:border-gray-300"
-                        }`}
-                      >
-                        {type}
-                      </Label>
-                    </div>
+                {colors.map((color) => (
+                  <label key={color.value} className="swatch cursor-pointer">
+                    <input 
+                      type="radio" 
+                      name="cor" 
+                      value={color.value}
+                      checked={selectedColor === color.value}
+                      onChange={(e) => setSelectedColor(e.target.value)}
+                      className="peer sr-only" 
+                    />
+                    <span className={`dot ${color.hex}`}></span>
+                    <em className="font-gotham-bold">{color.name}</em>
+                  </label>
                   ))}
                 </div>
-              </RadioGroup>
             </div>
 
-            {/* Size Selection */}
-            <div>
-              <Label className="text-base font-semibold mb-3 block">Tamanho</Label>
-              <RadioGroup value={selectedSize} onValueChange={setSelectedSize}>
-                <div className="grid grid-cols-4 gap-2">
-                  {product.sizes.map((size) => (
-                    <div key={size} className="relative">
-                      <RadioGroupItem value={size} id={size} className="sr-only" />
-                      <Label
-                        htmlFor={size}
-                        className={`block p-3 border-2 rounded-lg cursor-pointer text-center transition-colors ${
-                          selectedSize === size
-                            ? "border-black bg-black text-white"
-                            : "border-gray-200 hover:border-gray-300"
-                        }`}
-                      >
-                        {size}
-                      </Label>
-                    </div>
-                  ))}
-                </div>
-              </RadioGroup>
-            </div>
-
-            {/* Color Selection */}
-            <div>
-              <Label className="text-base font-semibold mb-3 block">Cor</Label>
-              <RadioGroup value={selectedColor} onValueChange={setSelectedColor}>
-                <div className="grid grid-cols-2 gap-2">
-                  {product.colors.map((color) => (
-                    <div key={color.name} className="relative">
-                      <RadioGroupItem value={color.name} id={color.name} className="sr-only" />
-                      <Label
-                        htmlFor={color.name}
-                        className={`flex items-center space-x-3 p-3 border-2 rounded-lg cursor-pointer transition-colors ${
-                          selectedColor === color.name
-                            ? "border-black bg-gray-50"
-                            : "border-gray-200 hover:border-gray-300"
-                        }`}
-                      >
-                        <div
-                          className="w-6 h-6 rounded-full border-2 border-gray-300"
-                          style={{ backgroundColor: color.value }}
-                        />
-                        <span>{color.name}</span>
-                      </Label>
-                    </div>
-                  ))}
-                </div>
-              </RadioGroup>
-            </div>
-
-            {/* Quantity */}
-            <div>
-              <Label className="text-base font-semibold mb-3 block">Quantidade</Label>
-              <div className="flex items-center space-x-4">
-                <Button
-                  variant="outline"
-                  size="icon"
-                  onClick={() => setQuantity(Math.max(1, quantity - 1))}
-                  disabled={quantity <= 1}
-                >
-                  <Minus className="w-4 h-4" />
-                </Button>
-                <span className="text-xl font-semibold w-12 text-center">{quantity}</span>
-                <Button variant="outline" size="icon" onClick={() => setQuantity(quantity + 1)}>
-                  <Plus className="w-4 h-4" />
-                </Button>
+            {/* Quantidade + CTA */}
+            <div className="border-t border-gray-300 pt-4 mt-4">
+              <div className="flex items-center justify-between">
+                <p className="text-[11px] font-semibold uppercase text-gray-700 font-gotham-bold">QUANTIDADE</p>
+                <span className="text-xs text-gray-700 font-gotham-medium">
+                  TOTAL: <strong className="text-base font-gotham-bold">
+                    R$ {totalPrice.toFixed(2).replace(".", ",")}
+                  </strong>
+                </span>
               </div>
-            </div>
-
-            {/* Add to Cart */}
-            <div className="space-y-4">
+              <div className="mt-2 flex items-center gap-2">
+                <button 
+                  type="button" 
+                  onClick={() => handleQuantityChange(quantity - 1)}
+                  className="stepBtn font-gotham-bold"
+                >
+                  –
+                </button>
+                <input 
+                  type="number" 
+                  min="1" 
+                  max="10"
+                  value={quantity}
+                  onChange={(e) => handleQuantityChange(parseInt(e.target.value) || 1)}
+                  className="w-14 text-center border border-gray-300 py-2 outline-none focus:ring-2 focus:ring-black font-gotham-medium"
+                />
+                <button 
+                  type="button" 
+                  onClick={() => handleQuantityChange(quantity + 1)}
+                  className="stepBtn font-gotham-bold"
+                >
+                  +
+                </button>
+              </div>
               <Button
-                className="w-full bg-black hover:bg-gray-800 h-12 text-lg"
-                onClick={handleAddToCart}
-                disabled={!selectedSize || !selectedColor || !selectedType}
+                onClick={handleQuickBuy}
+                className={`stripe-btn w-full mt-4 px-6 py-3 font-black tracking-widest uppercase text-black transition-colors font-gotham-black ${
+                  params.id === "multiverso-100"
+                    ? "bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white"
+                    : "bg-[#A8E6A3] hover:bg-[#9DD592]"
+                }`}
               >
-                <ShoppingCart className="w-5 h-5 mr-2" />
-                Adicionar a Mochila - R$ {(product.price * quantity).toFixed(2)}
+                COMPRAR
               </Button>
-              <Button variant="outline" className="w-full h-12 text-lg bg-transparent">
-                Comprar Agora
-              </Button>
-            </div>
-
-            {/* Benefits */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 pt-6 border-t">
-              <div className="flex items-center space-x-2">
-                <Truck className="w-5 h-5 text-black" />
-                <div>
-                  <p className="font-semibold text-sm">Frete Grátis</p>
-                  <p className="text-xs text-gray-600">Acima de R$ 99</p>
-                </div>
-              </div>
-              <div className="flex items-center space-x-2">
-                <RotateCcw className="w-5 h-5 text-black" />
-                <div>
-                  <p className="font-semibold text-sm">Troca Fácil</p>
-                  <p className="text-xs text-gray-600">7 dias para trocar</p>
-                </div>
-              </div>
-              <div className="flex items-center space-x-2">
-                <Shield className="w-5 h-5 text-black" />
-                <div>
-                  <p className="font-semibold text-sm">Compra Segura</p>
-                  <p className="text-xs text-gray-600">100% protegida</p>
-                </div>
-              </div>
             </div>
           </div>
-        </div>
+        </aside>
+      </section>
 
-        {/* Product Details Tabs */}
-        <div className="mt-12">
-          <Tabs defaultValue="description" className="w-full">
-            <TabsList className="grid w-full grid-cols-3">
-              <TabsTrigger value="description">Descrição</TabsTrigger>
-              <TabsTrigger value="specifications">Especificações</TabsTrigger>
-              <TabsTrigger value="reviews">Avaliações</TabsTrigger>
-            </TabsList>
-            <TabsContent value="description" className="mt-6">
-              <Card>
-                <CardContent className="p-6">
-                  <p className="text-gray-700 mb-4">{product.description}</p>
-                  <h4 className="font-semibold mb-2">Características:</h4>
-                  <ul className="list-disc list-inside space-y-1 text-gray-700">
-                    {product.features.map((feature, index) => (
-                      <li key={index}>{feature}</li>
-                    ))}
-                  </ul>
-                </CardContent>
-              </Card>
-            </TabsContent>
-            <TabsContent value="specifications" className="mt-6">
-              <Card>
-                <CardContent className="p-6">
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    {Object.entries(product.specifications).map(([key, value]) => (
-                      <div key={key} className="flex justify-between py-2 border-b border-gray-100">
-                        <span className="font-semibold capitalize">{key.replace(/([A-Z])/g, " $1")}:</span>
-                        <span className="text-gray-700">{value}</span>
+      {/* MOBILE/TABLET PEQUENO: painel fixo com efeito vidro contendo tudo */}
+      <div className="md:hidden fixed inset-x-0 bottom-0 z-40">
+        <div className="px-4 py-3 backdrop-blur-md bg-white/75 border-t border-white/60 shadow-[0_-1px_0_#e5e7eb_inset]">
+          
+          {/* LINHA 1: Tamanho (scroll-x se apertar) */}
+          <div className="flex items-center justify-between">
+            <span className="text-[11px] uppercase tracking-wider text-gray-700 font-gotham-bold">Tamanho</span>
+            <a className="text-[11px] underline text-gray-700 hover:text-black transition-colors font-gotham-medium" href="/duvidas#produtos">
+              tabela
+            </a>
                       </div>
-                    ))}
-                  </div>
-                </CardContent>
-              </Card>
-            </TabsContent>
-            <TabsContent value="reviews" className="mt-6">
-              <Card>
-                <CardContent className="p-6">
-                  <div className="text-center py-8">
-                    <Star className="w-16 h-16 mx-auto text-gray-400 mb-4" />
-                    <h3 className="text-xl font-semibold mb-2">Avaliações em breve</h3>
-                    <p className="text-gray-600">As avaliações dos clientes aparecerão aqui</p>
-                  </div>
-                </CardContent>
-              </Card>
-            </TabsContent>
-          </Tabs>
+          <div className="mt-2 flex gap-2 overflow-x-auto no-scrollbar">
+            {sizes.map((size) => (
+              <button 
+                key={size}
+                onClick={() => setSelectedSize(size)}
+                className={`chip-m font-gotham-bold transition-colors ${
+                  selectedSize === size ? "active" : ""
+                }`}
+              >
+                {size}
+              </button>
+            ))}
         </div>
 
-        {/* Related Products */}
-        <div className="mt-16">
-          <h2 className="text-2xl font-bold mb-8">Produtos Relacionados</h2>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {relatedProducts.map((relatedProduct) => (
-              <Link key={relatedProduct.id} href={`/produto/${relatedProduct.id}`}>
-                <div className="group cursor-pointer">
-                  <div className="relative aspect-[2300/3066] overflow-hidden bg-gray-50 mb-4 rounded-lg">
-                    <Image
-                      src={relatedProduct.image || "/placeholder.svg"}
-                      alt={relatedProduct.name}
-                      fill
-                      className="object-cover group-hover:scale-105 transition-transform duration-300"
-                    />
-                    <div className="absolute top-4 left-4">
-                      <Badge className={`${relatedProduct.badgeColor} text-white text-xs`}>
-                        {relatedProduct.badge}
-                      </Badge>
-                    </div>
-                  </div>
-                  <div className="space-y-2">
-                    <p className="text-sm text-gray-600">{relatedProduct.store}</p>
-                    <h3 className="font-semibold line-clamp-2">{relatedProduct.name}</h3>
-                    <div className="flex items-center space-x-1">
-                      <Star className="w-4 h-4 fill-yellow-400 text-yellow-400" />
-                      <span className="text-sm text-gray-600">{relatedProduct.rating}</span>
-                    </div>
-                    <div className="flex items-center space-x-2">
-                      <span className="text-lg font-bold">R$ {relatedProduct.price.toFixed(2)}</span>
-                      {relatedProduct.originalPrice && (
-                        <span className="text-sm text-gray-500 line-through">
-                          R$ {relatedProduct.originalPrice.toFixed(2)}
-                        </span>
-                      )}
-                    </div>
-                  </div>
-                </div>
-              </Link>
+          {/* LINHA 2: Cor */}
+          <div className="mt-3 text-[11px] uppercase tracking-wider text-gray-700 font-gotham-bold">Cor</div>
+          <div className="mt-2 flex gap-2 overflow-x-auto no-scrollbar">
+            {colors.map((color) => (
+              <button 
+                key={color.value}
+                onClick={() => setSelectedColor(color.value)}
+                className={`swatch-m font-gotham-bold transition-all ${
+                  selectedColor === color.value ? "active" : ""
+                }`}
+              >
+                <span className={`dot ${color.hex}`}></span>
+                <em>{color.name}</em>
+              </button>
             ))}
+          </div>
+
+          {/* LINHA 3: Quantidade + CTA */}
+          <div className="mt-3 flex items-center gap-3">
+            <div className="flex items-center gap-2">
+              <button 
+                onClick={() => handleQuantityChange(quantity - 1)}
+                className="stepBtn font-gotham-bold"
+              >
+                –
+              </button>
+              <input 
+                type="number" 
+                min="1" 
+                max="10"
+                value={quantity}
+                onChange={(e) => handleQuantityChange(parseInt(e.target.value) || 1)}
+                className="w-14 text-center border border-gray-300 py-2 outline-none focus:ring-2 focus:ring-black font-gotham-medium"
+              />
+              <button 
+                onClick={() => handleQuantityChange(quantity + 1)}
+                className="stepBtn font-gotham-bold"
+              >
+                +
+              </button>
+            </div>
+            <Button 
+              onClick={handleQuickBuy}
+              className={`stripe-btn flex-1 px-6 py-3 font-black tracking-widest uppercase text-black transition-colors font-gotham-black ${
+                params.id === "multiverso-100"
+                  ? "bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white"
+                  : "bg-[#A8E6A3] hover:bg-[#9DD592]"
+              }`}
+            >
+              COMPRAR
+            </Button>
           </div>
         </div>
       </div>
+
+      {/* Modal de Compra Rápida */}
+      <QuickBuyModal
+        isOpen={isQuickBuyOpen}
+        onClose={() => setIsQuickBuyOpen(false)}
+        product={product}
+      />
 
       <Footer />
 
-      {/* WhatsApp Float */}
-      <div className="fixed bottom-6 right-6 z-40">
-        <Button className="w-12 h-12 md:w-16 md:h-16 rounded-full bg-green-500 hover:bg-green-600 shadow-lg hover:scale-105 transition-all">
-          <MessageCircle className="w-6 h-6 md:w-8 md:h-8 text-white" />
-        </Button>
-      </div>
-    </div>
+      {/* Estilos CSS */}
+      <style jsx>{`
+        .chip > span {
+          display: inline-flex;
+          align-items: center;
+          justify-content: center;
+          padding: 0.45rem 0.65rem;
+          border: 1px solid #d1d5db;
+          background: #fff;
+          font-size: 12px;
+          font-weight: 700;
+          color: #111;
+          letter-spacing: 0.02em;
+          transition: 0.15s;
+        }
+        
+        .chip > input.peer:checked + span {
+          background: #000;
+          color: #fff;
+          border-color: #000;
+        }
+        
+        .swatch {
+          display: inline-flex;
+          align-items: center;
+          gap: 0.5rem;
+          border: 1px solid #d1d5db;
+          background: #fff;
+          padding: 0.45rem 0.65rem;
+          font-size: 12px;
+          font-weight: 700;
+          color: #111;
+        }
+        
+        .swatch em {
+          font-style: normal;
+        }
+        
+        .dot {
+          width: 1rem;
+          height: 1rem;
+          border: 1px solid #d1d5db;
+          border-radius: 50%;
+        }
+        
+        .stepBtn {
+          width: 2.25rem;
+          height: 2.25rem;
+          border: 1px solid #d1d5db;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          background: #fff;
+          transition: all 0.15s;
+        }
+        
+        .stepBtn:hover {
+          background: #f3f4f6;
+        }
+        
+        .stripe-btn {
+          position: relative;
+          overflow: hidden;
+        }
+        
+        .stripe-btn::before {
+          content: "";
+          position: absolute;
+          inset: 0;
+          opacity: 0.7;
+          pointer-events: none;
+          background: repeating-linear-gradient(
+            115deg,
+            rgba(0, 0, 0, 0.12) 0,
+            rgba(0, 0, 0, 0.12) 12px,
+            transparent 12px,
+            transparent 24px
+          );
+          transform: translateX(-30%);
+          animation: mv-stripe 2.2s linear infinite;
+        }
+        
+        .stripe-btn:hover::before {
+          opacity: 0.9;
+        }
+        
+        /* Estilo específico para Multiverso de 100% */
+        .stripe-btn[class*="from-purple-600"]::before {
+          background: repeating-linear-gradient(
+            115deg,
+            rgba(255, 255, 255, 0.15) 0,
+            rgba(255, 255, 255, 0.15) 12px,
+            transparent 12px,
+            transparent 24px
+          );
+        }
+        
+        @keyframes mv-stripe {
+          to {
+            transform: translateX(30%);
+          }
+        }
+        
+        #galeria::-webkit-scrollbar {
+          display: none;
+        }
+        
+        .no-scrollbar::-webkit-scrollbar {
+          display: none;
+        }
+
+        /* chips mobile compactos */
+        .chip-m {
+          border: 1px solid #d1d5db;
+          background: #fff;
+          padding: 0.35rem 0.55rem;
+          font-size: 12px;
+          font-weight: 700;
+          white-space: nowrap;
+        }
+        
+        .chip-m.active {
+          background: #000;
+          color: #fff;
+          border-color: #000;
+        }
+        
+        .swatch-m {
+          display: inline-flex;
+          align-items: center;
+          gap: 0.4rem;
+          border: 1px solid #d1d5db;
+          background: #fff;
+          padding: 0.35rem 0.55rem;
+          font-size: 12px;
+          font-weight: 700;
+          white-space: nowrap;
+        }
+        
+        .swatch-m em {
+          font-style: normal;
+        }
+        
+        .swatch-m.active {
+          outline: 2px solid #000;
+          outline-offset: -2px;
+        }
+      `}</style>
+    </main>
   )
 }

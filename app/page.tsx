@@ -818,6 +818,8 @@ export default function HomePage() {
               speed={60}
               gradient={false}
               className="py-4"
+              pauseOnHover={true}
+
             >
               {trendingProducts.map((product) => (
                 <div key={product.id} className="group cursor-pointer flex-shrink-0 w-80 mx-3">
@@ -826,7 +828,7 @@ export default function HomePage() {
 
                     <div className="absolute top-4 left-4 flex flex-col space-y-0.5">
                       <div className="text-black text-xs font-bold uppercase px-2 py-1 hover:bg-black hover:text-white transition-all duration-200 cursor-pointer">
-                        {product.badge}
+                        {product.badge} 
                       </div>
                       {product.discount && (
                         <div className="text-black text-xs font-bold uppercase px-2 py-1 hover:bg-black hover:text-white transition-all duration-200 cursor-pointer">
@@ -949,7 +951,6 @@ export default function HomePage() {
                           speed={50}
                           gradient={false}
                           className="text-white font-bold text-xs"
-                          pauseOnHover={true}
                         >
                             {buttonTexts.map((text, index) => (
                               <span key={index} className="mx-1">
@@ -1128,6 +1129,7 @@ export default function HomePage() {
               speed={60}
               gradient={false}
               className="py-4"
+              pauseOnHover={true}
             >
               {multiversoProducts.map((product) => (
                 <div key={product.id} className="group cursor-pointer flex-shrink-0 w-80 mx-3">
@@ -1276,7 +1278,6 @@ export default function HomePage() {
                           speed={50}
                           gradient={false}
                           className="text-white font-bold text-xs"
-                          pauseOnHover={true}
                         >
                           {buttonTexts.map((text, index) => (
                             <span key={index} className="mx-1">

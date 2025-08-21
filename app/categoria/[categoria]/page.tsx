@@ -251,7 +251,7 @@ export default function CategoryPage() {
       <Navbar />
 
       {/* Hero Section da Categoria */}
-      <section className="relative overflow-hidden pt-20">
+      <section className="relative overflow-hidden pt-24">
         <div className="h-48 md:h-64 lg:h-80 relative">
           <div className={`absolute inset-0 bg-gradient-to-r ${categoryConfig.color}`} />
           <Image

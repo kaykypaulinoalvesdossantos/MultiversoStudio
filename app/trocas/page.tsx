@@ -77,7 +77,7 @@ export default function TrocasPage() {
     <div className="min-h-screen bg-gray-50">
       <Navbar />
 
-      <div className="container mx-auto px-4 py-12 pt-20">
+      <div className="container mx-auto px-4 py-12 pt-24">
         {/* Page Header */}
         <div className="text-center mb-12">
           <div className="flex items-center justify-center space-x-3 mb-4">

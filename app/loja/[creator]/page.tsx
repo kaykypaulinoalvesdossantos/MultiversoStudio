@@ -164,7 +164,7 @@ export default function CreatorStorePage({ params }: { params: Promise<{ creator
       <Navbar />
 
       {/* Store Header - RESPONSIVO */}
-      <div className="relative h-64 sm:h-52 md:h-60 lg:h-68 xl:h-80 -mx-4 sm:-mx-4 md:-mx-4 lg:-mx-4 xl:-mx-4 mt-20">
+      <div className="relative h-64 sm:h-52 md:h-60 lg:h-68 xl:h-80 -mx-4 sm:-mx-4 md:-mx-4 lg:-mx-4 xl:-mx-4 mt-24">
         <Image
           src={store.coverImage || "/placeholder.svg"}
           alt={`${store.name} cover`}

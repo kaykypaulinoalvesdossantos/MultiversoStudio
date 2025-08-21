@@ -9,7 +9,7 @@ export default function PoliticaPrivacidadePage() {
     <div className="min-h-screen">
       <Navbar />
       
-      <main id="politica-privacidade" className="pt-20">
+      <main id="politica-privacidade" className="pt-24">
         {/* HERO */}
         <section className="max-w-6xl mx-auto px-6 lg:px-8 pt-16 pb-8">
           <h1 className="text-3xl md:text-5xl font-black uppercase tracking-tight text-black">

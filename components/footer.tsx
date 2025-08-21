@@ -108,8 +108,8 @@ export default function Footer() {
                 <li><a href="#">Meu carrinho</a></li>ha 
                 <li><a href="#">Meus produtos favoritos</a></li>
                 <li><a href="#">Acompanhar meus pedidos</a></li>
-                <li><a href="#">Central de ajuda / FAQ</a></li>
-                <li><a href="#">Entregas</a></li>
+                <li><a href="/duvidas">Central de Ajuda</a></li>
+                <li><a href="/entregas">Entregas</a></li>
                 <li><a href="#">Personalização</a></li>
               </ul>
             </details>
@@ -228,8 +228,8 @@ export default function Footer() {
                   <li><a href="#">Meu carrinho</a></li>
                   <li><a href="#">Meus produtos favoritos</a></li>
                   <li><a href="#">Acompanhar meus pedidos</a></li>
-                  <li><a href="#">Central de ajuda / FAQ</a></li>
-                  <li><a href="#">Entregas</a></li>
+                  <li><a href="/duvidas">Central de Ajuda</a></li>
+                  <li><a href="/entregas">Entregas</a></li>
                   <li><a href="#">Personalização</a></li>
                 </ul>
               </div>

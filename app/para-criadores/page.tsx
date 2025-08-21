@@ -204,7 +204,7 @@ export default function ParaCriadoresPage() {
       <Navbar />
 
       {/* Hero Section */}
-      <section className="py-12 md:py-20 pt-20 bg-gradient-to-br from-purple-900 via-blue-900 to-indigo-900 text-white">
+      <section className="py-12 md:py-20 pt-24 bg-gradient-to-br from-purple-900 via-blue-900 to-indigo-900 text-white">
         <div className="container mx-auto px-4">
           <div className="grid lg:grid-cols-2 gap-8 md:gap-12 items-center">
             <div>

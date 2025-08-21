@@ -89,7 +89,7 @@ export default function LoginPage() {
       {/* Navbar Principal */}
       <Navbar />
 
-      <div className="container mx-auto px-4 py-12 pt-20">
+      <div className="container mx-auto px-4 py-12 pt-24">
         <div className="flex flex-col lg:grid lg:grid-cols-2 gap-12 items-start">
           {/* Left Side - Promoções e Produtos */}
           <div className="space-y-8 lg:order-1 order-2">

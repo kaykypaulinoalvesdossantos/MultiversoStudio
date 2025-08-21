@@ -304,7 +304,7 @@ export default function MultiversoStorePage() {
       <Navbar />
 
       {/* Hero Section Melhorado */}
-      <section className="relative overflow-hidden pt-20">
+      <section className="relative overflow-hidden pt-24">
         <div className="h-96 relative">
           {/* Background com gradiente animado */}
           <div className="absolute inset-0 bg-gradient-to-r from-purple-600 via-blue-600 to-indigo-600" />
