@@ -2,136 +2,245 @@
 
 import { useState } from "react"
 import Image from "next/image"
-import Link from "next/link"
+import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
-import { Card, CardContent } from "@/components/ui/card"
-import { Badge } from "@/components/ui/badge"
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 import { Navbar } from "@/components/navbar"
-import {
-  Star,
-  Grid3X3,
-  List,
-  SortAsc,
-  TrendingUp,
-  MessageCircle,
-  ChevronDown,
-  Heart,
-  Share2,
-  Eye,
-  Package,
-  ArrowLeft,
-  Truck,
-} from "lucide-react"
+import Footer from "@/components/footer"
+import QuickBuyModal from "@/components/quick-buy-modal"
+import ProductCard from "@/components/lojas/pagina-principal/product-card"
 import { useParams } from "next/navigation"
+import Link from "next/link"
+
+interface Product {
+  id: string
+  title: string
+  brand: string
+  price: number
+  originalPrice: number
+  image: string
+  badges: string[]
+  rating: number
+  reviews: number
+  savings?: string
+  cashback?: string
+}
+
+interface ProductType {
+  id: string
+  name: string
+  price: number
+  originalPrice?: number
+}
+
+interface ProductColor {
+  name: string
+  value: string
+  image: string
+}
 
 export default function SubcategoryPage() {
+  const router = useRouter()
   const params = useParams()
   const categoria = params.categoria as string
   const subcategoria = params.subcategoria as string
-  const [viewMode, setViewMode] = useState("grid")
-  const [searchQuery, setSearchQuery] = useState("")
+  
+  // Mapeamento das subcategorias para labels corretos
+  const subcategoryLabels: { [key: string]: string } = {
+    // Canecas
+    "ceramica": "Cerâmica",
+    "vidro": "Vidro",
+    "chopp": "Chopp",
+    "jateada": "Jateada",
+    "lisa": "Lisa",
+    "termica": "Térmica",
+    // Vestuário
+    "camisetas": "Camisetas",
+    "polo": "Polo",
+    "tradicional": "Tradicional",
+    "streetwear": "StreetWear",
+    "babylook": "BabyLook",
+    "premium": "Premium",
+    "moletons": "Moletons",
+    "regatas": "Regatas",
+    "bones": "Bonés",
+    // Kits Promocionais
+    "cafe": "Kit Café",
+    "gamer": "Kit Gamer",
+    "completo": "Kit Completo",
+    "presente": "Kit Presente",
+    // Lançamentos
+    "semana": "Esta Semana",
+    "mes": "Este Mês",
+    "pre-venda": "Pré-Venda",
+    "exclusivos": "Exclusivos",
+    // Personalizáveis
+    "estampas": "Estampas",
+    "monogramas": "Monogramas",
+    "fotos": "Fotos",
+    "textos": "Textos"
+  }
+  
+  // Função para obter o label correto da subcategoria
+  const getSubcategoryLabel = (name: string) => {
+    return subcategoryLabels[name] || name.charAt(0).toUpperCase() + name.slice(1)
+  }
+  
+  const subcategoriaLabel = getSubcategoryLabel(subcategoria)
+  
+  const [selectedStore, setSelectedStore] = useState<string | null>(null)
+  const [selectedRating, setSelectedRating] = useState<number | null>(null)
+  const [isQuickBuyOpen, setIsQuickBuyOpen] = useState(false)
+  const [selectedProduct, setSelectedProduct] = useState<Product | null>(null)
+
+  const stores = ["Multiverso Estúdio", "Sacocheio.tv", "Canal do Gamer", "Cinemagrath", "Música Indie"]
+  const ratings = [4, 3]
+
+  // Dados para o novo componente ProductCard
+  const productTypes: ProductType[] = [
+    { id: "overside", name: "Overside", price: 89.9, originalPrice: 119.9 },
+    { id: "basica", name: "Básica", price: 79.9, originalPrice: 99.9 }
+  ]
+
+  const productColors: ProductColor[] = [
+    { name: "Preto", value: "black", image: "/imgs/produtos/prod-01-2300x3066.png" },
+    { name: "Branco", value: "white", image: "/imgs/produtos/prod-02-2300x3066.png" },
+    { name: "Azul", value: "blue", image: "/imgs/produtos/prod-03-2300x3066.png" }
+  ]
+
+  const sizes = ["PP", "P", "M", "G", "GG", "XG"]
+
+  const handleQuickBuyProduct = (productId: string, type: string, color: string, size: string) => {
+    console.log(`Produto ${productId} adicionado: ${type} - ${color} - ${size}`)
+    
+    // Por enquanto, vamos abrir o modal de quick buy
+    const product = products.find(p => p.id === productId)
+    if (product) {
+      setSelectedProduct(product)
+      setIsQuickBuyOpen(true)
+    }
+  }
 
   // Produtos da subcategoria
-  const products = [
+  const products: Product[] = [
     {
-      id: 1,
-      name: `${subcategoria} Multiverso Estudio - Edição Especial`,
-      price: 69.9,
-      originalPrice: 89.9,
+      id: "1",
+      title: `${subcategoriaLabel} Multiverso Estudio - Original`,
+      brand: "Multiverso Estudio",
+      price: 89.9,
+      originalPrice: 119.9,
       image: "/placeholder.svg?height=400&width=400",
-      store: "Multiverso Estudio",
-      storeColor: "#6B46C1",
+      badges: ["Original", "25% OFF", "Frete grátis"],
       rating: 4.9,
       reviews: 567,
-      sales: 2345,
-      badge: "🌟 Original",
-      badgeColor: "bg-purple-600",
-      freeShipping: true,
+      savings: "Economize R$ 30,00",
     },
     {
-      id: 2,
-      name: `${subcategoria} Sacocheio.tv - Cafézini`,
+      id: "2",
+      title: `${subcategoriaLabel} Sacocheio.tv - Humor Ácido`,
+      brand: "Sacocheio.tv",
       price: 79.9,
       originalPrice: 99.9,
       image: "/placeholder.svg?height=400&width=400",
-      store: "Sacocheio.tv",
-      storeColor: "#8B4513",
+      badges: ["Lançamento", "20% OFF", "Frete grátis"],
       rating: 4.8,
       reviews: 234,
-      sales: 1234,
-      badge: "🔥 Lançamento",
-      badgeColor: "bg-red-500",
-      freeShipping: true,
+      savings: "Economize R$ 20,00",
     },
     {
-      id: 3,
-      name: `${subcategoria} Canal do Gamer - RGB Edition`,
+      id: "3",
+      title: `${subcategoriaLabel} Canal do Gamer - RGB Edition`,
+      brand: "Canal do Gamer",
       price: 139.9,
       originalPrice: 179.9,
       image: "/placeholder.svg?height=400&width=400",
-      store: "Canal do Gamer",
-      storeColor: "#6B46C1",
+      badges: ["RGB Edition", "22% OFF", "Frete grátis"],
       rating: 4.8,
       reviews: 123,
-      sales: 567,
-      badge: "🎮 Gamer Choice",
-      badgeColor: "bg-purple-600",
-      freeShipping: true,
+      savings: "Economize R$ 40,00",
     },
+    {
+      id: "4",
+      title: `${subcategoriaLabel} Cinemagrath - Cult Classic`,
+      brand: "Cinemagrath",
+      price: 99.9,
+      originalPrice: 129.9,
+      image: "/placeholder.svg?height=400&width=400",
+      badges: ["Cult Classic", "23% OFF", "Frete grátis"],
+      rating: 4.9,
+      reviews: 156,
+      savings: "Economize R$ 30,00",
+    },
+    {
+      id: "5",
+      title: `${subcategoriaLabel} Música Indie - Organic`,
+      brand: "Música Indie",
+      price: 159.9,
+      originalPrice: 199.9,
+      image: "/placeholder.svg?height=400&width=400",
+      badges: ["Indie Vibes", "20% OFF", "Frete grátis"],
+      rating: 4.7,
+      reviews: 89,
+      savings: "Economize R$ 40,00",
+    },
+    {
+      id: "6",
+      title: `${subcategoriaLabel} Premium Line - Luxo`,
+      brand: "Premium Line",
+      price: 159.9,
+      originalPrice: 199.9,
+      image: "/placeholder.svg?height=400&width=400",
+      badges: ["Luxo", "20% OFF", "Frete grátis"],
+      rating: 4.9,
+      reviews: 89,
+      savings: "Economize R$ 40,00",
+    }
   ]
 
+  const filteredProducts = products.filter(product => {
+    if (selectedStore && product.brand !== selectedStore) return false
+    if (selectedRating && product.rating < selectedRating) return false
+    return true
+  })
+
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-50">
-      {/* Navbar */}
+    <main className="bg-white text-black font-gotham min-h-screen">
       <Navbar />
 
       {/* Breadcrumb */}
       <section className="py-4 bg-white border-b pt-20">
-        <div className="container mx-auto px-4">
+        <div className="max-w-6xl mx-auto px-6">
           <div className="flex items-center space-x-2 text-sm text-gray-600">
             <Link href="/" className="hover:text-gray-900">
               Início
             </Link>
-            <span>/</span>
+            <span>›</span>
             <Link href={`/categoria/${categoria}`} className="hover:text-gray-900 capitalize">
               {categoria}
             </Link>
-            <span>/</span>
-            <span className="text-gray-900 font-semibold capitalize">{subcategoria}</span>
+            <span>›</span>
+            <span className="text-gray-900">{subcategoriaLabel}</span>
           </div>
         </div>
       </section>
 
-      {/* Header da Subcategoria */}
-      <section className="py-12 bg-gradient-to-r from-blue-500 to-purple-500">
-        <div className="container mx-auto px-4">
-          <div className="flex items-center space-x-4 mb-6">
-            <Link href={`/categoria/${categoria}`}>
-              <Button variant="outline" className="bg-white/20 text-white border-white/30 hover:bg-white/30">
-                <ArrowLeft className="w-4 h-4 mr-2" />
-                Voltar para {categoria}
-              </Button>
-            </Link>
-          </div>
-
-          <div className="text-white">
-            <h1 className="text-4xl font-bold mb-4 capitalize">{subcategoria}</h1>
-            <p className="text-xl text-white/90 mb-6">
-              Produtos especializados em {subcategoria} de todos os criadores da plataforma
+      {/* HERO */}
+      <section className="relative">
+        <div className="bg-[linear-gradient(120deg,#111,#7a4a00,#b35b00)] text-white">
+          <div className="max-w-6xl mx-auto px-6 py-12 md:py-16">
+            <h1 className="uppercase font-black text-3xl md:text-5xl tracking-wide font-gotham-black">
+              {subcategoriaLabel}
+            </h1>
+            <p className="text-base md:text-lg text-white/90 mt-3 font-gotham-book">
+              Descubra os melhores produtos da categoria {subcategoriaLabel} de todos os criadores da plataforma.
             </p>
-
-            <div className="flex items-center space-x-8 text-lg">
-              <span className="flex items-center bg-white/20 px-4 py-2 rounded-lg">
-                <Package className="w-5 h-5 mr-2" />
-                {products.length} produtos
+            <div className="mt-6 flex flex-wrap gap-3 text-sm uppercase">
+              <span className="inline-flex items-center gap-2 px-3 py-2 bg-white/10 backdrop-blur-sm border border-white/20 font-gotham-bold">
+                {products.length}+ produtos
               </span>
-              <span className="flex items-center bg-white/20 px-4 py-2 rounded-lg">
-                <Star className="w-5 h-5 mr-2 fill-yellow-400 text-yellow-400" />
-                4.8 avaliação
+              <span className="inline-flex items-center gap-2 px-3 py-2 bg-white/10 backdrop-blur-sm border border-white/20 font-gotham-bold">
+                4.8 ★ média
               </span>
-              <span className="flex items-center bg-white/20 px-4 py-2 rounded-lg">
-                <Truck className="w-5 h-5 mr-2" />
+              <span className="inline-flex items-center gap-2 px-3 py-2 bg-white/10 backdrop-blur-sm border border-white/20 font-gotham-bold">
                 Frete grátis
               </span>
             </div>
@@ -139,169 +248,140 @@ export default function SubcategoryPage() {
         </div>
       </section>
 
-      {/* Produtos */}
-      <section className="py-12">
-        <div className="container mx-auto px-4">
-          {/* Controles superiores */}
-          <div className="flex justify-between items-center mb-8">
-            <div>
-              <h2 className="text-2xl font-bold text-gray-900 capitalize">{subcategoria}</h2>
-              <p className="text-gray-600">{products.length} produtos encontrados</p>
-            </div>
-
-            <div className="flex items-center space-x-4">
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button variant="outline" className="bg-white">
-                    <SortAsc className="w-4 h-4 mr-2" />
-                    Ordenar
-                    <ChevronDown className="w-4 h-4 ml-2" />
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent>
-                  <DropdownMenuItem>Mais Relevantes</DropdownMenuItem>
-                  <DropdownMenuItem>Menor Preço</DropdownMenuItem>
-                  <DropdownMenuItem>Maior Preço</DropdownMenuItem>
-                  <DropdownMenuItem>Mais Vendidos</DropdownMenuItem>
-                  <DropdownMenuItem>Melhor Avaliados</DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
-
-              <div className="flex border rounded-md bg-white">
-                <Button
-                  variant={viewMode === "grid" ? "default" : "ghost"}
-                  size="icon"
-                  onClick={() => setViewMode("grid")}
-                  className="rounded-r-none"
-                >
-                  <Grid3X3 className="w-4 h-4" />
-                </Button>
-                <Button
-                  variant={viewMode === "list" ? "default" : "ghost"}
-                  size="icon"
-                  onClick={() => setViewMode("list")}
-                  className="rounded-l-none"
-                >
-                  <List className="w-4 h-4" />
-                </Button>
+      {/* CONTEÚDO */}
+      <section className="max-w-6xl mx-auto px-6 py-12 grid md:grid-cols-12 gap-8">
+        
+        {/* SIDEBAR (desktop) */}
+        <aside className="hidden md:block md:col-span-3">
+          <div className="border border-gray-200 p-6 bg-white shadow-sm">
+            <h3 className="uppercase text-sm font-semibold mb-6 font-gotham-bold tracking-wider">FILTROS</h3>
+            
+            {/* Lojas */}
+            <details className="group border-t border-gray-100 pt-4 open">
+              <summary className="flex items-center justify-between cursor-pointer select-none mb-4">
+                <span className="uppercase text-xs font-semibold text-gray-700 font-gotham-bold">LOJAS</span>
+                <span className="text-lg leading-none transition group-open:rotate-45 font-gotham-black">+</span>
+              </summary>
+              <div className="grid gap-2">
+                {stores.map((store) => (
+                  <button
+                    key={store}
+                    onClick={() => setSelectedStore(selectedStore === store ? null : store)}
+                    className={`chip-mobile text-left transition-all duration-200 ${
+                      selectedStore === store ? "active" : ""
+                    }`}
+                  >
+                    {store}
+                  </button>
+                ))}
               </div>
-            </div>
-          </div>
+            </details>
 
-          {/* Grid de Produtos */}
-          <div
-            className={`grid gap-6 ${
-              viewMode === "grid" ? "grid-cols-1 sm:grid-cols-2 lg:grid-cols-4" : "grid-cols-1"
-            }`}
-          >
-            {products.map((product) => (
-              <Link key={product.id} href={`/produto/${product.id}`}>
-                <Card className="overflow-hidden hover:shadow-2xl transition-all duration-500 group cursor-pointer h-full hover-lift">
-                  <div className="relative">
-                    <Image
-                      src={product.image || "/placeholder.svg"}
-                      alt={product.name}
-                      width={400}
-                      height={400}
-                      className={`w-full object-cover group-hover:scale-110 transition-transform duration-500 ${
-                        viewMode === "grid" ? "h-64" : "h-48"
-                      }`}
-                    />
-
-                    <div className="absolute top-4 left-4 flex flex-col space-y-2">
-                      <Badge className={`${product.badgeColor} text-white font-bold`}>{product.badge}</Badge>
-                      {product.originalPrice && (
-                        <Badge className="bg-green-500 text-white font-bold">
-                          {Math.round(((product.originalPrice - product.price) / product.originalPrice) * 100)}% OFF
-                        </Badge>
-                      )}
-                      {product.freeShipping && (
-                        <Badge className="bg-blue-500 text-white">
-                          <Truck className="w-3 h-3 mr-1" />
-                          Frete Grátis
-                        </Badge>
-                      )}
+            {/* Avaliação */}
+            <details className="group border-t border-gray-100 pt-4">
+              <summary className="flex items-center justify-between cursor-pointer select-none mb-4">
+                <span className="uppercase text-xs font-semibold text-gray-700 font-gotham-bold">AVALIAÇÃO</span>
+                <span className="text-lg leading-none transition group-open:rotate-45 font-gotham-black">+</span>
+              </summary>
+              <div className="grid gap-2">
+                {ratings.map((rating) => (
+                  <button
+                    key={rating}
+                    onClick={() => setSelectedRating(selectedRating === rating ? null : rating)}
+                    className={`chip-mobile text-left transition-all duration-200 ${
+                      selectedRating === rating ? "active" : ""
+                    }`}
+                  >
+                    {rating}★ e acima
+                  </button>
+                ))}
                     </div>
-
-                    <div className="absolute top-4 right-4 flex flex-col space-y-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                      <Button size="icon" className="bg-white/90 text-gray-800 hover:bg-white">
-                        <Heart className="w-4 h-4" />
-                      </Button>
-                      <Button size="icon" className="bg-white/90 text-gray-800 hover:bg-white">
-                        <Share2 className="w-4 h-4" />
-                      </Button>
-                      <Button size="icon" className="bg-white/90 text-gray-800 hover:bg-white">
-                        <Eye className="w-4 h-4" />
-                      </Button>
+            </details>
                     </div>
-                  </div>
+        </aside>
 
-                  <CardContent className={`p-6 ${viewMode === "list" ? "flex items-center space-x-6" : ""}`}>
-                    <div className={viewMode === "list" ? "flex-1" : ""}>
-                      <div className="flex items-center justify-between mb-3">
-                        <Badge
-                          variant="outline"
-                          className="text-xs font-semibold"
-                          style={{ borderColor: product.storeColor, color: product.storeColor }}
-                        >
-                          {product.store}
-                        </Badge>
-                        <div className="flex items-center space-x-1">
-                          <Star className="w-4 h-4 fill-yellow-400 text-yellow-400" />
-                          <span className="text-sm font-medium">{product.rating}</span>
-                          <span className="text-xs text-gray-500">({product.reviews})</span>
-                        </div>
-                      </div>
-
-                      <h3 className="font-bold text-lg mb-3 line-clamp-2 group-hover:text-gray-600 transition-colors">
-                        {product.name}
-                      </h3>
-
-                      <div className="bg-green-50 p-3 rounded-lg mb-4">
-                        <div className="flex items-center space-x-2">
-                          <span className="text-2xl font-bold text-green-600">R$ {product.price.toFixed(2)}</span>
-                          {product.originalPrice && (
-                            <span className="text-lg text-gray-500 line-through">
-                              R$ {product.originalPrice.toFixed(2)}
-                            </span>
-                          )}
-                        </div>
-                        {product.originalPrice && (
-                          <p className="text-sm text-green-600 font-semibold">
-                            Economize R$ {(product.originalPrice - product.price).toFixed(2)}
-                          </p>
-                        )}
-                      </div>
-
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center space-x-3 text-sm text-gray-500">
-                          <span className="flex items-center">
-                            <TrendingUp className="w-4 h-4 mr-1" />
-                            {product.sales} vendidos
-                          </span>
-                        </div>
-                        <Button
-                          size="sm"
-                          className="bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600 text-white font-semibold"
-                        >
-                          Comprar
-                        </Button>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-              </Link>
+        {/* GRID DE PRODUTOS */}
+        <section className="md:col-span-9">
+          <div className="grid sm:grid-cols-2 gap-6">
+            {filteredProducts.map((product) => (
+              <ProductCard
+                key={product.id}
+                product={{
+                  id: product.id,
+                  name: product.title,
+                  price: product.price,
+                  originalPrice: product.originalPrice,
+                  image: product.image,
+                  badge: product.badges[0],
+                  store: product.brand,
+                  rating: product.rating,
+                  reviews: product.reviews,
+                  sold: Math.floor(Math.random() * 1000) + 100
+                }}
+                types={productTypes}
+                colors={productColors}
+                sizes={sizes}
+                onQuickBuy={handleQuickBuyProduct}
+              />
             ))}
           </div>
-        </div>
+        </section>
       </section>
 
-      {/* WhatsApp Float */}
-      <div className="fixed bottom-6 right-6 z-50">
-        <Button className="w-16 h-16 rounded-full bg-green-500 hover:bg-green-600 shadow-2xl hover:scale-110 transition-all">
-          <MessageCircle className="w-8 h-8 text-white" />
-        </Button>
-      </div>
-    </div>
+      {/* Modal de Compra Rápida */}
+      {selectedProduct && (
+        <QuickBuyModal
+          isOpen={isQuickBuyOpen}
+          onClose={() => setIsQuickBuyOpen(false)}
+          product={{
+            id: selectedProduct.id,
+            name: selectedProduct.title,
+            image: selectedProduct.image,
+            price: selectedProduct.price,
+            originalPrice: selectedProduct.originalPrice,
+            store: selectedProduct.brand,
+            badge: selectedProduct.badges[0],
+            freeShipping: selectedProduct.badges.includes("Frete grátis")
+          }}
+        />
+      )}
+
+      <Footer />
+
+      {/* Estilos CSS */}
+      <style jsx>{`
+        .no-scrollbar::-webkit-scrollbar {
+          display: none;
+        }
+        
+        .chip-mobile {
+          border: 1px solid #e5e7eb;
+          background: #fff;
+          padding: 0.5rem 1rem;
+          font-size: 13px;
+          font-weight: 700;
+          color: #374151;
+          text-align: center;
+          transition: all 0.2s ease;
+          min-height: 40px;
+          cursor: pointer;
+          white-space: nowrap;
+        }
+        
+        .chip-mobile.active {
+          background: #000;
+          color: #fff;
+          border-color: #000;
+          transform: scale(1.02);
+          box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        }
+        
+        .chip-mobile:hover:not(.active) {
+          border-color: #d1d5db;
+          transform: translateY(-1px);
+          box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+      `}</style>
+    </main>
   )
 }

@@ -21,12 +21,13 @@ import {
 import { Navbar } from "@/components/navbar"
 import Footer from "@/components/footer"
 import QuickBuyModal from "@/components/quick-buy-modal"
+import ProductCard from "@/components/lojas/pagina-principal/product-card"
 import Marquee from "react-fast-marquee"
 
 export default function HomePage() {
   const [searchQuery, setSearchQuery] = useState("")
   const [currentBanner, setCurrentBanner] = useState(0)
-  const [quickBuyProduct, setQuickBuyProduct] = useState(null)
+  const [quickBuyProduct, setQuickBuyProduct] = useState<any>(null)
   const [currentProductIndex, setCurrentProductIndex] = useState(0)
   const [currentMultiversoIndex, setCurrentMultiversoIndex] = useState(0)
   const [currentSecondaryBanner, setCurrentSecondaryBanner] = useState(0)
@@ -344,6 +345,21 @@ export default function HomePage() {
     }
   ]
 
+  // Dados para o QuickBuyProductCard
+  const productTypes = [
+    { id: "1", name: "Padrão", price: 0, originalPrice: 0 },
+    { id: "2", name: "Especial", price: 0, originalPrice: 0 }
+  ]
+
+  const productColors = [
+    { name: "Preto", value: "black", image: "/placeholder.svg?height=400&width=400" },
+    { name: "Branco", value: "white", image: "/placeholder.svg?height=400&width=400" },
+    { name: "Azul", value: "blue", image: "/placeholder.svg?height=400&width=400" },
+    { name: "Vermelho", value: "red", image: "/placeholder.svg?height=400&width=400" }
+  ]
+
+  const productSizes = ["P", "M", "G", "GG", "G1", "G2"]
+
   const multiversoProducts = [
     {
       id: 7,
@@ -437,7 +453,7 @@ export default function HomePage() {
   const featuredStores = [
     {
       id: 1,
-      name: "Cafézini",
+      name: "Saco Cheio",
       creator: "Sacocheio",
       slug: "sacocheio",
       avatar: "/placeholder.svg?height=80&width=80",
@@ -448,6 +464,17 @@ export default function HomePage() {
     },
     {
       id: 2,
+      name: "Sara Lee Jones",
+      creator: "Sara Lee Jones",
+      slug: "sara-lee-jones",
+      avatar: "/placeholder.svg?height=80&width=80",
+      products: 119,
+      followers: "156K",
+      coverImage: "/placeholder.svg?height=300&width=600",
+      verified: true,
+    },
+    {
+      id: 3,
       name: "Cinemagrath",
       creator: "Cinemagrath",
       slug: "cinemagrath",
@@ -458,24 +485,13 @@ export default function HomePage() {
       verified: true,
     },
     {
-      id: 3,
+      id: 4,
       name: "Flow Podcast",
       creator: "Igor 3K",
       slug: "flow-podcast",
       avatar: "/placeholder.svg?height=80&width=80",
       products: 156,
       followers: "3.2M",
-      coverImage: "/placeholder.svg?height=300&width=600",
-      verified: true,
-    },
-    {
-      id: 6,
-      name: "Música Indie",
-      creator: "Ana Indie",
-      slug: "musica-indie",
-      avatar: "/placeholder.svg?height=80&width=80",
-      products: 78,
-      followers: "650K",
       coverImage: "/placeholder.svg?height=300&width=600",
       verified: true,
     },
@@ -556,6 +572,16 @@ export default function HomePage() {
 
   const handleQuickBuy = (product: any) => {
     setQuickBuyProduct(product)
+  }
+
+  const handleQuickBuyProduct = (productId: string, type: string, color: string, size: string) => {
+    // Aqui você pode implementar a lógica de adicionar ao carrinho
+    console.log(`Produto ${productId} adicionado: ${type} - ${color} - ${size}`)
+    // Por enquanto, abre o modal
+    const product = trendingProducts.find(p => p.id.toString() === productId)
+    if (product) {
+      setQuickBuyProduct(product)
+    }
   }
 
   const nextProducts = () => {
@@ -822,90 +848,18 @@ export default function HomePage() {
 
             >
               {trendingProducts.map((product) => (
-                <div key={product.id} className="group cursor-pointer flex-shrink-0 w-80 mx-3">
-                  <div className="relative aspect-[2300/3066] overflow-hidden bg-gray-50 mb-1">
-                    <Image src={product.image || "/placeholder.svg"} alt={product.name} fill className="object-cover" />
-
-                    <div className="absolute top-4 left-4 flex flex-col space-y-0.5">
-                      <div className="text-black text-xs font-bold uppercase px-2 py-1 hover:bg-black hover:text-white transition-all duration-200 cursor-pointer">
-                        {product.badge} 
-                      </div>
-                      {product.discount && (
-                        <div className="text-black text-xs font-bold uppercase px-2 py-1 hover:bg-black hover:text-white transition-all duration-200 cursor-pointer">
-                          {product.discount}
-                        </div>
-                      )}
-                      {product.freeShipping && (
-                        <div className="text-black text-xs font-bold uppercase px-2 py-1 hover:bg-black hover:text-white transition-all duration-200 cursor-pointer">
-                          FRETE GRÁTIS
-                        </div>
-                      )}
-                    </div>
-                    
-                    {/* Color Swatches */}
-                    <div className="absolute top-4 right-4 flex flex-col space-y-0.5">
-                      <div className="w-4 h-4 bg-black border border-white"></div>
-                      <div className="w-4 h-4 bg-white border border-gray-300"></div>
-                      <div className="w-4 h-4 bg-red-500 border border-white"></div>
-                      <div className="w-4 h-4 bg-gray-400 border border-white text-black text-xs font-bold flex items-center justify-center">+</div>
-                    </div>
-
-                    {/* Quick Buy Button - Bottom of image, full width */}
-                    <div className="absolute bottom-0 left-0 right-0 overflow-hidden">
-                      <Button
-                        className="w-full opacity-0 group-hover:opacity-100 transition-opacity bg-black hover:bg-black text-white rounded-none"
-                        onClick={() => handleQuickBuy(product)}
-                      >
-                        <Marquee
-                          speed={50}
-                          gradient={false}
-                          className="text-white font-bold"
-                        >
-                          {buttonTexts.map((text, index) => (
-                            <span key={index} className="mx-2">
-                              {text}
-                            </span>
-                          ))}
-                        </Marquee>
-                      </Button>
-                    </div>
-                  </div>
-
-                  <div className="space-y-1">
-                    {/* Store Name */}
-                    <p className="text-xs text-gray-600 uppercase font-bold">{product.store}</p>
-                    
-                    {/* Product Name */}
-                    <Link href={`/produto/${product.id}`}>
-                      <h3 className="font-bold text-sm leading-tight uppercase text-black">
-                        {product.name}
-                      </h3>
-                    </Link>
-                    
-                    {/* Rating */}
-                    <div className="flex items-center space-x-1">
-                      <Star className="w-3 h-3 fill-yellow-400 text-yellow-400" />
-                      <span className="text-xs text-gray-600">{product.rating}</span>
-                      <span className="text-xs text-gray-500">({product.reviews})</span>
-                    </div>
-                    
-                    {/* Pricing */}
-                    <div className="flex items-center space-x-2">
-                      <span className="text-lg font-bold text-black">R$ {product.price.toFixed(2).replace(".", ",")}</span>
-                      {product.originalPrice && (
-                        <span className="text-sm text-gray-500 line-through">
-                          R$ {product.originalPrice.toFixed(2).replace(".", ",")}
-                        </span>
-                      )}
-                    </div>
-                    
-                    {/* Payment Terms */}
-                    <div className="text-xs text-green-600 font-semibold">3X SEM JUROS</div>
-                    
-                    {/* Sales Count */}
-                    <div className="text-xs text-gray-500 font-medium">{Math.floor(Math.random() * 1000) + 100} VENDIDOS</div>
-                  </div>
-                </div>
+                <ProductCard
+                  key={product.id}
+                  product={{
+                    ...product,
+                    id: product.id.toString(),
+                    sold: product.sales
+                  }}
+                  types={productTypes}
+                  colors={productColors}
+                  sizes={productSizes}
+                  onQuickBuy={handleQuickBuyProduct}
+                />
               ))}
             </Marquee>
           </div>
@@ -1132,8 +1086,40 @@ export default function HomePage() {
               pauseOnHover={true}
             >
               {multiversoProducts.map((product) => (
-                <div key={product.id} className="group cursor-pointer flex-shrink-0 w-80 mx-3">
-                  <div className="relative aspect-[2300/3066] overflow-hidden bg-gray-50 mb-1">
+                <ProductCard
+                  key={product.id}
+                  product={{
+                    ...product,
+                    id: product.id.toString(),
+                    sold: product.sales || Math.floor(Math.random() * 1000) + 100
+                  }}
+                  types={productTypes}
+                  colors={productColors}
+                  sizes={productSizes}
+                  onQuickBuy={handleQuickBuyProduct}
+                />
+              ))}
+            </Marquee>
+          </div>
+
+
+
+          {/* Mobile Carousel */}
+          <div className="md:hidden">
+            <div 
+              className="flex space-x-2 overflow-x-auto pb-4 cursor-grab active:cursor-grabbing select-none" 
+              style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
+              onMouseDown={handleMultiversoMouseDown}
+              onMouseMove={handleMultiversoMouseMove}
+              onMouseUp={handleMultiversoMouseUp}
+              onMouseLeave={handleMultiversoMouseUp}
+              onTouchStart={handleMultiversoTouchStart}
+              onTouchMove={handleMultiversoTouchMove}
+              onTouchEnd={handleMultiversoTouchEnd}
+            >
+              {multiversoProducts.slice(currentMultiversoIndex, currentMultiversoIndex + 2).map((product) => (
+                <div key={product.id} className="group cursor-pointer min-w-[280px] flex-shrink-0">
+                  <div className="relative aspect-[2300/3066] overflow-hidden bg-gray-50 mb-4">
                     <Image src={product.image || "/placeholder.svg"} alt={product.name} fill className="object-cover" />
 
                     <div className="absolute top-4 left-4 flex flex-col space-y-0.5">
@@ -1219,112 +1205,6 @@ export default function HomePage() {
                   </div>
                 </div>
               ))}
-            </Marquee>
-          </div>
-
-
-
-          {/* Mobile Carousel */}
-          <div className="md:hidden">
-            <div 
-              className="flex space-x-2 overflow-x-auto pb-4 cursor-grab active:cursor-grabbing select-none" 
-              style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
-              onMouseDown={handleMultiversoMouseDown}
-              onMouseMove={handleMultiversoMouseMove}
-              onMouseUp={handleMultiversoMouseUp}
-              onMouseLeave={handleMultiversoMouseUp}
-              onTouchStart={handleMultiversoTouchStart}
-              onTouchMove={handleMultiversoTouchMove}
-              onTouchEnd={handleMultiversoTouchEnd}
-            >
-              {multiversoProducts.slice(currentMultiversoIndex, currentMultiversoIndex + 2).map((product) => (
-                <div key={product.id} className="group cursor-pointer min-w-[280px] flex-shrink-0">
-                  <div className="relative aspect-[2300/3066] overflow-hidden bg-gray-50 mb-4">
-                    <Image src={product.image || "/placeholder.svg"} alt={product.name} fill className="object-cover" />
-
-                    <div className="absolute top-4 left-4 flex flex-col space-y-0.5">
-                      <div
-                        className="text-black text-xs font-bold uppercase px-2 py-1 hover:bg-black hover:text-white transition-all duration-200 cursor-pointer"
-                      >
-                        {product.badge}
-                      </div>
-                      {product.discount && (
-                        <div className="text-black text-xs font-bold uppercase px-2 py-1 hover:bg-black hover:text-white transition-all duration-200 cursor-pointer">
-                          {product.discount}
-                        </div>
-                      )}
-                      {product.freeShipping && (
-                        <div className="text-black text-xs font-bold uppercase px-2 py-1 hover:bg-black hover:text-white transition-all duration-200 cursor-pointer">
-                          FRETE GRÁTIS
-                        </div>
-                      )}
-                    </div>
-                    
-                    {/* Color Swatches */}
-                    <div className="absolute top-4 right-4 flex flex-col space-y-0.5">
-                      <div className="w-4 h-4 bg-black border border-white"></div>
-                      <div className="w-4 h-4 bg-white border border-gray-300"></div>
-                      <div className="w-4 h-4 bg-red-500 border border-white"></div>
-                      <div className="w-4 h-4 bg-gray-400 border border-white text-black text-xs font-bold flex items-center justify-center">+</div>
-                    </div>
-
-                    {/* Quick Buy Button - Bottom of image, full width */}
-                    <div className="absolute bottom-0 left-0 right-0 overflow-hidden">
-                      <Button
-                        className="w-full opacity-0 group-hover:opacity-100 transition-opacity bg-black hover:bg-black text-white rounded-none"
-                        onClick={() => handleQuickBuy(product)}
-                      >
-                        <Marquee
-                          speed={50}
-                          gradient={false}
-                          className="text-white font-bold text-xs"
-                        >
-                          {buttonTexts.map((text, index) => (
-                            <span key={index} className="mx-1">
-                              {text}
-                            </span>
-                          ))}
-                        </Marquee>
-                      </Button>
-                    </div>
-                  </div>
-
-                  <div className="space-y-1">
-                    {/* Store Name */}
-                    <p className="text-xs text-gray-600 uppercase font-bold">{product.store}</p>
-                    
-                    {/* Product Name */}
-                    <Link href={`/produto/${product.id}`}>
-                      <h3 className="font-bold text-sm leading-tight uppercase text-black">
-                        {product.name}
-                      </h3>
-                    </Link>
-                    
-                    {/* Rating */}
-                    <div className="flex items-center space-x-1">
-                      <Star className="w-3 h-3 fill-yellow-400 text-yellow-400" />
-                      <span className="text-xs text-gray-600">{product.rating}</span>
-                      <span className="text-xs text-gray-500">({product.reviews})</span>
-                    </div>
-                    
-                    {/* Pricing */}
-                    <div className="flex items-center space-x-2">
-                      <span className="text-lg font-bold text-black">R$ {product.price.toFixed(2).replace(".", ",")}</span>
-                      {product.originalPrice && (
-                        <span className="text-sm text-gray-500 line-through">
-                          R$ {product.originalPrice.toFixed(2).replace(".", ",")}
-                        </span>
-                      )}
-                    </div>
-                    
-                    {/* Payment Terms */}
-                    <div className="text-xs text-green-600 font-semibold">3X SEM JUROS</div>
-                    
-                    {/* Sales Count */}
-                    <div className="text-xs text-gray-500 font-medium">{Math.floor(Math.random() * 1000) + 100} VENDIDOS</div>
-                  </div>
-              </div>
-            ))}
             </div>
           </div>
 
@@ -1398,7 +1278,11 @@ export default function HomePage() {
                         </div>
 
                         {/* Visit Store Button */}
-                        <Link href={`/loja/${store.slug}`}>
+                        <Link href={
+                          store.slug === "sacocheio" ? "/saco-cheio" : 
+                          store.slug === "sara-lee-jones" ? "/sara-lee-jones" : 
+                          `/loja/${store.slug}`
+                        }>
                           <Button className="w-full bg-black hover:bg-gray-800 text-white text-sm py-3 rounded-none">
                             VISITAR LOJA
                           </Button>
@@ -1544,14 +1428,14 @@ export default function HomePage() {
                 </p>
                 
                 <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
-                  <button className="group relative px-10 py-4 bg-black text-white font-bold text-lg rounded-xl shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300 overflow-hidden border border-white/20">
+                  <Link href="/multiverso" className="group relative px-10 py-4 bg-black text-white font-bold text-lg rounded-xl shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300 overflow-hidden border border-white/20 inline-block">
                     <span className="relative z-10">EXPLORAR PRODUTOS</span>
                     <div className="absolute inset-0 bg-white/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                  </button>
+                  </Link>
                   
-                  <button className="px-8 py-4 border-2 border-black/20 text-black font-semibold rounded-xl hover:bg-black hover:text-white transition-all duration-300 hover:border-black">
+                  <Link href="/multiverso" className="px-8 py-4 border-2 border-black/20 text-black font-semibold rounded-xl hover:bg-black hover:text-white transition-all duration-300 hover:border-black inline-block">
                     VER LOJAS
-                  </button>
+                  </Link>
                 </div>
                 
               </div>
@@ -1600,10 +1484,6 @@ export default function HomePage() {
           product={quickBuyProduct}
           isOpen={!!quickBuyProduct}
           onClose={() => setQuickBuyProduct(null)}
-          onAddToCart={(product, options) => {
-            console.log("Added to cart:", product, options)
-            setQuickBuyProduct(null)
-          }}
         />
       )}
 

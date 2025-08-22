@@ -55,11 +55,11 @@ export default function QuickBuyModal({ isOpen, onClose, product }: QuickBuyModa
     console.log("Compra rápida:", {
       product: product.name,
       model: selectedModel,
-      size: selectedSize,
-      color: selectedColor,
-      quantity,
+        size: selectedSize,
+        color: selectedColor,
+        quantity,
       totalPrice
-    })
+      })
     
     onClose()
   }
@@ -93,8 +93,8 @@ export default function QuickBuyModal({ isOpen, onClose, product }: QuickBuyModa
                   FRETE GRÁTIS
                 </span>
               )}
-            </div>
-            
+          </div>
+
             {/* Botão fechar */}
             <button 
               onClick={onClose}
@@ -103,7 +103,7 @@ export default function QuickBuyModal({ isOpen, onClose, product }: QuickBuyModa
               ✕
             </button>
           </figure>
-        </div>
+              </div>
 
         {/* DIREITA: Opções */}
         <div className="md:col-span-6 flex flex-col p-6 space-y-6">
@@ -118,25 +118,25 @@ export default function QuickBuyModal({ isOpen, onClose, product }: QuickBuyModa
             </h1>
             <div className="flex items-center gap-3">
               <span className="text-gray-700 text-sm font-gotham-medium">4.9 (567)</span>
-            </div>
+                  </div>
           </header>
 
           {/* Preço */}
           <div className="flex items-baseline gap-3">
             <div className="text-2xl font-black font-gotham-black">
               R$ {totalPrice.toFixed(2).replace(".", ",")}
-            </div>
+                      </div>
             {product.originalPrice && (
               <div className="text-sm text-gray-400 line-through font-gotham-medium">
                 R$ {product.originalPrice.toFixed(2).replace(".", ",")}
-              </div>
-            )}
-          </div>
+                    </div>
+                  )}
+                </div>
 
           {/* STEP 1: Modelo */}
           <section>
             <p className="text-xs font-bold uppercase mb-3 font-gotham-bold">MODELO</p>
-            <div className="grid grid-cols-2 gap-2">
+                      <div className="grid grid-cols-2 gap-2">
               {models.map((model) => (
                 <label key={model} className="cursor-pointer group">
                   <input
@@ -151,15 +151,15 @@ export default function QuickBuyModal({ isOpen, onClose, product }: QuickBuyModa
                     {model}
                   </span>
                 </label>
-              ))}
-            </div>
+                        ))}
+                      </div>
           </section>
 
           {/* STEP 2: Tamanho */}
           <section>
             <p className="text-xs font-bold uppercase mb-3 font-gotham-bold">TAMANHO</p>
             <div className="grid grid-cols-7 gap-2">
-              {sizes.map((size) => (
+                        {sizes.map((size) => (
                 <label key={size} className="cursor-pointer group">
                   <input
                     type="radio"
@@ -170,18 +170,18 @@ export default function QuickBuyModal({ isOpen, onClose, product }: QuickBuyModa
                     className="peer sr-only"
                   />
                   <span className="qb-chip group-hover:bg-gray-50">
-                    {size}
+                              {size}
                   </span>
                 </label>
-              ))}
-            </div>
+                        ))}
+                      </div>
           </section>
 
           {/* STEP 3: Cor */}
           <section>
             <p className="text-xs font-bold uppercase mb-3 font-gotham-bold">COR</p>
             <div className="grid grid-cols-4 gap-2">
-              {colors.map((color) => (
+                      {colors.map((color) => (
                 <label key={color.value} className="cursor-pointer group">
                   <input
                     type="radio"
@@ -196,8 +196,8 @@ export default function QuickBuyModal({ isOpen, onClose, product }: QuickBuyModa
                     <em className="font-gotham-medium">{color.name}</em>
                   </span>
                 </label>
-              ))}
-            </div>
+                      ))}
+                    </div>
           </section>
 
           {/* STEP 4: Quantidade + CTA */}
@@ -207,14 +207,14 @@ export default function QuickBuyModal({ isOpen, onClose, product }: QuickBuyModa
               <span className="font-gotham-bold">
                 Total: <strong className="text-lg">R$ {totalPrice.toFixed(2).replace(".", ",")}</strong>
               </span>
-            </div>
-            
+                </div>
+
             <div className="flex items-center gap-2">
               <button 
                 onClick={() => handleQuantityChange(quantity - 1)}
                 className="qb-step font-gotham-bold hover:bg-gray-100"
-                disabled={quantity <= 1}
-              >
+                      disabled={quantity <= 1}
+                    >
                 –
               </button>
               <input
@@ -232,9 +232,9 @@ export default function QuickBuyModal({ isOpen, onClose, product }: QuickBuyModa
               >
                 +
               </button>
-            </div>
-            
-            <Button 
+          </div>
+
+            <Button
               onClick={handleBuy}
               disabled={!isFormComplete}
               className={`w-full px-6 py-4 font-black tracking-widest uppercase font-gotham-black text-lg relative overflow-hidden group transition-all ${
@@ -265,7 +265,7 @@ export default function QuickBuyModal({ isOpen, onClose, product }: QuickBuyModa
                 <span>{selectedColor ? "✓" : "○"}</span>
                 <span>Cor: {selectedColor || "Não selecionado"}</span>
               </div>
-            </div>
+          </div>
           </section>
         </div>
       </div>

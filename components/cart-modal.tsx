@@ -233,7 +233,7 @@ export default function CartModal({ isOpen, onClose }: CartModalProps) {
                     </Marquee>
                   </div>
                   <div className="absolute inset-0 bg-white/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300 backdrop-blur-sm"></div>
-                </button>
+                  </button>
               </div>
             </div>
           )}

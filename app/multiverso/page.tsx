@@ -3,801 +3,713 @@
 import { useState } from "react"
 import Image from "next/image"
 import Link from "next/link"
+import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
-import { Card, CardContent } from "@/components/ui/card"
-import { Badge } from "@/components/ui/badge"
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 import { Navbar } from "@/components/navbar"
-import {
-  Star,
-  Users,
-  Grid3X3,
-  List,
-  Filter,
-  SortAsc,
-  TrendingUp,
-  Crown,
-  MessageCircle,
-  ChevronDown,
-  Heart,
-  Share2,
-  Eye,
-  Sparkles,
-  Zap,
-  ArrowRight,
-  Package,
-  Coffee,
-  Gamepad2,
-  Music,
-  Gift,
-  Rocket,
-} from "lucide-react"
+import Footer from "@/components/footer"
+import QuickBuyModal from "@/components/quick-buy-modal"
+import ProductCard from "@/components/lojas/multiverso/product-card"
+import Marquee from "react-fast-marquee"
 
-export default function MultiversoStorePage() {
-  const [viewMode, setViewMode] = useState("grid")
-  const [searchQuery, setSearchQuery] = useState("")
-  const [selectedCategory, setSelectedCategory] = useState("multiverso-original")
-  const [selectedFilter, setSelectedFilter] = useState({
-    color: "todas",
-    size: "todos",
-    price: "todos",
-    brand: "todas",
-    type: "todos",
-  })
+interface Product {
+  id: string
+  name: string
+  price: number
+  originalPrice?: number
+  image: string
+  badge: string
+  badgeColor: string
+  store: string
+  category: string
+  rating: number
+  reviews: number
+  sales: number
+  savings?: string
+  isMultiversoOriginal?: boolean
+}
 
-  // Produtos de lançamento
-  const launchProducts = [
-    {
-      id: 1,
-      name: "Camiseta Multiverso Estudio - Edição Especial 2024",
-      price: 89.9,
-      originalPrice: 119.9,
-      image: "/placeholder.svg?height=400&width=400",
-      store: "Multiverso Estudio",
-      rating: 4.9,
-      reviews: 567,
-      sales: 2345,
-      badge: "🚀 Lançamento",
-      badgeColor: "bg-red-500",
-      discount: 25,
-      freeShipping: true,
-      isNew: true,
-    },
-    {
-      id: 2,
-      name: "Kit Multiverso Premium - Camiseta + Caneca + Adesivos",
-      price: 149.9,
-      originalPrice: 199.9,
-      image: "/placeholder.svg?height=400&width=400",
-      store: "Multiverso Estudio",
-      rating: 4.8,
-      reviews: 234,
-      sales: 1234,
-      badge: "💎 Premium",
-      badgeColor: "bg-purple-600",
-      discount: 25,
-      freeShipping: true,
-      isNew: true,
-    },
-    {
-      id: 3,
-      name: "Caneca Multiverso - Lojas dentro de Lojas",
-      price: 49.9,
-      originalPrice: 69.9,
-      image: "/placeholder.svg?height=400&width=400",
-      store: "Multiverso Estudio",
-      rating: 4.7,
-      reviews: 156,
-      sales: 856,
-      badge: "⭐ Exclusivo",
-      badgeColor: "bg-amber-600",
-      discount: 29,
-      freeShipping: true,
-      isNew: true,
-    },
+interface Universe {
+  id: string
+  name: string
+  description: string
+  logo: string
+  slug: string
+}
+
+interface ProductType {
+  id: string
+  name: string
+  price: number
+  originalPrice?: number
+}
+
+interface ProductColor {
+  name: string
+  value: string
+  image: string
+}
+
+export default function MultiversoPage() {
+  const router = useRouter()
+  const [isQuickBuyOpen, setIsQuickBuyOpen] = useState(false)
+  const [selectedProduct, setSelectedProduct] = useState<Product | null>(null)
+  const [showFilters, setShowFilters] = useState(false)
+
+  // Dados para o novo componente ProductCard
+  const productTypes: ProductType[] = [
+    { id: "overside", name: "Overside", price: 89.9, originalPrice: 119.9 },
+    { id: "basica", name: "Básica", price: 79.9, originalPrice: 99.9 }
   ]
 
-  // Categorias melhoradas
-  const categories = [
-    {
-      name: "canecas",
-      label: "Canecas",
-      icon: <Coffee className="w-8 h-8" />,
-      count: 234,
-      color: "from-amber-500 to-orange-500",
-      description: "Canecas personalizadas de todos os criadores",
-      image: "/placeholder.svg?height=300&width=400",
-    },
-    {
-      name: "vestuario",
-      label: "Vestuário",
-      icon: <Package className="w-8 h-8" />,
-      count: 456,
-      color: "from-blue-500 to-purple-500",
-      description: "Camisetas, moletons e mais",
-      image: "/placeholder.svg?height=300&width=400",
-    },
-    {
-      name: "gaming",
-      label: "Gaming",
-      icon: <Gamepad2 className="w-8 h-8" />,
-      count: 189,
-      color: "from-purple-500 to-pink-500",
-      description: "Produtos para gamers",
-      image: "/placeholder.svg?height=300&width=400",
-    },
-    {
-      name: "musica",
-      label: "Música",
-      icon: <Music className="w-8 h-8" />,
-      count: 167,
-      color: "from-green-500 to-teal-500",
-      description: "Para os amantes da música",
-      image: "/placeholder.svg?height=300&width=400",
-    },
-    {
-      name: "kits",
-      label: "Kits",
-      icon: <Gift className="w-8 h-8" />,
-      count: 89,
-      color: "from-red-500 to-pink-500",
-      description: "Combos promocionais",
-      image: "/placeholder.svg?height=300&width=400",
-    },
-    {
-      name: "lancamentos",
-      label: "Lançamentos",
-      icon: <Rocket className="w-8 h-8" />,
-      count: 67,
-      color: "from-yellow-500 to-red-500",
-      description: "Novidades da semana",
-      image: "/placeholder.svg?height=300&width=400",
-    },
+  const productColors: ProductColor[] = [
+    { name: "Preto", value: "black", image: "/imgs/produtos/p1.png" },
+    { name: "Branco", value: "white", image: "/imgs/camiseta.png" },
+    { name: "Azul", value: "blue", image: "/imgs/produtos/logo.png" }
   ]
 
-  // Filtros avançados
-  const filters = {
-    colors: ["Todas", "Preto", "Branco", "Azul", "Vermelho", "Verde", "Amarelo", "Rosa", "Roxo"],
-    sizes: ["Todos", "PP", "P", "M", "G", "GG", "XG"],
-    prices: ["Todos", "Até R$ 50", "R$ 50 - R$ 100", "R$ 100 - R$ 200", "Acima de R$ 200"],
-    brands: ["Todas", "Sacocheio.tv", "Canal do Gamer", "Cinemagrath", "Música Indie", "Multiverso"],
-    types: ["Todos", "Lançamentos", "Mais Vendidos", "Promoções", "Edição Limitada"],
+  const sizes = ["PP", "P", "M", "G", "GG", "XG"]
+
+  const handleQuickBuyProduct = (productId: string, type: string, color: string, size: string) => {
+    console.log(`Produto ${productId} adicionado: ${type} - ${color} - ${size}`)
+    
+    // Por enquanto, vamos abrir o modal de quick buy
+    const product = [...featuredProducts, ...launchProducts, ...mainProducts].find(p => p.id === productId)
+    if (product) {
+      setSelectedProduct(product)
+      setIsQuickBuyOpen(true)
+    }
   }
 
-  // Produtos da Multiverso (próprios + de todas as lojas)
-  const products = [
-    // Produtos próprios da Multiverso
+  // Universos parceiros
+  const universes: Universe[] = [
     {
-      id: 4,
-      name: "Camiseta Multiverso Estudio - Logo Oficial",
-      price: 69.9,
-      originalPrice: 89.9,
-      image: "/placeholder.svg?height=400&width=400",
-      store: "Multiverso Estudio",
-      storeSlug: "multiverso",
-      storeColor: "#6B46C1",
-      rating: 4.9,
-      reviews: 567,
-      sales: 2345,
-      badge: "🌟 Original",
-      badgeColor: "bg-purple-600",
-      category: "camisetas",
-      isMultiversoOriginal: true,
-      colors: ["Preto", "Branco", "Roxo"],
-      sizes: ["P", "M", "G", "GG"],
-      type: "original",
+      id: "1",
+      name: "SacoCheio.tv",
+      description: "Coleções com humor ácido",
+      logo: "/logos/universo-01.svg",
+      slug: "sacocheio"
     },
     {
-      id: 5,
-      name: "Caneca Multiverso - Lojas dentro de Lojas",
-      price: 39.9,
-      originalPrice: 49.9,
-      image: "/placeholder.svg?height=400&width=400",
-      store: "Multiverso Estudio",
-      storeSlug: "multiverso",
-      storeColor: "#6B46C1",
-      rating: 4.8,
-      reviews: 234,
-      sales: 1234,
-      badge: "🌟 Original",
-      badgeColor: "bg-purple-600",
-      category: "canecas",
-      isMultiversoOriginal: true,
-      colors: ["Branco", "Preto"],
-      sizes: ["Único"],
-      type: "original",
-    },
-    // Produtos de outras lojas
-    {
-      id: 6,
-      name: "Camiseta Cafézini Garganttinni - Edição Limitada",
-      price: 79.9,
-      originalPrice: 99.9,
-      image: "/placeholder.svg?height=400&width=400",
-      store: "Sacocheio.tv",
-      storeSlug: "sacocheio",
-      storeColor: "#8B4513",
-      rating: 4.8,
-      reviews: 234,
-      sales: 1234,
-      badge: "🔥 Lançamento",
-      badgeColor: "bg-red-500",
-      category: "camisetas",
-      isMultiversoOriginal: false,
-      colors: ["Preto", "Branco", "Marrom"],
-      sizes: ["P", "M", "G", "GG"],
-      type: "lancamento",
+      id: "2",
+      name: "Cinemagraph",
+      description: "Movimento e silêncio",
+      logo: "/logos/universo-02.svg",
+      slug: "cinemagraph"
     },
     {
-      id: 7,
-      name: "Kit Gamer Pro - Camiseta + Caneca RGB",
-      price: 139.9,
-      originalPrice: 179.9,
-      image: "/placeholder.svg?height=400&width=400",
-      store: "Canal do Gamer",
-      storeSlug: "gamerpro",
-      storeColor: "#6B46C1",
-      rating: 4.8,
-      reviews: 123,
-      sales: 567,
-      badge: "🎮 Gamer Choice",
-      badgeColor: "bg-purple-600",
-      category: "kits",
-      isMultiversoOriginal: false,
-      colors: ["Preto", "Azul"],
-      sizes: ["P", "M", "G"],
-      type: "mais-vendidos",
+      id: "3",
+      name: "Música Indie",
+      description: "Som que veste",
+      logo: "/logos/universo-03.svg",
+      slug: "musica-indie"
     },
     {
-      id: 8,
-      name: "Caneca Noir Cinemagrath - Edição Terror",
-      price: 55.9,
-      originalPrice: 69.9,
-      image: "/placeholder.svg?height=400&width=400",
-      store: "Cinemagrath",
-      storeSlug: "cinemagrath",
-      storeColor: "#8B0000",
-      rating: 4.9,
-      reviews: 156,
-      sales: 856,
-      badge: "🎬 Cult Classic",
-      badgeColor: "bg-red-800",
-      category: "canecas",
-      isMultiversoOriginal: false,
-      colors: ["Preto", "Vermelho"],
-      sizes: ["Único"],
-      type: "edicao-limitada",
-    },
-    {
-      id: 9,
-      name: "Moletom Indie Vibes - Algodão Orgânico",
-      price: 159.9,
-      image: "/placeholder.svg?height=400&width=400",
-      store: "Música Indie",
-      storeSlug: "indievibes",
-      storeColor: "#059669",
-      rating: 4.7,
-      reviews: 89,
-      sales: 432,
-      badge: "🎵 Indie Vibes",
-      badgeColor: "bg-green-600",
-      category: "moletons",
-      isMultiversoOriginal: false,
-      colors: ["Verde", "Preto", "Branco"],
-      sizes: ["P", "M", "G", "GG", "XG"],
-      type: "sustentavel",
-    },
+      id: "4",
+      name: "Gaming",
+      description: "HUDs vestíveis",
+      logo: "/logos/universo-04.svg",
+      slug: "gaming"
+    }
   ]
 
-  const filteredProducts = products.filter((product) => {
-    const matchesSearch = product.name.toLowerCase().includes(searchQuery.toLowerCase())
-    const matchesCategory =
-      selectedCategory === "todos" ||
-      product.category === selectedCategory ||
-      (selectedCategory === "multiverso-original" && product.isMultiversoOriginal)
-    return matchesSearch && matchesCategory
-  })
+  // Produtos em destaque
+  const featuredProducts: Product[] = [
+    {
+      id: "1",
+      name: "Camiseta — Logo Oficial",
+      price: 69.90,
+      originalPrice: 89.90,
+      image: "/imgs/produtos/p1.png",
+      badge: "ORIGINAL",
+      badgeColor: "border-gray-300",
+      store: "Multiverso Estúdio",
+      category: "camisetas",
+      rating: 4.9,
+      reviews: 567,
+      sales: 2345
+    },
+    {
+      id: "2",
+      name: "Hoodie — Edição Limitada",
+      price: 149.90,
+      originalPrice: 189.90,
+      image: "/imgs/camiseta.png",
+      badge: "EXCLUSIVO",
+      badgeColor: "border-black",
+      store: "Multiverso Estúdio",
+      category: "hoodies",
+      rating: 4.8,
+      reviews: 234,
+      sales: 1234
+    },
+    {
+      id: "3",
+      name: "Caneca — Multiverso",
+      price: 49.90,
+      originalPrice: 69.90,
+      image: "/imgs/produtos/logo.png",
+      badge: "FRETE GRÁTIS",
+      badgeColor: "border-gray-300",
+      store: "Multiverso Estúdio",
+      category: "canecas",
+      rating: 4.7,
+      reviews: 189,
+      sales: 856
+    },
+    {
+      id: "4",
+      name: "Pôster — Arte Exclusiva",
+      price: 39.90,
+      image: "/imgs/produtos/p1.png",
+      badge: "EDIÇÃO LIMITADA",
+      badgeColor: "border-black",
+      store: "Multiverso Estúdio",
+      category: "posters",
+      rating: 4.6,
+      reviews: 145,
+      sales: 567
+    }
+  ]
+
+  // Lançamentos exclusivos
+  const launchProducts: Product[] = [
+    {
+      id: "5",
+      name: "Camiseta Multiverso Estúdio — Edição Especial",
+      price: 89.90,
+      originalPrice: 119.90,
+      image: "/imgs/camiseta.png",
+      badge: "LANÇAMENTO",
+      badgeColor: "border-black",
+      store: "Multiverso Estúdio",
+      category: "camisetas",
+      rating: 4.8,
+      reviews: 2345,
+      sales: 2345,
+      savings: "Economize R$ 30,00"
+    },
+    {
+      id: "6",
+      name: "Moletom — Coleção Inverno",
+      price: 179.90,
+      originalPrice: 229.90,
+      image: "/imgs/produtos/logo.png",
+      badge: "NOVO",
+      badgeColor: "border-gray-300",
+      store: "Multiverso Estúdio",
+      category: "moletons",
+      rating: 4.9,
+      reviews: 456,
+      sales: 789,
+      savings: "Economize R$ 50,00"
+    },
+    {
+      id: "7",
+      name: "Boné — Estilo Street",
+      price: 59.90,
+      originalPrice: 79.90,
+      image: "/imgs/produtos/p1.png",
+      badge: "22% OFF",
+      badgeColor: "border-black",
+      store: "Multiverso Estúdio",
+      category: "acessorios",
+      rating: 4.7,
+      reviews: 234,
+      sales: 456,
+      savings: "Economize R$ 20,00"
+    },
+    {
+      id: "8",
+      name: "Tote Bag — Sustentável",
+      price: 34.90,
+      image: "/imgs/camiseta.png",
+      badge: "ECO-FRIENDLY",
+      badgeColor: "border-gray-300",
+      store: "Multiverso Estúdio",
+      category: "bolsas",
+      rating: 4.8,
+      reviews: 123,
+      sales: 234
+    }
+  ]
+
+  // Produtos principais
+  const mainProducts: Product[] = [
+    {
+      id: "9",
+      name: "Camiseta Multiverso Estúdio — Logo Oficial",
+      price: 69.90,
+      originalPrice: 89.90,
+      image: "/imgs/produtos/logo.png",
+      badge: "ORIGINAL",
+      badgeColor: "border-black",
+      store: "Multiverso Estúdio",
+      category: "camisetas",
+      rating: 4.9,
+      reviews: 2345,
+      sales: 2345,
+      savings: "Economize R$ 20,00"
+    },
+    {
+      id: "10",
+      name: "Camiseta — Design Minimalista",
+      price: 79.90,
+      originalPrice: 99.90,
+      image: "/imgs/produtos/p1.png",
+      badge: "MINIMALISTA",
+      badgeColor: "border-gray-300",
+      store: "Multiverso Estúdio",
+      category: "camisetas",
+      rating: 4.8,
+      reviews: 1234,
+      sales: 1890,
+      savings: "Economize R$ 20,00"
+    },
+    {
+      id: "11",
+      name: "Camiseta — Arte Urbana",
+      price: 84.90,
+      originalPrice: 104.90,
+      image: "/imgs/camiseta.png",
+      badge: "ARTE URBANA",
+      badgeColor: "border-black",
+      store: "Multiverso Estúdio",
+      category: "camisetas",
+      rating: 4.7,
+      reviews: 890,
+      sales: 1456,
+      savings: "Economize R$ 20,00"
+    },
+    {
+      id: "12",
+      name: "Camiseta — Vintage Style",
+      price: 74.90,
+      originalPrice: 94.90,
+      image: "/imgs/produtos/logo.png",
+      badge: "VINTAGE",
+      badgeColor: "border-gray-300",
+      store: "Multiverso Estúdio",
+      category: "camisetas",
+      rating: 4.6,
+      reviews: 567,
+      sales: 890,
+      savings: "Economize R$ 20,00"
+    }
+  ]
+
+  // Categorias
+  const categories = [
+    { name: "Canecas", count: 234, slug: "canecas" },
+    { name: "Vestuário", count: 456, slug: "vestuario" },
+    { name: "Gaming", count: 189, slug: "gaming" }
+  ]
+
+  const handleQuickBuy = (product: Product) => {
+    setSelectedProduct(product)
+    setIsQuickBuyOpen(true)
+  }
+
+  const handleProductClick = (productId: string) => {
+    router.push(`/produto/${productId}`)
+  }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-50 via-blue-50 to-indigo-50">
-      {/* Navbar */}
+    <main className="bg-white text-black font-gotham min-h-screen">
       <Navbar />
 
-      {/* Hero Section Melhorado */}
-      <section className="relative overflow-hidden pt-24">
-        <div className="h-96 relative">
-          {/* Background com gradiente animado */}
-          <div className="absolute inset-0 bg-gradient-to-r from-purple-600 via-blue-600 to-indigo-600" />
-          <div className="absolute inset-0 bg-black/20" />
+      {/* HERO com fundo estético monocromático */}
+      <section className="relative isolate overflow-hidden pt-20">
+        {/* Camada 1: gradiente de base */}
+        <div className="absolute inset-0 -z-20 bg-gradient-to-br from-gray-50 via-white to-gray-100"></div>
 
-          {/* Elementos flutuantes animados */}
-          <div className="absolute inset-0 overflow-hidden">
-            <div className="absolute top-10 left-10 w-20 h-20 bg-white/10 rounded-full animate-float" />
-            <div
-              className="absolute top-32 right-20 w-16 h-16 bg-white/10 rounded-full animate-float"
-              style={{ animationDelay: "1s" }}
-            />
-            <div
-              className="absolute bottom-20 left-1/3 w-12 h-12 bg-white/10 rounded-full animate-float"
-              style={{ animationDelay: "0.5s" }}
-            />
-            <div
-              className="absolute top-20 right-1/3 w-24 h-24 bg-white/5 rounded-full animate-float"
-              style={{ animationDelay: "1.5s" }}
-            />
-          </div>
+        {/* Camada 2: grid geométrico (SVG pattern) */}
+        <svg className="absolute inset-0 -z-10 w-full h-full opacity-10 text-gray-300">
+          <defs>
+            <pattern id="mv-grid" width="48" height="48" patternUnits="userSpaceOnUse">
+              <path d="M48 0H0V48" fill="none" stroke="currentColor" strokeWidth="1" />
+            </pattern>
+          </defs>
+          <rect width="100%" height="100%" fill="url(#mv-grid)" />
+        </svg>
 
-          <div className="absolute inset-0 flex items-center">
-            <div className="container mx-auto px-4">
-              <div className="max-w-4xl">
-                <div className="glass-effect rounded-2xl p-8 max-w-3xl">
-                  <div className="flex items-center space-x-4 mb-6">
-                    <div className="bg-gradient-to-r from-purple-500 to-blue-500 p-4 rounded-full animate-pulse-glow">
-                      <Sparkles className="w-12 h-12 text-white" />
-                    </div>
-                    <Badge className="bg-purple-500 text-white text-lg px-4 py-2 animate-pulse">
-                      <Crown className="w-5 h-5 mr-2" />
-                      Loja Oficial
-                    </Badge>
-                  </div>
+        {/* Camada 3: radiais (sombras suaves) */}
+        <div className="pointer-events-none absolute -top-24 -left-24 h-80 w-80 -z-10 bg-[radial-gradient(circle_at_center,rgba(0,0,0,0.08),transparent_60%)]"></div>
+        <div className="pointer-events-none absolute -bottom-32 right-[-10%] h-96 w-96 -z-10 bg-[radial-gradient(circle_at_center,rgba(0,0,0,0.06),transparent_60%)]"></div>
 
-                  <h1 className="text-6xl font-black mb-4 text-white drop-shadow-lg gradient-text">
-                    Multiverso Estudio
+        {/* Camada 4: leve vinheta vertical */}
+        <div className="pointer-events-none absolute inset-0 -z-10 bg-gradient-to-b from-black/5 via-transparent to-black/5"></div>
+
+        {/* Camada 5: ruído sutil (SVG filter) */}
+        <svg className="absolute inset-0 -z-10 w-full h-full opacity-[0.06] mix-blend-multiply">
+          <filter id="mv-noise">
+            <feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="2" stitchTiles="stitch"/>
+            <feColorMatrix type="saturate" values="0"/>
+            <feComponentTransfer>
+              <feFuncA type="table" tableValues="0 0.7"/>
+            </feComponentTransfer>
+          </filter>
+          <rect width="100%" height="100%" filter="url(#mv-noise)" />
+        </svg>
+
+        {/* Conteúdo do HERO */}
+        <div className="max-w-6xl mx-auto px-6 pt-10 pb-8 md:pt-14 md:pb-12 relative">
+          <p className="text-[11px] tracking-widest text-gray-500 uppercase font-gotham-bold">multiverso estúdio</p>
+          <h1 className="mt-1 text-3xl md:text-4xl font-black tracking-tight font-gotham-black uppercase">
+            Uma jornada exploratória simbiótica
                   </h1>
+          <p className="mt-3 text-sm md:text-base text-gray-700 leading-7 max-w-3xl font-gotham-book">
+            Lojas dentro de lojas. Cada universo com sua própria física estética.
+            Aqui, criadores e exploradores co-criam peças únicas — do rascunho ao ritual de uso.
+          </p>
 
-                  <p className="text-2xl font-bold mb-2 text-purple-200">LOJAS DENTRO DE LOJAS</p>
-
-                  <p className="text-xl mb-8 max-w-3xl text-white/90 leading-relaxed">
-                    A plataforma oficial que conecta criadores e fãs. Produtos exclusivos da Multiverso + o melhor de
-                    todas as lojas parceiras em um só lugar.
-                  </p>
-
-                  <div className="flex items-center space-x-8 text-lg text-white">
-                    <span className="flex items-center glass-effect px-4 py-2 rounded-lg">
-                      <Users className="w-6 h-6 mr-2" />
-                      5.2M+ usuários
-                    </span>
-                    <span className="flex items-center glass-effect px-4 py-2 rounded-lg">
-                      <Star className="w-6 h-6 mr-2 fill-yellow-400 text-yellow-400" />
-                      4.9 avaliação
-                    </span>
-                    <span className="flex items-center glass-effect px-4 py-2 rounded-lg">
-                      <TrendingUp className="w-6 h-6 mr-2" />
-                      1.2K+ produtos
-                    </span>
+          {/* micro-métricas */}
+          <div className="mt-5 flex flex-wrap gap-3 text-[11px] uppercase">
+            <span className="px-2 py-1 border border-gray-300 font-gotham-bold">4,9 • avaliação</span>
+            <span className="px-2 py-1 border border-gray-300 font-gotham-bold">+1,2k produtos</span>
+            <span className="px-2 py-1 border border-gray-300 font-gotham-bold">frete grátis</span>
                   </div>
                 </div>
+      </section>
+
+      {/* MANIFESTO */}
+      <section className="py-10 md:py-12">
+        <div className="max-w-6xl mx-auto px-6 grid md:grid-cols-12 gap-8">
+          <div className="md:col-span-5">
+            <h2 className="text-lg md:text-xl font-bold uppercase font-gotham-bold">Manifesto</h2>
               </div>
-            </div>
+          <div className="md:col-span-7 text-sm md:text-base text-gray-700 leading-7 space-y-4 font-gotham-book">
+            <p>Não vendemos só produtos. Abrimos portais. Cada peça nasce da simbiose entre a identidade do artista e o imaginário do explorador.</p>
+            <p>O Multiverso é processo vivo: decisões, anseios, esperança e visão. Uma prática contínua de olhar e atravessar.</p>
           </div>
         </div>
       </section>
 
-      {/* Produtos de Lançamento */}
-      <section className="py-20 bg-white">
-        <div className="container mx-auto px-4">
-          <div className="flex items-center justify-between mb-12">
-            <div className="flex items-center space-x-4">
-              <div className="bg-gradient-to-r from-red-500 to-orange-500 p-3 rounded-full animate-pulse-glow">
-                <Zap className="w-8 h-8 text-white" />
-              </div>
-              <div>
-                <h2 className="text-4xl font-bold">Lançamentos Exclusivos</h2>
-                <p className="text-xl text-gray-600">Os produtos mais recentes da Multiverso Estudio</p>
+      {/* PORTAL (cartão reto + imagem PNG transparente) */}
+      <section className="max-w-6xl mx-auto px-6 py-10 md:py-12">
+        <div className="grid lg:grid-cols-12 gap-6">
+          <div className="lg:col-span-6 bg-white hover:shadow-xl transition-shadow duration-300">
+            <div className="p-6 md:p-8">
+              <h3 className="text-base md:text-lg font-semibold uppercase font-gotham-bold">Portal</h3>
+              <p className="mt-2 text-sm text-gray-700 leading-7 font-gotham-book">Escolha por onde começar: lojas parceiras, coleções originais ou personalizáveis.</p>
+              <div className="mt-4 flex flex-wrap gap-3 text-[11px]">
+                <Link href="/lancamentos" className="px-3 py-2 font-bold border border-gray-900 hover:bg-black hover:text-white transition font-gotham-bold">
+                  Entrar no portal
+                </Link>
+                <Link href="/personalizaveis" className="px-3 py-2 font-bold border border-gray-300 hover:bg-gray-50 transition font-gotham-bold">
+                  Personalizáveis
+                </Link>
               </div>
             </div>
-            <Button variant="outline" className="text-lg px-8 py-3 bg-transparent hover-lift">
-              Ver Todos
-              <ArrowRight className="w-5 h-5 ml-2" />
-            </Button>
+          </div>
+          <figure className="lg:col-span-6 bg-white hover:shadow-xl transition-shadow duration-300">
+            <div className="aspect-[3/4] grid place-items-center">
+              {/* PNG com fundo transparente 3:4 */}
+              <div className="w-full h-full bg-gray-50 grid place-items-center">
+                <p className="text-gray-400 text-sm">Peça destaque — fundo transparente</p>
+              </div>
+            </div>
+          </figure>
+        </div>
+      </section>
+
+      {/* UNIVERSOS (cartas retas) */}
+      <section className="py-10 md:py-12">
+        <div className="max-w-6xl mx-auto px-6">
+          <div className="flex items-end justify-between">
+            <h2 className="text-lg md:text-xl font-bold uppercase font-gotham-bold">Universos</h2>
+            <Link href="/parceiros" className="text-sm underline underline-offset-4 font-gotham-medium uppercase">ver todos</Link>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+          <div className="mt-6 grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+            {universes.map((universe) => (
+              <Link key={universe.id} className="bg-white hover:shadow-xl transition-shadow duration-300 group" href={`/u/${universe.slug}`}>
+                <div className="aspect-square bg-gray-50 grid place-items-center">
+                  <div className="max-h-[70%] opacity-80 group-hover:opacity-100 transition">
+                    <div className="w-16 h-16 bg-gray-300 rounded-full flex items-center justify-center">
+                      <span className="text-gray-600 font-bold text-lg">{universe.name.charAt(0)}</span>
+                    </div>
+                  </div>
+                      </div>
+                <div className="p-4">
+                  <p className="text-sm font-semibold leading-snug font-gotham-bold">{universe.name}</p>
+                  <p className="text-[12px] text-gray-600 mt-1 font-gotham-medium">{universe.description}</p>
+                    </div>
+              </Link>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* DESTAQUES (grade minimalista) */}
+      <section className="py-10 md:py-12">
+        <div className="max-w-6xl mx-auto px-6">
+          <div className="flex items-end justify-between">
+            <h2 className="text-lg md:text-xl font-bold uppercase font-gotham-bold">Destaques do Multiverso</h2>
+            <Link href="/lancamentos" className="text-sm underline underline-offset-4 font-gotham-medium uppercase">ver lançamentos</Link>
+          </div>
+
+          <div className="mt-6 grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+            {featuredProducts.map((product) => (
+              <ProductCard
+                key={product.id}
+                product={{
+                  id: product.id,
+                  name: product.name,
+                  price: product.price,
+                  originalPrice: product.originalPrice,
+                  image: product.image,
+                  badge: product.badge,
+                  store: product.store,
+                  rating: product.rating,
+                  reviews: product.reviews,
+                  sold: product.sales
+                }}
+                types={productTypes}
+                colors={productColors}
+                sizes={sizes}
+                onQuickBuy={handleQuickBuyProduct}
+              />
+            ))}
+                      </div>
+                    </div>
+      </section>
+
+      {/* LANÇAMENTOS EXCLUSIVOS (comerciais) */}
+      <section className="py-10">
+        <div className="max-w-6xl mx-auto px-6">
+          <div className="flex items-end justify-between">
+            <h2 className="text-lg md:text-xl font-bold uppercase font-gotham-bold">Lançamentos Exclusivos</h2>
+            <Link href="/lancamentos" className="text-sm underline underline-offset-4 font-gotham-medium uppercase">Ver Todos</Link>
+                  </div>
+
+          <div className="mt-6 grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
             {launchProducts.map((product) => (
-              <Link key={product.id} href={`/produto/${product.id}`}>
-                <Card className="overflow-hidden hover:shadow-2xl transition-all duration-500 group cursor-pointer h-full hover-lift">
-                  <div className="relative aspect-[2300/3066] overflow-hidden">
-                    <Image
-                      src={product.image || "/placeholder.svg"}
-                      alt={product.name}
-                      fill
-                      className="object-cover group-hover:scale-110 transition-transform duration-700"
-                    />
-
-                    <div className="absolute top-4 left-4 flex flex-col space-y-2">
-                      <Badge className={`${product.badgeColor} text-white animate-pulse font-bold`}>
-                        {product.badge}
-                      </Badge>
-                      {product.originalPrice && (
-                        <Badge className="bg-green-500 text-white font-bold">{product.discount}% OFF</Badge>
-                      )}
-                      {product.freeShipping && <Badge className="bg-blue-500 text-white">Frete Grátis</Badge>}
-                    </div>
-
-                    <div className="absolute top-4 right-4 flex flex-col space-y-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                      <Button size="icon" className="bg-white/90 text-gray-800 hover:bg-white">
-                        <Heart className="w-4 h-4" />
-                      </Button>
-                      <Button size="icon" className="bg-white/90 text-gray-800 hover:bg-white">
-                        <Share2 className="w-4 h-4" />
-                      </Button>
-                      <Button size="icon" className="bg-white/90 text-gray-800 hover:bg-white">
-                        <Eye className="w-4 h-4" />
-                      </Button>
-                    </div>
-                  </div>
-
-                  <CardContent className="p-6">
-                    <div className="flex items-center justify-between mb-3">
-                      <Badge variant="outline" className="text-xs font-semibold text-purple-600 border-purple-600">
-                        {product.store}
-                      </Badge>
-                      <div className="flex items-center space-x-1">
-                        <Star className="w-4 h-4 fill-yellow-400 text-yellow-400" />
-                        <span className="text-sm font-medium">{product.rating}</span>
-                        <span className="text-xs text-gray-500">({product.reviews})</span>
-                      </div>
-                    </div>
-
-                    <h3 className="font-bold text-lg mb-3 line-clamp-2 group-hover:text-gray-600 transition-colors">
-                      {product.name}
-                    </h3>
-
-                    <div className="bg-green-50 p-3 rounded-lg mb-4">
-                      <div className="flex items-center space-x-2">
-                        <span className="text-2xl font-bold text-green-600">R$ {product.price.toFixed(2)}</span>
-                        {product.originalPrice && (
-                          <span className="text-lg text-gray-500 line-through">
-                            R$ {product.originalPrice.toFixed(2)}
-                          </span>
-                        )}
-                      </div>
-                      {product.originalPrice && (
-                        <p className="text-sm text-green-600 font-semibold">
-                          Economize R$ {(product.originalPrice - product.price).toFixed(2)}
-                        </p>
-                      )}
-                    </div>
-
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center space-x-3 text-sm text-gray-500">
-                        <span className="flex items-center">
-                          <TrendingUp className="w-4 h-4 mr-1" />
-                          {product.sales} vendidos
-                        </span>
-                      </div>
-                      <Button
-                        size="sm"
-                        className="bg-gradient-to-r from-purple-500 to-blue-500 hover:from-purple-600 hover:to-blue-600 text-white font-semibold"
-                      >
-                        Comprar
-                      </Button>
-                    </div>
-                  </CardContent>
-                </Card>
-              </Link>
+              <ProductCard
+                key={product.id}
+                product={{
+                  id: product.id,
+                  name: product.name,
+                  price: product.price,
+                  originalPrice: product.originalPrice,
+                  image: product.image,
+                  badge: product.badge,
+                  store: product.store,
+                  rating: product.rating,
+                  reviews: product.reviews,
+                  sold: product.sales
+                }}
+                types={productTypes}
+                colors={productColors}
+                sizes={sizes}
+                onQuickBuy={handleQuickBuyProduct}
+              />
             ))}
           </div>
         </div>
       </section>
 
-      {/* Categorias Melhoradas */}
-      <section className="py-20 bg-gradient-to-br from-gray-50 to-white">
-        <div className="container mx-auto px-4">
-          <div className="text-center mb-16">
-            <h2 className="text-4xl font-bold mb-4">Explore por Categoria</h2>
-            <p className="text-xl text-gray-600 max-w-2xl mx-auto">
-              Descubra produtos únicos organizados por categoria
-            </p>
-          </div>
+      {/* EXPLORAR POR CATEGORIA */}
+      <section className="py-10">
+        <div className="max-w-6xl mx-auto px-6">
+          <h2 className="text-lg md:text-xl font-bold uppercase font-gotham-bold">Explore por Categoria</h2>
+          <p className="mt-1 text-sm text-gray-600 font-gotham-book">Descubra produtos únicos organizados por categoria</p>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+          <div className="mt-6 grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-6">
             {categories.map((category) => (
-              <Link key={category.name} href={`/categoria/${category.name}`}>
-                <Card className="category-card overflow-hidden cursor-pointer h-full group">
-                  <div className="relative h-48 overflow-hidden">
-                    <div className={`absolute inset-0 bg-gradient-to-br ${category.color} opacity-90`} />
-                    <Image
-                      src={category.image || "/placeholder.svg"}
-                      alt={category.label}
-                      fill
-                      className="object-cover group-hover:scale-110 transition-transform duration-700"
-                    />
-                    <div className="absolute inset-0 bg-black/20" />
-
-                    <div className="absolute inset-0 flex items-center justify-center">
-                      <div className="text-center text-white">
-                        <div className="bg-white/20 p-4 rounded-full mb-4 mx-auto w-fit">{category.icon}</div>
-                        <h3 className="text-2xl font-bold mb-2">{category.label}</h3>
-                        <p className="text-white/90 mb-4">{category.description}</p>
-                        <Badge className="bg-white/20 text-white">{category.count} produtos</Badge>
-                      </div>
-                    </div>
+              <Link key={category.slug} href={`/categoria/${category.slug}`} className="bg-white hover:shadow-xl transition-shadow duration-300 group">
+                <div className="aspect-square bg-gray-50 grid place-items-center relative overflow-hidden">
+                  <span className="text-sm font-semibold group-hover:underline font-gotham-bold z-10 relative">{category.name}</span>
+                  <div className="absolute inset-0 bg-gradient-to-br from-gray-100 to-gray-200 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                          </div>
+                <div className="p-3">
+                  <p className="text-xs text-gray-600 font-gotham-medium">{category.count} produtos disponíveis</p>
+                  <div className="mt-2 flex items-center justify-between">
+                    <span className="text-xs text-green-600 font-gotham-bold">Ver produtos</span>
+                    <span className="text-xs text-gray-400 group-hover:text-gray-600 transition-colors">→</span>
                   </div>
-
-                  <CardContent className="p-6 bg-white">
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <h4 className="font-bold text-lg text-gray-900">{category.label}</h4>
-                        <p className="text-sm text-gray-600">{category.count} produtos disponíveis</p>
                       </div>
-                      <Button
-                        size="sm"
-                        className={`bg-gradient-to-r ${category.color} hover:opacity-90 text-white font-semibold`}
-                      >
-                        Explorar
-                        <ArrowRight className="w-4 h-4 ml-2" />
-                      </Button>
-                    </div>
-                  </CardContent>
-                </Card>
               </Link>
             ))}
-          </div>
-        </div>
-      </section>
-
-      {/* Produtos Principais com Filtros Laterais */}
-      <section className="py-20 bg-white">
-        <div className="container mx-auto px-4">
-          <div className="flex gap-8">
-            {/* Sidebar de Filtros */}
-            <div className="w-80 space-y-6">
-              <Card className="shadow-lg hover-lift">
-                <CardContent className="p-6">
-                  <h3 className="text-xl font-bold mb-4 flex items-center text-gray-900">
-                    <Filter className="w-5 h-5 mr-2 text-purple-600" />
-                    Filtros
-                  </h3>
-
-                  {/* Categorias */}
-                  <div className="mb-6">
-                    <h4 className="font-semibold mb-3 text-gray-900">Categorias</h4>
-                    <div className="space-y-2">
-                      {[
-                        { name: "multiverso-original", label: "Multiverso Original", count: 45 },
-                        { name: "todos", label: "Todos os Produtos", count: 1247 },
-                        { name: "camisetas", label: "Camisetas", count: 456 },
-                        { name: "canecas", label: "Canecas", count: 234 },
-                        { name: "moletons", label: "Moletons", count: 189 },
-                        { name: "acessorios", label: "Acessórios", count: 167 },
-                        { name: "kits", label: "Kits", count: 89 },
-                      ].map((category) => (
-                        <button
-                          key={category.name}
-                          onClick={() => setSelectedCategory(category.name)}
-                          className={`w-full text-left p-3 rounded-lg transition-all duration-200 ${
-                            selectedCategory === category.name
-                              ? "bg-purple-100 text-purple-700 font-semibold shadow-md"
-                              : "hover:bg-gray-50 text-gray-700"
-                          }`}
-                        >
-                          <div className="flex justify-between items-center">
-                            <span>{category.label}</span>
-                            <Badge variant="outline" className="text-xs">
-                              {category.count}
-                            </Badge>
-                          </div>
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-
-                  {/* Filtros adicionais */}
-                  {Object.entries(filters).map(([filterKey, filterValues]) => (
-                    <div key={filterKey} className="mb-6">
-                      <h4 className="font-semibold mb-3 text-gray-900 capitalize">
-                        {filterKey === "colors"
-                          ? "Cores"
-                          : filterKey === "sizes"
-                            ? "Tamanhos"
-                            : filterKey === "prices"
-                              ? "Preços"
-                              : filterKey === "brands"
-                                ? "Lojas"
-                                : filterKey === "types"
-                                  ? "Tipos"
-                                  : filterKey}
-                      </h4>
-                      <div
-                        className={`grid gap-2 ${filterKey === "colors" || filterKey === "sizes" ? "grid-cols-3" : "grid-cols-1"}`}
-                      >
-                        {filterValues.map((value) => (
-                          <button
-                            key={value}
-                            className={`p-2 text-sm rounded-lg border transition-all duration-200 ${
-                              selectedFilter[filterKey as keyof typeof selectedFilter] === value.toLowerCase()
-                                ? "border-purple-500 bg-purple-50 text-purple-700 font-semibold"
-                                : "border-gray-200 hover:border-gray-300 text-gray-700 hover:bg-gray-50"
-                            }`}
-                            onClick={() =>
-                              setSelectedFilter((prev) => ({
-                                ...prev,
-                                [filterKey]: value.toLowerCase(),
-                              }))
-                            }
-                          >
-                            {value}
-                          </button>
-                        ))}
-                      </div>
-                    </div>
-                  ))}
-                </CardContent>
-              </Card>
+            
+            {/* Categorias adicionais */}
+            <Link href="/categoria/musica" className="bg-white hover:shadow-xl transition-shadow duration-300 group">
+              <div className="aspect-square bg-gray-50 grid place-items-center relative overflow-hidden">
+                <span className="text-sm font-semibold group-hover:underline font-gotham-bold z-10 relative">Música</span>
+                <div className="absolute inset-0 bg-gradient-to-br from-gray-100 to-gray-200 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
             </div>
-
-            {/* Área de Produtos */}
-            <div className="flex-1">
-              {/* Controles superiores */}
-              <div className="flex justify-between items-center mb-8">
-                <div>
-                  <h2 className="text-3xl font-bold text-gray-900">
-                    {selectedCategory === "todos"
-                      ? "Todos os Produtos"
-                      : selectedCategory === "multiverso-original"
-                        ? "Produtos Multiverso Original"
-                        : `Categoria: ${selectedCategory}`}
-                  </h2>
-                  <p className="text-gray-600">{filteredProducts.length} produtos encontrados</p>
-                </div>
-
-                <div className="flex items-center space-x-4">
-                  <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                      <Button variant="outline" className="bg-white hover-lift">
-                        <SortAsc className="w-4 h-4 mr-2" />
-                        Ordenar
-                        <ChevronDown className="w-4 h-4 ml-2" />
-                      </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent>
-                      <DropdownMenuItem>Mais Relevantes</DropdownMenuItem>
-                      <DropdownMenuItem>Menor Preço</DropdownMenuItem>
-                      <DropdownMenuItem>Maior Preço</DropdownMenuItem>
-                      <DropdownMenuItem>Mais Vendidos</DropdownMenuItem>
-                      <DropdownMenuItem>Melhor Avaliados</DropdownMenuItem>
-                      <DropdownMenuItem>Lançamentos</DropdownMenuItem>
-                    </DropdownMenuContent>
-                  </DropdownMenu>
-
-                  <div className="flex border rounded-md bg-white">
-                    <Button
-                      variant={viewMode === "grid" ? "default" : "ghost"}
-                      size="icon"
-                      onClick={() => setViewMode("grid")}
-                      className="rounded-r-none"
-                    >
-                      <Grid3X3 className="w-4 h-4" />
-                    </Button>
-                    <Button
-                      variant={viewMode === "list" ? "default" : "ghost"}
-                      size="icon"
-                      onClick={() => setViewMode("list")}
-                      className="rounded-l-none"
-                    >
-                      <List className="w-4 h-4" />
-                    </Button>
-                  </div>
+              <div className="p-3">
+                <p className="text-xs text-gray-600 font-gotham-medium">167 produtos disponíveis</p>
+                <div className="mt-2 flex items-center justify-between">
+                  <span className="text-xs text-green-600 font-gotham-bold">Ver produtos</span>
+                  <span className="text-xs text-gray-400 group-hover:text-gray-600 transition-colors">→</span>
                 </div>
               </div>
-
-              {/* Grid de Produtos */}
-              <div
-                className={`grid gap-6 ${
-                  viewMode === "grid" ? "grid-cols-1 sm:grid-cols-2 lg:grid-cols-3" : "grid-cols-1"
-                }`}
-              >
-                {filteredProducts.map((product) => (
-                  <Link key={product.id} href={`/produto/${product.id}`}>
-                    <Card className="overflow-hidden hover:shadow-2xl transition-all duration-500 group cursor-pointer h-full hover-lift">
-                      <div className="relative">
-                        <Image
-                          src={product.image || "/placeholder.svg"}
-                          alt={product.name}
-                          width={400}
-                          height={400}
-                          className={`w-full object-cover group-hover:scale-110 transition-transform duration-500 ${
-                            viewMode === "grid" ? "h-64" : "h-48"
-                          }`}
-                        />
-
-                        <div className="absolute top-4 left-4 flex flex-col space-y-2">
-                          <Badge className={`${product.badgeColor} text-white font-bold`}>{product.badge}</Badge>
-                          {product.originalPrice && (
-                            <Badge className="bg-green-500 text-white font-bold">
-                              {Math.round(((product.originalPrice - product.price) / product.originalPrice) * 100)}% OFF
-                            </Badge>
-                          )}
-                          {product.isMultiversoOriginal && (
-                            <Badge className="bg-purple-600 text-white font-bold">
-                              <Sparkles className="w-3 h-3 mr-1" />
-                              Original
-                            </Badge>
-                          )}
+            </Link>
+            
+            <Link href="/categoria/kits" className="bg-white hover:shadow-xl transition-shadow duration-300 group">
+              <div className="aspect-square bg-gray-50 grid place-items-center relative overflow-hidden">
+                <span className="text-sm font-semibold group-hover:underline font-gotham-bold z-10 relative">Kits</span>
+                <div className="absolute inset-0 bg-gradient-to-br from-gray-100 to-gray-200 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                  </div>
+              <div className="p-3">
+                <p className="text-xs text-gray-600 font-gotham-medium">89 produtos disponíveis</p>
+                <div className="mt-2 flex items-center justify-between">
+                  <span className="text-xs text-green-600 font-gotham-bold">Ver produtos</span>
+                  <span className="text-xs text-gray-400 group-hover:text-gray-600 transition-colors">→</span>
+                </div>
+              </div>
+            </Link>
+            
+            <Link href="/categoria/lancamentos" className="bg-white hover:shadow-xl transition-shadow duration-300 group">
+              <div className="aspect-square bg-gray-50 grid place-items-center relative overflow-hidden">
+                <span className="text-sm font-semibold group-hover:underline font-gotham-bold z-10 relative">Lançamentos</span>
+                <div className="absolute inset-0 bg-gradient-to-br from-gray-100 to-gray-200 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
                         </div>
-
-                        <div className="absolute top-4 right-4 flex flex-col space-y-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                          <Button size="icon" className="bg-white/90 text-gray-800 hover:bg-white">
-                            <Heart className="w-4 h-4" />
-                          </Button>
-                          <Button size="icon" className="bg-white/90 text-gray-800 hover:bg-white">
-                            <Share2 className="w-4 h-4" />
-                          </Button>
-                          <Button size="icon" className="bg-white/90 text-gray-800 hover:bg-white">
-                            <Eye className="w-4 h-4" />
-                          </Button>
+              <div className="p-3">
+                <p className="text-xs text-gray-600 font-gotham-medium">67 produtos disponíveis</p>
+                <div className="mt-2 flex items-center justify-between">
+                  <span className="text-xs text-green-600 font-gotham-bold">Ver produtos</span>
+                  <span className="text-xs text-gray-400 group-hover:text-gray-600 transition-colors">→</span>
                         </div>
                       </div>
-
-                      <CardContent className={`p-6 ${viewMode === "list" ? "flex items-center space-x-6" : ""}`}>
-                        <div className={viewMode === "list" ? "flex-1" : ""}>
-                          <div className="flex items-center justify-between mb-3">
-                            <Badge
-                              variant="outline"
-                              className="text-xs font-semibold"
-                              style={{ borderColor: product.storeColor, color: product.storeColor }}
-                            >
-                              {product.store}
-                            </Badge>
-                            <div className="flex items-center space-x-1">
-                              <Star className="w-4 h-4 fill-yellow-400 text-yellow-400" />
-                              <span className="text-sm font-medium">{product.rating}</span>
-                              <span className="text-xs text-gray-500">({product.reviews})</span>
+            </Link>
                             </div>
                           </div>
+      </section>
 
-                          <h3 className="font-bold text-lg mb-3 line-clamp-2 group-hover:text-gray-600 transition-colors">
-                            {product.name}
-                          </h3>
+      {/* FILTROS + GRID PRODUTOS */}
+      <section className="py-10">
+        <div className="max-w-6xl mx-auto px-6 grid grid-cols-12 gap-8">
 
-                          <div className="bg-green-50 p-3 rounded-lg mb-4">
-                            <div className="flex items-center space-x-2">
-                              <span className="text-2xl font-bold text-green-600">R$ {product.price.toFixed(2)}</span>
-                              {product.originalPrice && (
-                                <span className="text-lg text-gray-500 line-through">
-                                  R$ {product.originalPrice.toFixed(2)}
-                                </span>
-                              )}
-                            </div>
-                            {product.originalPrice && (
-                              <p className="text-sm text-green-600 font-semibold">
-                                Economize R$ {(product.originalPrice - product.price).toFixed(2)}
-                              </p>
-                            )}
-                          </div>
-
-                          <div className="flex items-center justify-between">
-                            <div className="flex items-center space-x-3 text-sm text-gray-500">
-                              <span className="flex items-center">
-                                <TrendingUp className="w-4 h-4 mr-1" />
-                                {product.sales} vendidos
-                              </span>
-                            </div>
+          {/* TOPO (mobile): botão mostra/oculta filtros */}
+          <div className="col-span-12 md:hidden">
                             <Button
-                              size="sm"
-                              className="bg-gradient-to-r from-purple-500 to-blue-500 hover:from-purple-600 hover:to-blue-600 text-white font-semibold"
+              onClick={() => setShowFilters(!showFilters)}
+              className="w-full border border-gray-900 py-2 text-sm font-semibold uppercase font-gotham-bold bg-white hover:bg-gray-50"
                             >
-                              Comprar
+              Filtros
                             </Button>
+          </div>
+
+          {/* FILTROS */}
+          <aside className={`col-span-12 md:col-span-3 space-y-6 uppercase ${showFilters ? 'block' : 'hidden md:block'}`}>
+            <div>
+              <h3 className="text-sm font-bold uppercase font-gotham-bold">Categorias</h3>
+              <ul className="mt-2 space-y-1 text-sm font-gotham-medium uppercase">
+                <li><Link href="#" className="hover:text-gray-600">Multiverso Original (45)</Link></li>
+                <li><Link href="#" className="hover:text-gray-600">Todos os Produtos (1247)</Link></li>
+                <li><Link href="#" className="hover:text-gray-600">Camisetas (456)</Link></li>
+                <li><Link href="#" className="hover:text-gray-600">Canecas (234)</Link></li>
+                <li><Link href="#" className="hover:text-gray-600">Moletons (189)</Link></li>
+                <li><Link href="#" className="hover:text-gray-600">Acessórios (167)</Link></li>
+              </ul>
+            </div>
+            <div>
+              <h3 className="text-sm font-bold uppercase font-gotham-bold">Cores</h3>
+              <div className="flex flex-wrap gap-2 mt-2">
+                <span className="px-2 py-1 border border-gray-300 text-xs font-gotham-medium cursor-pointer hover:border-black">Preto</span>
+                <span className="px-2 py-1 border border-gray-300 text-xs font-gotham-medium cursor-pointer hover:border-black">Branco</span>
+                <span className="px-2 py-1 border border-gray-300 text-xs font-gotham-medium cursor-pointer hover:border-black">Azul</span>
                           </div>
                         </div>
-                      </CardContent>
-                    </Card>
-                  </Link>
-                ))}
+            <div>
+              <h3 className="text-sm font-bold uppercase font-gotham-bold">Tamanhos</h3>
+              <div className="flex flex-wrap gap-2 mt-2">
+                <span className="px-2 py-1 border border-gray-300 text-xs font-gotham-medium cursor-pointer hover:border-black">PP</span>
+                <span className="px-2 py-1 border border-gray-300 text-xs font-gotham-medium cursor-pointer hover:border-black">P</span>
+                <span className="px-2 py-1 border border-gray-300 text-xs font-gotham-medium cursor-pointer hover:border-black">M</span>
+                <span className="px-2 py-1 border border-gray-300 text-xs font-gotham-medium cursor-pointer hover:border-black">G</span>
+                <span className="px-2 py-1 border border-gray-300 text-xs font-gotham-medium cursor-pointer hover:border-black">GG</span>
               </div>
+            </div>
+          </aside>
+
+          {/* GRID */}
+          <div className="col-span-12 md:col-span-9">
+            <div className="flex items-center justify-between">
+              <h2 className="text-lg font-bold uppercase font-gotham-bold">Produtos Multiverso Original</h2>
+              <select className="border text-sm px-2 py-1 font-gotham-medium">
+                <option>Ordenar</option>
+                <option>Mais vendidos</option>
+                <option>Menor preço</option>
+                <option>Maior preço</option>
+              </select>
+            </div>
+
+            <div className="mt-6 grid grid-cols-2 md:grid-cols-3 gap-6">
+              {mainProducts.map((product) => (
+                <ProductCard
+                  key={product.id}
+                  product={{
+                    id: product.id,
+                    name: product.name,
+                    price: product.price,
+                    originalPrice: product.originalPrice,
+                    image: product.image,
+                    badge: product.badge,
+                    store: product.store,
+                    rating: product.rating,
+                    reviews: product.reviews,
+                    sold: product.sales
+                  }}
+                  types={productTypes}
+                  colors={productColors}
+                  sizes={sizes}
+                  onQuickBuy={handleQuickBuyProduct}
+                />
+              ))}
             </div>
           </div>
         </div>
       </section>
 
-      {/* WhatsApp Float */}
-      <div className="fixed bottom-6 right-6 z-50">
-        <Button className="w-16 h-16 rounded-full bg-green-500 hover:bg-green-600 shadow-2xl hover:scale-110 transition-all animate-pulse-glow">
-          <MessageCircle className="w-8 h-8 text-white" />
-        </Button>
+      {/* FECHO */}
+      <section className="py-12 md:py-16">
+        <div className="max-w-6xl mx-auto px-6">
+          <h3 className="text-base md:text-lg font-semibold uppercase font-gotham-bold">Continuidade</h3>
+          <p className="mt-2 text-sm md:text-base text-gray-700 leading-7 max-w-3xl font-gotham-book">
+            Essa jornada não termina — ela expande. Novos universos, novas peças, novos encontros.
+            Quando quiser, o portal está aberto.
+          </p>
+          <div className="mt-5">
+            <Link href="/lancamentos" className="px-4 uppercase py-2 font-bold border border-gray-900 hover:bg-black hover:text-white transition font-gotham-bold inline-block">
+              Seguir explorando
+            </Link>
       </div>
     </div>
+      </section>
+
+      {/* Modal de Compra Rápida */}
+      {selectedProduct && (
+        <QuickBuyModal
+          isOpen={isQuickBuyOpen}
+          onClose={() => setIsQuickBuyOpen(false)}
+          product={{
+            id: selectedProduct.id,
+            name: selectedProduct.name,
+            image: selectedProduct.image,
+            price: selectedProduct.price,
+            originalPrice: selectedProduct.originalPrice || 0,
+            store: selectedProduct.store,
+            badge: selectedProduct.badge,
+            freeShipping: true
+          }}
+        />
+      )}
+
+      <Footer />
+
+      {/* Estilos CSS */}
+      <style jsx>{`
+        @keyframes float {
+          0%, 100% { transform: translateY(0px); }
+          50% { transform: translateY(-20px); }
+        }
+        
+        .animate-float {
+          animation: float 6s ease-in-out infinite;
+        }
+      `}</style>
+    </main>
   )
 }

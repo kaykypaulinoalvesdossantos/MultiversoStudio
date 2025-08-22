@@ -31,6 +31,7 @@ import {
 } from "lucide-react"
 import { Navbar } from "@/components/navbar"
 import Footer from "@/components/footer"
+import Link from "next/link"
 
 export default function ParaCriadoresPage() {
   const [selectedPlan, setSelectedPlan] = useState("com-investimento")
@@ -648,6 +649,78 @@ export default function ParaCriadoresPage() {
               <Globe className="w-5 h-5 md:w-6 md:h-6 mr-2" />
               Ver Lojas Exemplo
             </Button>
+          </div>
+        </div>
+      </section>
+
+      {/* Criadores Ativos */}
+      <section className="py-12 md:py-20 bg-gray-50">
+        <div className="container mx-auto px-4">
+          <div className="text-center mb-12 md:mb-16">
+            <h2 className="text-3xl md:text-4xl font-bold mb-4">Criadores Ativos</h2>
+            <p className="text-lg md:text-xl text-gray-600 max-w-2xl mx-auto">
+              Conheça alguns dos criadores que já estão vendendo com sucesso na Multiverso
+            </p>
+          </div>
+
+          <div className="max-w-6xl mx-auto grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {/* Saco Cheio */}
+            <Card className="group hover:shadow-xl transition-all duration-300">
+              <CardContent className="p-6 text-center">
+                <div className="w-20 h-20 mx-auto mb-4 bg-gradient-to-br from-yellow-400 to-orange-500 rounded-full flex items-center justify-center">
+                  <span className="text-2xl font-bold text-white">SC</span>
+                </div>
+                <h3 className="text-xl font-bold mb-2">Saco Cheio</h3>
+                <p className="text-gray-600 mb-4">Podcast de humor e café</p>
+                <div className="flex items-center justify-center space-x-2 mb-4">
+                  <span className="text-sm text-gray-500">1.8M seguidores</span>
+                  <span className="text-sm text-gray-500">•</span>
+                  <span className="text-sm text-gray-500">50K+ vendas</span>
+                </div>
+                <Link href="/saco-cheio">
+                  <Button className="w-full bg-yellow-500 hover:bg-yellow-600 text-black font-bold">
+                    Ver Loja
+                  </Button>
+                </Link>
+              </CardContent>
+            </Card>
+
+            {/* Outros criadores */}
+            <Card className="group hover:shadow-xl transition-all duration-300">
+              <CardContent className="p-6 text-center">
+                <div className="w-20 h-20 mx-auto mb-4 bg-gradient-to-br from-blue-400 to-purple-500 rounded-full flex items-center justify-center">
+                  <span className="text-2xl font-bold text-white">GP</span>
+                </div>
+                <h3 className="text-xl font-bold mb-2">GamerPro</h3>
+                <p className="text-gray-600 mb-4">Canal de games</p>
+                <div className="flex items-center justify-center space-x-2 mb-4">
+                  <span className="text-sm text-gray-500">2.3M seguidores</span>
+                  <span className="text-sm text-gray-500">•</span>
+                  <span className="text-sm text-gray-500">75K+ vendas</span>
+                </div>
+                <Button className="w-full bg-gray-200 hover:bg-gray-300 text-gray-700 font-bold" disabled>
+                  Em Breve
+                </Button>
+              </CardContent>
+            </Card>
+
+            <Card className="group hover:shadow-xl transition-all duration-300">
+              <CardContent className="p-6 text-center">
+                <div className="w-20 h-20 mx-auto mb-4 bg-gradient-to-br from-green-400 to-teal-500 rounded-full flex items-center justify-center">
+                  <span className="text-2xl font-bold text-white">IV</span>
+                </div>
+                <h3 className="text-xl font-bold mb-2">IndieVibes</h3>
+                <p className="text-gray-600 mb-4">Música independente</p>
+                <div className="flex items-center justify-center space-x-2 mb-4">
+                  <span className="text-sm text-gray-500">950K seguidores</span>
+                  <span className="text-sm text-gray-500">•</span>
+                  <span className="text-sm text-gray-500">30K+ vendas</span>
+                </div>
+                <Button className="w-full bg-gray-200 hover:bg-gray-300 text-gray-700 font-bold" disabled>
+                  Em Breve
+                </Button>
+              </CardContent>
+            </Card>
           </div>
         </div>
       </section>

@@ -45,9 +45,9 @@ export function Navbar() {
 
   // Categorias com subcategorias
   const categoriesWithSubs: Record<string, CategoryItem> = {
-    "ÚLTIMA VIAGEM": { 
-      name: "ÚLTIMA VIAGEM",
-      href: "/categoria/lancamentos", 
+    "LANÇAMENTOS": { 
+      name: "LANÇAMENTOS",
+      href: "/lancamentos", 
       hasSubs: false
     },
     "CANECAS": { 
@@ -62,7 +62,12 @@ export function Navbar() {
       hasSubs: true,
       subcategories: ["Camisetas", "Polo", "Tradicional", "StreetWear", "BabyLook", "Premium", "Moletons", "Regatas", "Bonés"]
     },
-    "PARCEIROS": { name: "PARCEIROS", href: "/para-criadores", hasSubs: false },
+    "PARCEIROS": { 
+      name: "PARCEIROS", 
+      href: "/para-criadores", 
+      hasSubs: true,
+      subcategories: ["Saco Cheio", "Outros Criadores"]
+    },
     "PERSONALIZÁVEIS": { name: "PERSONALIZÁVEIS", href: "/personalizar", hasSubs: false },
     "KITS": { 
       name: "KITS",
@@ -73,19 +78,19 @@ export function Navbar() {
   }
 
   const navigationItems: CategoryItem[] = [
-    { name: "ÚLTIMA VIAGEM", href: "/categoria/lancamentos", hasSubs: false },
+    { name: "LANÇAMENTOS", href: "/lancamentos", hasSubs: false },
     { name: "CANECAS", href: "/categoria/canecas", hasSubs: true, subcategories: ["Cerâmica", "Vidro", "Chopp", "Jateada", "Lisa", "Térmica"] },
     { name: "VESTUÁRIO", href: "/categoria/vestuario", hasSubs: true, subcategories: ["Camisetas", "Polo", "Tradicional", "StreetWear", "BabyLook", "Premium", "Moletons", "Regatas", "Bonés"] },
-    { name: "PARCEIROS", href: "/para-criadores", hasSubs: false },
+    { name: "PARCEIROS", href: "/para-criadores", hasSubs: true, subcategories: ["Saco Cheio", "Outros Criadores"] },
     { name: "PERSONALIZÁVEIS", href: "/personalizar", hasSubs: false },
     { name: "KITS", href: "/categoria/kits-promocionais", hasSubs: true, subcategories: ["Kit Café", "Kit Gamer", "Kit Completo", "Kit Presente"] }
   ]
 
   const mobileMenuItems: CategoryItem[] = [
-    { name: "ÚLTIMA VIAGEM", href: "/categoria/lancamentos", hasSubs: false },
+    { name: "LANÇAMENTOS", href: "/lancamentos", hasSubs: false },
     { name: "CANECAS", href: "/categoria/canecas", hasSubs: true, subcategories: ["Cerâmica", "Vidro", "Chopp", "Jateada", "Lisa", "Térmica"] },
     { name: "VESTUÁRIO", href: "/categoria/vestuario", hasSubs: true, subcategories: ["Camisetas", "Polo", "Tradicional", "StreetWear", "BabyLook", "Premium", "Moletons", "Regatas", "Bonés"] },
-    { name: "PARCEIROS", href: "/para-criadores", hasSubs: false },
+    { name: "PARCEIROS", href: "/para-criadores", hasSubs: true, subcategories: ["Saco Cheio", "Outros Criadores"] },
     { name: "PERSONALIZÁVEIS", href: "/personalizar", hasSubs: false },
     { name: "KITS", href: "/categoria/kits-promocionais", hasSubs: true, subcategories: ["Kit Café", "Kit Gamer", "Kit Completo", "Kit Presente"] },
     { name: "TROCAS", href: "/trocas", hasSubs: false },
