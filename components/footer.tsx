@@ -1,9 +1,13 @@
+"use client"
+
 import Image from "next/image"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
-import { useEffect } from "react"
+import { useEffect, useState } from "react"
+import CartModal from "./cart-modal"
 
 export default function Footer() {
+  const [isCartOpen, setIsCartOpen] = useState(false)
   // JavaScript para o accordion funcionar (mobile)
   useEffect(() => {
     const onResize = () => {
@@ -105,7 +109,7 @@ export default function Footer() {
                 <li><a href="/trocas-devolucoes">Trocas e Devoluções</a></li>
                 <li><a href="#">Minha conta</a></li>
                 <li><a href="#">Minhas compras</a></li>
-                <li><a href="#">Meu carrinho</a></li>ha 
+                <li><button onClick={() => setIsCartOpen(true)} className="text-left w-full text-sm text-gray-300 hover:text-white transition-colors">Meu carrinho</button></li> 
                 <li><a href="#">Meus produtos favoritos</a></li>
                 <li><a href="#">Acompanhar meus pedidos</a></li>
                 <li><a href="/duvidas">Central de Ajuda</a></li>
@@ -225,7 +229,7 @@ export default function Footer() {
                   <li><a href="/trocas-devolucoes">Trocas e Devoluções</a></li>
                   <li><a href="#">Minha conta</a></li>
                   <li><a href="#">Minhas compras</a></li>
-                  <li><a href="#">Meu carrinho</a></li>
+                  <li><button onClick={() => setIsCartOpen(true)} className="text-left w-full text-sm text-gray-300 hover:text-white transition-colors">Meu carrinho</button></li>
                   <li><a href="#">Meus produtos favoritos</a></li>
                   <li><a href="#">Acompanhar meus pedidos</a></li>
                   <li><a href="/duvidas">Central de Ajuda</a></li>
@@ -309,6 +313,9 @@ export default function Footer() {
 
         </div>
       </footer>
+
+      {/* Cart Modal */}
+      <CartModal isOpen={isCartOpen} onClose={() => setIsCartOpen(false)} />
     </>
   )
 }

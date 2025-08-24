@@ -53,8 +53,8 @@ export default function ProductCard({
   const [selectedSize, setSelectedSize] = useState<string | null>(null)
   const [isHoveringBuy, setIsHoveringBuy] = useState(false)
 
-  // Se há mais de 2 tipos, não mostra compra rápida
-  const hasQuickBuy = types.length <= 2
+  // Compra rápida sempre disponível
+  const hasQuickBuy = true
 
   const getCurrentImage = () => {
     if (selectedColor) {
@@ -83,20 +83,21 @@ export default function ProductCard({
       alert(`Produto adicionado ao carrinho!\nTipo: ${selectedType?.name}\nCor: ${selectedColor?.name}\nTamanho: ${size}`)
     }
 
-    // Reset do estado
-    setSelectedType(null)
-    setSelectedColor(null)
-    setSelectedSize(null)
-    setStep("initial")
-    setIsHoveringBuy(false)
+    // Reset do estado após um delay para mostrar confirmação
+    setTimeout(() => {
+      setSelectedType(null)
+      setSelectedColor(null)
+      setSelectedSize(null)
+      setStep("initial")
+      setIsHoveringBuy(false)
+    }, 1000)
   }
 
   const handleMouseLeave = () => {
-    setStep("initial")
-    setSelectedType(null)
-    setSelectedColor(null)
-    setSelectedSize(null)
-    setIsHoveringBuy(false)
+    // Só reseta se não estiver no meio de uma seleção
+    if (step === "initial") {
+      setIsHoveringBuy(false)
+    }
   }
 
   const handleBuyHover = () => {
@@ -112,9 +113,16 @@ export default function ProductCard({
     }
   }
 
+  const handleBuyClick = () => {
+    if (hasQuickBuy) {
+      setIsHoveringBuy(true)
+      setStep("type")
+    }
+  }
+
   return (
     <div
-      className="group cursor-pointer flex-shrink-0 w-80 mx-3"
+      className="group cursor-pointer flex-shrink-0 w-80 mx-3 md:w-80 sm:w-72 w-64"
       onMouseLeave={handleMouseLeave}
     >
       <div className="relative aspect-[2300/3066] overflow-hidden bg-gray-50 mb-1">
@@ -126,26 +134,26 @@ export default function ProductCard({
         />
 
         {/* Badges */}
-        <div className="absolute top-4 left-4 flex flex-col space-y-0.5">
+        <div className="absolute top-2 left-2 md:top-4 md:left-4 flex flex-col space-y-0.5">
           {product.badge && (
-            <div className="text-xs font-bold uppercase text-black hover:text-gray-600 transition-all duration-200 cursor-pointer">
+            <div className="text-xs font-bold uppercase text-black hover:text-gray-600 transition-all duration-200 cursor-pointer bg-white/80 px-1 py-0.5 md:bg-transparent md:px-0 md:py-0">
               {product.badge}
             </div>
           )}
           {product.discount && (
-            <div className="text-xs font-bold uppercase text-black hover:text-gray-600 transition-all duration-200 cursor-pointer">
+            <div className="text-xs font-bold uppercase text-black hover:text-gray-600 transition-all duration-200 cursor-pointer bg-white/80 px-1 py-0.5 md:bg-transparent md:px-0 md:py-0">
               {product.discount}
             </div>
           )}
           {product.freeShipping && (
-            <div className="text-xs font-bold uppercase text-black hover:text-gray-600 transition-all duration-200 cursor-pointer">
+            <div className="text-xs font-bold uppercase text-black hover:text-gray-600 transition-all duration-200 cursor-pointer bg-white/80 px-1 py-0.5 md:bg-transparent md:px-0 md:py-0">
               FRETE GRÁTIS
             </div>
           )}
         </div>
 
         {/* Color Swatches */}
-        <div className="absolute top-4 right-4 flex flex-col space-y-0.5">
+        <div className="absolute top-2 right-2 md:top-4 md:right-4 flex flex-col space-y-0.5">
           {colors.slice(0, 3).map((color) => (
             <div
               key={color.value}
@@ -172,26 +180,28 @@ export default function ProductCard({
 
         {/* Quick Buy Button - Bottom of image, full width */}
         <div className="absolute bottom-0 left-0 right-0 overflow-hidden">
-          {!isHoveringBuy && (
-            <Button
-              className="w-full opacity-0 group-hover:opacity-100 transition-opacity bg-black hover:bg-black text-white rounded-none font-bold uppercase"
-              onMouseEnter={handleBuyHover}
-              onMouseLeave={handleBuyLeave}
+          {/* Botão sempre visível no mobile, no desktop só quando não está no hover */}
+          <Button
+            className={`w-full transition-opacity bg-black hover:bg-black text-white rounded-none font-bold uppercase ${
+              isHoveringBuy ? 'md:opacity-0' : 'opacity-100'
+            }`}
+            onMouseEnter={handleBuyHover}
+            onMouseLeave={handleBuyLeave}
+            onClick={handleBuyClick}
+          >
+            {/* Marquee para estado inicial */}
+            <Marquee
+              speed={50}
+              gradient={false}
+              className="text-white font-bold"
             >
-              {/* Marquee para estado inicial */}
-              <Marquee
-                speed={50}
-                gradient={false}
-                className="text-white font-bold"
-              >
-                {["COMPRAR", "COMPRAR", "COMPRAR", "COMPRAR"].map((text, index) => (
-                  <span key={index} className="mx-2">
-                    {text}
-                  </span>
-                ))}
-              </Marquee>
-            </Button>
-          )}
+              {["COMPRAR", "COMPRAR", "COMPRAR", "COMPRAR"].map((text, index) => (
+                <span key={index} className="mx-2">
+                  {text}
+                </span>
+              ))}
+            </Marquee>
+          </Button>
 
           {/* Quick Buy Flow - Só aparece se hasQuickBuy = true */}
           {hasQuickBuy && isHoveringBuy && step === "type" && (
@@ -200,28 +210,43 @@ export default function ProductCard({
                 <button
                   key={type.id}
                   onClick={() => handleTypeSelect(type)}
-                  className="flex-1 bg-black hover:bg-gray-800 text-white font-bold uppercase py-3 text-sm transition-colors"
+                  className="flex-1 bg-black hover:bg-gray-800 text-white font-bold uppercase py-2 md:py-3 text-xs md:text-sm transition-colors"
                 >
                   {type.name}
                 </button>
               ))}
+              <button
+                onClick={() => {
+                  setIsHoveringBuy(false)
+                  setStep("initial")
+                }}
+                className="bg-gray-800 hover:bg-gray-700 text-white font-bold uppercase py-2 md:py-3 text-xs md:text-sm transition-colors px-2"
+              >
+                ✕
+              </button>
             </div>
           )}
 
           {hasQuickBuy && isHoveringBuy && step === "color" && (
             <div className="opacity-100 transition-opacity bg-black">
               <div className="text-white text-xs font-bold uppercase mb-1 text-center py-1">{selectedType?.name}</div>
-              <div className="flex">
+              <div className="grid grid-cols-2 md:flex md:flex-nowrap gap-0">
                 {colors.map((color) => (
                   <button
                     key={color.value}
                     onClick={() => handleColorSelect(color)}
-                    className="flex-1 bg-black hover:bg-gray-800 text-white font-bold uppercase py-2 text-xs transition-colors border-r border-gray-600 last:border-r-0"
+                    className="bg-black hover:bg-gray-800 text-white font-bold uppercase py-1.5 md:py-2 text-xs transition-colors border-r border-gray-600 last:border-r-0 md:flex-1"
                   >
                     {color.name}
                   </button>
                 ))}
               </div>
+              <button
+                onClick={() => setStep("type")}
+                className="bg-gray-800 hover:bg-gray-700 text-white font-bold uppercase py-1.5 md:py-2 text-xs transition-colors px-2 border-t border-gray-600"
+              >
+                ← Voltar
+              </button>
             </div>
           )}
 
@@ -230,29 +255,35 @@ export default function ProductCard({
               <div className="text-white text-xs font-bold uppercase mb-1 text-center py-1">
                 {selectedType?.name} - {selectedColor?.name}
               </div>
-              <div className="flex flex-wrap">
+              <div className="grid grid-cols-3 md:flex gap-0">
                 {sizes.map((size) => (
                   <button
                     key={size}
                     onClick={() => handleSizeSelect(size)}
-                    className="flex-1 bg-black hover:bg-gray-800 text-white font-bold uppercase py-2 text-xs transition-colors border-r border-gray-600 last:border-r-0"
+                    className="bg-black hover:bg-gray-800 text-white font-bold uppercase py-1.5 md:py-2 text-xs transition-colors border-r border-gray-600 last:border-r-0 md:flex-1"
                   >
                     {size}
                   </button>
                 ))}
               </div>
+              <button
+                onClick={() => setStep("color")}
+                className="bg-gray-800 hover:bg-gray-700 text-white font-bold uppercase py-1.5 md:py-2 text-xs transition-colors px-2 border-t border-gray-600"
+              >
+                ← Voltar
+              </button>
             </div>
           )}
         </div>
       </div>
 
-      <div className="space-y-1">
+      <div className="space-y-1 px-1 md:px-0">
         {/* Store Name */}
         <p className="text-xs text-gray-600 uppercase font-bold font-gotham-bold">{product.store}</p>
         
         {/* Product Name */}
         <Link href={`/produto/${product.id}`}>
-          <h3 className="font-bold text-sm leading-tight uppercase text-black font-gotham-bold">
+          <h3 className="font-bold text-xs md:text-sm leading-tight uppercase text-black font-gotham-bold">
             {product.name}
           </h3>
         </Link>
@@ -265,9 +296,9 @@ export default function ProductCard({
         
         {/* Pricing */}
         <div className="flex items-center space-x-2">
-          <span className="text-lg font-bold text-black font-gotham-black">R$ {product.price.toFixed(2).replace(".", ",")}</span>
+          <span className="text-sm md:text-lg font-bold text-black font-gotham-black">R$ {product.price.toFixed(2).replace(".", ",")}</span>
           {product.originalPrice && (
-            <span className="text-sm text-gray-500 line-through font-gotham-medium">
+            <span className="text-xs md:text-sm text-gray-500 line-through font-gotham-medium">
               R$ {product.originalPrice.toFixed(2).replace(".", ",")}
             </span>
           )}

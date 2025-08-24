@@ -83,7 +83,7 @@ export function Navbar() {
     { name: "VESTUÁRIO", href: "/categoria/vestuario", hasSubs: true, subcategories: ["Camisetas", "Polo", "Tradicional", "StreetWear", "BabyLook", "Premium", "Moletons", "Regatas", "Bonés"] },
     { name: "PARCEIROS", href: "/para-criadores", hasSubs: true, subcategories: ["Saco Cheio", "Outros Criadores"] },
     { name: "PERSONALIZÁVEIS", href: "/personalizar", hasSubs: false },
-    { name: "KITS", href: "/categoria/kits-promocionais", hasSubs: true, subcategories: ["Kit Café", "Kit Gamer", "Kit Completo", "Kit Presente"] }
+    { name: "KITS", href: "/categoria/kits-promocionais", hasSubs: true, subcategories: ["Kit Café", "Kit Gamer", "Kit Completo", "Kit Presente"] },
   ]
 
   const mobileMenuItems: CategoryItem[] = [
@@ -94,15 +94,16 @@ export function Navbar() {
     { name: "PERSONALIZÁVEIS", href: "/personalizar", hasSubs: false },
     { name: "KITS", href: "/categoria/kits-promocionais", hasSubs: true, subcategories: ["Kit Café", "Kit Gamer", "Kit Completo", "Kit Presente"] },
     { name: "TROCAS", href: "/trocas", hasSubs: false },
-    { name: "SOBRE NÓS", href: "/sobre", hasSubs: false }
+    { name: "SOBRE NÓS", href: "/sobre", hasSubs: false },
+
   ]
 
   const IconWithTooltip = ({
     iconSrc,
     tooltip,
     href,
-    width = 20,
-    height = 20,
+    width = 28,
+    height = 28,
     isDarkBackground = false,
     onClick,
     noAnimation = false,
@@ -121,25 +122,23 @@ export function Navbar() {
 
     useEffect(() => {
       if (isHovered) {
-        if (noAnimation) {
-          setDisplayText(tooltip)
-        } else {
-          let currentIndex = 0
-          const typingInterval = setInterval(() => {
-            if (currentIndex <= tooltip.length) {
-              setDisplayText(tooltip.slice(0, currentIndex))
-              currentIndex++
-            } else {
-              clearInterval(typingInterval)
-            }
-          }, 50) // 50ms delay between each character
+        // Animação de digitação padronizada para todos os botões
+        let currentIndex = 0
+        const typingInterval = setInterval(() => {
+          if (currentIndex <= tooltip.length) {
+            setDisplayText(tooltip.slice(0, currentIndex))
+            currentIndex++
+          } else {
+            clearInterval(typingInterval)
+          }
+        }, 50) // Velocidade um pouco mais lenta para estabilidade
 
-          return () => clearInterval(typingInterval)
-        }
+        return () => clearInterval(typingInterval)
       } else {
+        // Saída simples e direta
         setDisplayText("")
       }
-    }, [isHovered, tooltip, noAnimation])
+    }, [isHovered, tooltip])
 
     return (
       <div
@@ -148,11 +147,11 @@ export function Navbar() {
         onMouseLeave={() => setIsHovered(false)}
       >
         {onClick ? (
-          <button onClick={onClick} className="flex items-center">
+          <button onClick={onClick} className="flex items-center group">
             <svg
               width={width}
               height={height}
-              className={`cursor-pointer transition-opacity hover:opacity-70 ${isDarkBackground ? 'text-white' : 'text-black'}`}
+              className={`cursor-pointer transition-all duration-500 ease-out group-hover:scale-110 ${isDarkBackground ? 'text-white' : 'text-black'}`}
               viewBox="0 0 100 100"
               style={{ 
                 filter: isDarkBackground ? 'brightness(0) invert(1)' : 'none'
@@ -161,21 +160,25 @@ export function Navbar() {
               <image href={iconSrc} width="100" height="100" />
             </svg>
             <span
-              className={`ml-2 text-sm font-medium transition-all duration-200 whitespace-nowrap cursor-pointer ${
-                isHovered ? "opacity-100 translate-x-0" : "opacity-0 -translate-x-2"
-              } ${                isDarkBackground ? "text-white" : "text-black"
-              }`}
-              style={{ minWidth: isHovered ? "auto" : "0", overflow: "hidden" }}
+              className={`ml-3 text-sm font-medium transition-all duration-500 ease-out whitespace-nowrap cursor-pointer ${
+                isHovered ? "opacity-100 translate-x-0" : "opacity-0 -translate-x-4"
+              } ${isDarkBackground ? "text-white" : "text-black"}`}
+              style={{ 
+                minWidth: isHovered ? "auto" : "0", 
+                overflow: "hidden",
+                transform: isHovered ? "translateX(0)" : "translateX(-16px)",
+                transition: "all 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94)"
+              }}
             >
               {displayText}
             </span>
           </button>
         ) : (
-          <a href={href} className="flex items-center">
+          <a href={href} className="flex items-center group">
             <svg
               width={width}
               height={height}
-              className={`cursor-pointer transition-opacity hover:opacity-70 ${isDarkBackground ? 'text-white' : 'text-black'}`}
+              className={`cursor-pointer transition-all duration-500 ease-out group-hover:scale-110 ${isDarkBackground ? 'text-white' : 'text-black'}`}
               viewBox="0 0 100 100"
               style={{ 
                 filter: isDarkBackground ? 'brightness(0) invert(1)' : 'none'
@@ -184,12 +187,17 @@ export function Navbar() {
               <image href={iconSrc} width="100" height="100" />
             </svg>
             <span
-              className={`ml-2 text-sm font-medium transition-all duration-200 whitespace-nowrap cursor-pointer ${
-                isHovered ? "opacity-100 translate-x-0" : "opacity-0 -translate-x-2"
+              className={`ml-3 text-sm font-medium transition-all duration-500 ease-out whitespace-nowrap cursor-pointer ${
+                isHovered ? "opacity-100 translate-x-0" : "opacity-0 -translate-x-4"
               } ${
                 isDarkBackground ? "text-white" : "text-black"
               }`}
-              style={{ minWidth: isHovered ? "auto" : "0", overflow: "hidden" }}
+              style={{ 
+                minWidth: isHovered ? "auto" : "0", 
+                overflow: "hidden",
+                transform: isHovered ? "translateX(0)" : "translateX(-16px)",
+                transition: "all 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94)"
+              }}
             >
               {displayText}
             </span>
@@ -204,7 +212,7 @@ export function Navbar() {
     if (isHomePage) {
       // Página principal: transparente quando não scrollado, com efeito de vidro quando scrollado
       return isScrolled || isHovered
-        ? "bg-white/10 backdrop-blur-md shadow-lg border-b border-white/10"
+        ? "bg-white/95 backdrop-blur-md shadow-lg border-b border-white/20"
         : "bg-transparent border-b border-transparent"
     } else {
       // Outras páginas: sempre branco com texto preto
@@ -225,10 +233,10 @@ export function Navbar() {
   const getLogoSource = () => {
     if (isHomePage) {
       return isScrolled || isHovered 
-        ? "/icons/LOGO PRETO PRA BRANCO.svg" 
-        : "/icons/LOGO BRANCO PRA PRETO.svg"
+        ? "/icons/LOGO PRETO PRA BRANCO.svg"  // Logo preta quando navbar branco
+        : "/icons/LOGO PRETO PRA BRANCO.svg"  // Logo branca quando navbar transparente
     } else {
-      return "/icons/LOGO PRETO PRA BRANCO.svg"
+      return "/icons/LOGO PRETO PRA BRANCO.svg"  // Logo preta em outras páginas
     }
   }
 
@@ -296,7 +304,7 @@ export function Navbar() {
     <>
       {/* Desktop Navbar */}
       <nav
-        className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 hidden lg:block ${getNavbarStyle()}`}
+        className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 ease-out hidden lg:block ${getNavbarStyle()}`}
         onMouseEnter={() => setIsHovered(true)}
         onMouseLeave={() => setIsHovered(false)}
       >
@@ -320,33 +328,33 @@ export function Navbar() {
                 <div key={item.name} className="relative group">
                   <a
                     href={item.href}
-                    className={`group/link relative text-sm font-medium transition-all duration-200 cursor-pointer ${getTextColor()}`}
+                    className={`group/link relative text-sm font-medium transition-all duration-300 ease-out cursor-pointer ${getTextColor()}`}
                   >
-                    <span className={`font-medium transition-all duration-200 ${
+                    <span className={`font-medium transition-all duration-300 ease-out ${
                       isHomePage 
                         ? (isScrolled || isHovered ? "group-hover/link:font-black" : "group-hover/link:font-bold")
                         : "group-hover/link:font-black"
                     }`}>
                       {item.name}
                     </span>
-                    <span className={`absolute bottom-0 left-0 right-0 h-0.5 transform scale-x-0 group-hover/link:scale-x-100 transition-transform duration-300 origin-left ${getUnderlineColor()}`}></span>
+                    <span className={`absolute bottom-0 left-0 right-0 h-0.5 transform scale-x-0 group-hover/link:scale-x-100 transition-transform duration-300 ease-out origin-left ${getUnderlineColor()}`}></span>
                   </a>
                   
                   {/* Dropdown das subcategorias */}
                   {item.hasSubs && (
-                    <div className={`absolute top-full left-0 w-56 border shadow-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 z-50 ${getDropdownStyle()}`}>
+                    <div className={`absolute top-full left-0 w-56 border shadow-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 ease-out z-50 ${getDropdownStyle()}`}>
                       <div className="py-3">
                         {item.subcategories?.map((subcat, index) => (
                           <a
                             key={subcat}
                             href={`${item.href}/${subcat.toLowerCase().replace(/\s+/g, '-')}`}
-                            className={`group/item relative block px-6 py-3 text-sm transition-all duration-200 ${getDropdownTextColor()}`}
+                            className={`group/item relative block px-6 py-3 text-sm transition-all duration-300 ease-out ${getDropdownTextColor()}`}
                             style={{ animationDelay: `${index * 50}ms` }}
                           >
-                            <span className={`font-normal transition-all duration-200 ${getDropdownHoverColor()}`}>
+                            <span className={`font-normal transition-all duration-300 ease-out ${getDropdownHoverColor()}`}>
                               {subcat}
                             </span>
-                            <span className={`absolute bottom-0 left-6 right-6 h-0.5 transform scale-x-0 group-hover/item:scale-x-100 transition-transform duration-300 origin-left ${getDropdownUnderlineColor()}`}></span>
+                            <span className={`absolute bottom-0 left-6 right-6 h-0.5 transform scale-x-0 group-hover/item:scale-x-100 transition-transform duration-300 ease-out origin-left ${getDropdownUnderlineColor()}`}></span>
                           </a>
                         ))}
                       </div>
@@ -368,7 +376,7 @@ export function Navbar() {
 
       {/* Tablet/Laptop Navbar */}
       <nav
-        className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 hidden md:block lg:hidden ${
+        className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 ease-out hidden md:block lg:hidden ${
           isScrolled ? "bg-black" : "bg-black"
         }`}
       >
@@ -446,14 +454,6 @@ export function Navbar() {
 
             <div className="flex items-center space-x-2">
               <IconWithTooltip
-                iconSrc="/icons/pesquisa icon.svg"
-                tooltip="Pesquisar"
-                href="/pesquisa"
-                width={16}
-                height={16}
-                isDarkBackground={isHomePage}
-              />
-              <IconWithTooltip
                 iconSrc="/icons/dúvidas icon.svg"
                 tooltip="Central de Ajuda"
                 href="/duvidas"
@@ -486,22 +486,22 @@ export function Navbar() {
 
       {/* Mobile Menu Overlay */}
           {isMobileMenuOpen && (
-        <div className={`fixed inset-0 z-40 md:hidden animate-in fade-in duration-300 ${isHomePage ? "bg-black" : "bg-white"}`}>
-          <div className="pt-16 px-4 animate-in slide-in-from-top-4 duration-300 delay-100">
+        <div className={`fixed inset-0 z-40 md:hidden animate-in fade-in duration-500 ease-out ${isHomePage ? "bg-black" : "bg-white"}`}>
+          <div className="pt-16 px-4 animate-in slide-in-from-top-4 duration-500 ease-out delay-100">
             {/* Action Buttons */}
-            <div className="mb-8 space-y-3 animate-in slide-in-from-left-4 duration-300 delay-100">
-              <button className={`w-full py-3 border text-center rounded transition-all duration-200 ${
-                isHomePage 
-                  ? "border-white text-white hover:bg-white hover:text-black" 
-                  : "border-black text-black hover:bg-black hover:text-white"
-              }`}>
-                JÁ SOU EXPLORADOR
-              </button>
-              <button className={`w-full py-3 border text-center rounded transition-all duration-200 ${
-                isHomePage 
-                  ? "border-white text-white hover:bg-white hover:text-black" 
-                  : "border-black text-black hover:bg-black hover:text-white"
-              }`}>CRIAR CONTA</button>
+            <div className="mb-8 space-y-3 animate-in slide-in-from-left-4 duration-500 ease-out delay-100">
+                              <button className={`w-full py-3 border text-center rounded transition-all duration-300 ease-out ${
+                  isHomePage 
+                    ? "border-white text-white hover:bg-white hover:text-black" 
+                    : "border-black text-black hover:bg-black hover:text-white"
+                }`}>
+                  JÁ SOU EXPLORADOR
+                </button>
+                <button className={`w-full py-3 border text-center rounded transition-all duration-300 ease-out ${
+                  isHomePage 
+                    ? "border-white text-white hover:bg-white hover:text-black" 
+                    : "border-black text-black hover:bg-black hover:text-white"
+                }`}>CRIAR CONTA</button>
             </div>
 
             {/* Navigation Items */}
@@ -509,18 +509,18 @@ export function Navbar() {
               {mobileMenuItems.map((item, index) => (
                                   <div key={item.name}>
                     <div 
-                      className={`flex items-center justify-between py-2 border-b animate-in slide-in-from-left-4 duration-300 ${
+                      className={`flex items-center justify-between py-2 border-b animate-in slide-in-from-left-4 duration-500 ease-out ${
                         isHomePage ? "border-gray-800" : "border-gray-300"
                       }`}
                       style={{ animationDelay: `${(index + 2) * 100}ms` }}
                     >
-                      <a href={item.href} className={`group/link relative text-lg transition-all duration-200 ${
+                      <a href={item.href} className={`group/link relative text-lg transition-all duration-300 ease-out ${
                         isHomePage ? "text-white" : "text-black"
                       }`}>
-                        <span className="font-medium group-hover/link:font-black transition-all duration-200">
+                        <span className="font-medium group-hover/link:font-black transition-all duration-300 ease-out">
                           {item.name}
                         </span>
-                        <span className={`absolute bottom-0 left-0 right-0 h-0.5 transform scale-x-0 group-hover/link:scale-x-100 transition-transform duration-300 origin-left ${
+                        <span className={`absolute bottom-0 left-0 right-0 h-0.5 transform scale-x-0 group-hover/link:scale-x-100 transition-transform duration-300 ease-out origin-left ${
                           isHomePage ? "bg-white" : "bg-black"
                         }`}></span>
                       </a>
@@ -538,24 +538,24 @@ export function Navbar() {
 
                                                                               {/* Subcategorias expandidas */}
                       {item.hasSubs && expandedCategories.includes(item.name) && (
-                        <div className="ml-4 mt-2 space-y-2 animate-in slide-in-from-left-4 duration-300">
+                        <div className="ml-4 mt-2 space-y-2 animate-in slide-in-from-left-4 duration-500 ease-out">
                           {categoriesWithSubs[item.name as keyof typeof categoriesWithSubs]?.subcategories?.map((subcat, subIndex) => (
                             <div 
                               key={subcat}
-                              className="py-1 animate-in slide-in-from-left-4 duration-300"
+                              className="py-1 animate-in slide-in-from-left-4 duration-500 ease-out"
                               style={{ animationDelay: `${(index + 2) * 100 + (subIndex + 1) * 50}ms` }}
                             >
                               <a 
                                 href={`${item.href}/${subcat.toLowerCase().replace(/\s+/g, '-')}`}
-                                className={`group/subcat relative text-sm hover:text-white transition-all duration-200 block flex items-center justify-between ${
+                                className={`group/subcat relative text-sm hover:text-white transition-all duration-300 ease-out flex items-center justify-between ${
                                   isHomePage ? "text-gray-300" : "text-gray-600"
                                 }`}
                               >
                                 <div className="relative">
-                                  <span className="font-normal group-hover/subcat:font-black transition-all duration-200">
+                                  <span className="font-normal group-hover/subcat:font-black transition-all duration-300 ease-out">
                                     {subcat}
                                   </span>
-                                  <span className={`absolute bottom-0 left-0 right-0 h-0.5 transform scale-x-0 group-hover/subcat:scale-x-100 transition-transform duration-300 origin-left ${
+                                  <span className={`absolute bottom-0 left-0 right-0 h-0.5 transform scale-x-0 group-hover/subcat:scale-x-100 transition-transform duration-300 ease-out origin-left ${
                                     isHomePage ? "bg-white" : "bg-black"
                                   }`}></span>
                                 </div>
@@ -564,7 +564,7 @@ export function Navbar() {
                                   alt="Seta" 
                                   width={20} 
                                   height={20} 
-                                  className="opacity-60 group-hover/subcat:opacity-100 transition-opacity duration-200" 
+                                  className="opacity-60 group-hover/subcat:opacity-100 transition-opacity duration-300 ease-out" 
                                 />
                               </a>
                             </div>
@@ -580,27 +580,27 @@ export function Navbar() {
 
       {/* Tablet Menu Overlay */}
       {isMobileMenuOpen && (
-        <div className={`fixed inset-0 z-40 hidden md:block lg:hidden animate-in fade-in duration-300 ${isHomePage ? "bg-black/50" : "bg-white/50"}`}>
+        <div className={`fixed inset-0 z-40 hidden md:block lg:hidden animate-in fade-in duration-500 ease-out ${isHomePage ? "bg-black/50" : "bg-white/50"}`}>
           <div className="flex justify-start h-full">
-            <div className={`w-1/2 h-full pt-16 px-6 animate-in slide-in-from-left-4 duration-300 ${
+            <div className={`w-1/2 h-full pt-16 px-6 animate-in slide-in-from-left-4 duration-500 ease-out ${
               isHomePage ? "bg-black/90 backdrop-blur-sm" : "bg-white/90 backdrop-blur-sm"
             }`}>
               <div className="space-y-6">
                 {mobileMenuItems.map((item, index) => (
                   <div key={item.name}>
                     <div 
-                      className={`flex items-center justify-between py-3 border-b animate-in slide-in-from-left-4 duration-300 ${
+                      className={`flex items-center justify-between py-3 border-b animate-in slide-in-from-left-4 duration-500 ease-out ${
                         isHomePage ? "border-gray-800" : "border-gray-300"
                       }`}
                       style={{ animationDelay: `${(index + 1) * 100}ms` }}
                     >
-                      <a href={item.href} className={`group/link relative text-xl transition-all duration-200 ${
+                      <a href={item.href} className={`group/link relative text-xl transition-all duration-300 ease-out ${
                         isHomePage ? "text-white" : "text-black"
                       }`}>
-                        <span className="font-medium group-hover/link:font-black transition-all duration-200">
+                        <span className="font-medium group-hover/link:font-black transition-all duration-300 ease-out">
                           {item.name}
                         </span>
-                        <span className={`absolute bottom-0 left-0 right-0 h-0.5 transform scale-x-0 group-hover/link:scale-x-100 transition-transform duration-300 origin-left ${
+                        <span className={`absolute bottom-0 left-0 right-0 h-0.5 transform scale-x-0 group-hover/link:scale-x-100 transition-transform duration-300 ease-out origin-left ${
                           isHomePage ? "bg-white" : "bg-black"
                         }`}></span>
                       </a>
@@ -618,24 +618,24 @@ export function Navbar() {
 
                                         {/* Subcategorias expandidas */}
                     {item.hasSubs && expandedCategories.includes(item.name) && (
-                      <div className="ml-4 mt-2 space-y-2 animate-in slide-in-from-left-4 duration-300">
+                      <div className="ml-4 mt-2 space-y-2 animate-in slide-in-from-left-4 duration-500 ease-out">
                         {item.subcategories?.map((subcat, subIndex) => (
                           <div 
                             key={subcat}
-                            className="py-1 animate-in slide-in-from-left-4 duration-300"
+                            className="py-1 animate-in slide-in-from-left-4 duration-500 ease-out"
                             style={{ animationDelay: `${(index + 1) * 100 + (subIndex + 1) * 50}ms` }}
                           >
                             <a 
                               href={`${item.href}/${subcat.toLowerCase().replace(/\s+/g, '-')}`}
-                              className={`group/subcat relative text-sm hover:text-white transition-all duration-200 block flex items-center justify-between ${
+                              className={`group/subcat relative text-sm hover:text-white transition-all duration-300 ease-out block flex items-center justify-between ${
                                 isHomePage ? "text-gray-300" : "text-gray-600"
                               }`}
                             >
                               <div className="relative">
-                                <span className="font-normal group-hover/subcat:font-black transition-all duration-200">
+                                <span className="font-normal group-hover/subcat:font-black transition-all duration-300 ease-out">
                                   {subcat}
                                 </span>
-                                <span className={`absolute bottom-0 left-0 right-0 h-0.5 transform scale-x-0 group-hover/subcat:scale-x-100 transition-transform duration-300 origin-left ${
+                                <span className={`absolute bottom-0 left-0 right-0 h-0.5 transform scale-x-0 group-hover/subcat:scale-x-100 transition-transform duration-300 ease-out origin-left ${
                                   isHomePage ? "bg-white" : "bg-black"
                                 }`}></span>
                               </div>
@@ -644,7 +644,7 @@ export function Navbar() {
                                 alt="Seta" 
                                 width={20} 
                                 height={20} 
-                                className="opacity-60 group-hover/subcat:opacity-100 transition-opacity duration-200" 
+                                className="opacity-60 group-hover/subcat:opacity-100 transition-opacity duration-300 ease-out" 
                               />
                             </a>
                           </div>

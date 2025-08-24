@@ -585,30 +585,28 @@ export default function HomePage() {
   }
 
   const nextProducts = () => {
-    const carousel = document.querySelector('.trending-carousel')
-    if (carousel) {
-      carousel.scrollBy({ left: 320, behavior: 'smooth' })
+    const maxIndex = Math.max(0, trendingProducts.length - 4)
+    if (currentProductIndex < maxIndex) {
+      setCurrentProductIndex(prev => prev + 1)
     }
   }
 
   const prevProducts = () => {
-    const carousel = document.querySelector('.trending-carousel')
-    if (carousel) {
-      carousel.scrollBy({ left: -320, behavior: 'smooth' })
+    if (currentProductIndex > 0) {
+      setCurrentProductIndex(prev => prev - 1)
     }
   }
 
   const prevMultiverso = () => {
-    const carousel = document.querySelector('.multiverso-carousel')
-    if (carousel) {
-      carousel.scrollBy({ left: -320, behavior: 'smooth' })
+    if (currentMultiversoIndex > 0) {
+      setCurrentMultiversoIndex(prev => prev - 1)
     }
   }
 
   const nextMultiverso = () => {
-    const carousel = document.querySelector('.multiverso-carousel')
-    if (carousel) {
-      carousel.scrollBy({ left: 320, behavior: 'smooth' })
+    const maxIndex = Math.max(0, multiversoProducts.length - 4)
+    if (currentMultiversoIndex < maxIndex) {
+      setCurrentMultiversoIndex(prev => prev + 1)
     }
   }
 
@@ -792,7 +790,7 @@ export default function HomePage() {
       </section>
 
       {/* Products Grid */}
-      <section className="py-20 md:py-32 bg-white">
+      <section className="py-12 md:py-20 bg-white">
         <div className="max-w-7xl mx-auto px-4">
             
           <div className="flex items-center justify-between mb-8 md:mb-12">
@@ -822,46 +820,72 @@ export default function HomePage() {
                 <Button
                   size="icon"
                   variant="outline"
-                  className="w-8 h-8 border-black text-black hover:bg-black hover:text-white rounded-none"
+                  className={`w-8 h-8 border-black rounded-none ${
+                    currentProductIndex === 0 
+                      ? 'text-gray-400 border-gray-400 cursor-not-allowed' 
+                      : 'text-black hover:bg-black hover:text-white'
+                  }`}
                   onClick={prevProducts}
+                  disabled={currentProductIndex === 0}
                 >
                   <ChevronLeft className="w-4 h-4" />
                 </Button>
                 <Button
                   size="icon"
                   variant="outline"
-                  className="w-8 h-8 border-black text-black hover:bg-black hover:text-white rounded-none"
+                  className={`w-8 h-8 border-black rounded-none ${
+                    currentProductIndex >= Math.max(0, trendingProducts.length - 4)
+                      ? 'text-gray-400 border-gray-400 cursor-not-allowed' 
+                      : 'text-black hover:bg-black hover:text-white'
+                  }`}
                   onClick={nextProducts}
+                  disabled={currentProductIndex >= Math.max(0, trendingProducts.length - 4)}
                 >
                   <ChevronRight className="w-4 h-4" />
                 </Button>
               </div>
             </div>
 
-          {/* Desktop Carousel - Marquee Infinito */}
-          <div className="hidden md:block relative">
-            <Marquee
-              speed={60}
-              gradient={false}
-              className="py-4"
-              pauseOnHover={true}
-
+          {/* Desktop Carousel - Estático com Navegação */}
+          <div className="hidden md:block relative overflow-hidden">
+            <div 
+              className="flex gap-12 transition-transform duration-500 ease-in-out"
+              style={{ 
+                transform: `translateX(-${currentProductIndex * 328}px)`,
+                width: `${trendingProducts.length * 328}px`
+              }}
             >
               {trendingProducts.map((product) => (
-                <ProductCard
-                  key={product.id}
-                  product={{
-                    ...product,
-                    id: product.id.toString(),
-                    sold: product.sales
-                  }}
-                  types={productTypes}
-                  colors={productColors}
-                  sizes={productSizes}
-                  onQuickBuy={handleQuickBuyProduct}
+                <div key={product.id} className="flex-shrink-0" style={{ width: '280px' }}>
+                  <ProductCard
+                    product={{
+                      ...product,
+                      id: product.id.toString(),
+                      sold: product.sales
+                    }}
+                    types={productTypes}
+                    colors={productColors}
+                    sizes={productSizes}
+                    onQuickBuy={handleQuickBuyProduct}
+                  />
+                </div>
+              ))}
+            </div>
+            
+            {/* Indicadores de Página - Estilo Netflix */}
+            <div className="flex justify-center mt-6 space-x-2">
+              {Array.from({ length: Math.max(1, trendingProducts.length - 3) }, (_, index) => (
+                <button
+                  key={index}
+                  onClick={() => setCurrentProductIndex(index)}
+                  className={`w-2 h-2 rounded-full transition-all duration-300 ${
+                    currentProductIndex === index 
+                      ? 'bg-black scale-125' 
+                      : 'bg-gray-300 hover:bg-gray-400'
+                  }`}
                 />
               ))}
-            </Marquee>
+            </div>
           </div>
 
 
@@ -870,7 +894,7 @@ export default function HomePage() {
           <div className="md:hidden">
             <div className="relative">
               <div 
-                className="flex space-x-1 overflow-hidden cursor-grab active:cursor-grabbing select-none"
+                className="flex gap-4 overflow-hidden cursor-grab active:cursor-grabbing select-none"
                 onMouseDown={handleTrendingMouseDown}
                 onMouseMove={handleTrendingMouseMove}
                 onMouseUp={handleTrendingMouseUp}
@@ -898,14 +922,14 @@ export default function HomePage() {
 
                       <div className="absolute bottom-0 left-0 right-0 overflow-hidden">
                         <Button
-                          className="w-full opacity-0 group-hover:opacity-100 transition-opacity bg-black/80 hover:bg-black text-white rounded-none text-xs py-2"
+                          className="w-full opacity-0 group-hover:opacity-100 transition-opacity bg-black hover:bg-black text-white rounded-none text-xs py-2"
                           onClick={() => handleQuickBuy(product)}
                         >
-                                                  <Marquee
-                          speed={50}
-                          gradient={false}
-                          className="text-white font-bold text-xs"
-                        >
+                          <Marquee
+                            speed={50}
+                            gradient={false}
+                            className="text-white font-bold text-xs"
+                          >
                             {buttonTexts.map((text, index) => (
                               <span key={index} className="mx-1">
                                 {text}
@@ -954,32 +978,9 @@ export default function HomePage() {
                 ))}
               </div>
 
-              {/* Carousel Navigation */}
-              <Button
-                size="icon"
-                className="absolute left-0 top-1/2 transform -translate-y-1/2 bg-white shadow-lg hover:bg-gray-50 text-black border"
-                onClick={prevProducts}
-              >
-                <ChevronLeft className="w-4 h-4" />
-              </Button>
-              <Button
-                size="icon"
-                className="absolute right-0 top-1/2 transform -translate-y-1/2 bg-white shadow-lg hover:bg-gray-50 text-black border"
-                onClick={nextProducts}
-              >
-                <ChevronRight className="w-4 h-4" />
-              </Button>
+
             </div>
 
-            {/* Mobile View All Button */}
-            <div className="mt-6 text-center">
-              <Link href="/multiverso">
-                <Button variant="outline" className="text-gray-600 border-gray-300 hover:bg-gray-50 bg-transparent">
-                  VER TODOS OS PRODUTOS
-                  <ArrowRight className="w-4 h-4 ml-2" />
-                </Button>
-              </Link>
-            </div>
           </div>
         </div>
       </section>
@@ -1032,7 +1033,7 @@ export default function HomePage() {
       </section>
 
       {/* Multiverso Exclusive Products */}
-      <section className="py-20 md:py-32 bg-gray-50">
+      <section className="py-12 md:py-20 bg-gray-50">
         <div className="max-w-7xl mx-auto px-4">
           <div className="flex items-center justify-between mb-8 md:mb-12">
             <div className="flex items-center space-x-4">
@@ -1061,45 +1062,72 @@ export default function HomePage() {
               <Button
                 size="icon"
                 variant="outline"
-                className="w-8 h-8 border-black text-black hover:bg-black hover:text-white rounded-none"
+                className={`w-8 h-8 border-black rounded-none ${
+                  currentMultiversoIndex === 0 
+                    ? 'text-gray-400 border-gray-400 cursor-not-allowed' 
+                    : 'text-black hover:bg-black hover:text-white'
+                }`}
                 onClick={prevMultiverso}
+                disabled={currentMultiversoIndex === 0}
               >
                 <ChevronLeft className="w-4 h-4" />
               </Button>
               <Button
                 size="icon"
                 variant="outline"
-                className="w-8 h-8 border-black text-black hover:bg-black hover:text-white rounded-none"
+                                  className={`w-8 h-8 border-black rounded-none ${
+                    currentMultiversoIndex >= Math.max(0, multiversoProducts.length - 4)
+                      ? 'text-gray-400 border-gray-400 cursor-not-allowed' 
+                      : 'text-black hover:bg-black hover:text-white'
+                  }`}
                 onClick={nextMultiverso}
+                                  disabled={currentMultiversoIndex >= Math.max(0, multiversoProducts.length - 4)}
               >
                 <ChevronRight className="w-4 h-4" />
               </Button>
             </div>
           </div>
 
-          {/* Desktop Carousel - Marquee Infinito */}
-          <div className="hidden md:block relative">
-            <Marquee
-              speed={60}
-              gradient={false}
-              className="py-4"
-              pauseOnHover={true}
+          {/* Desktop Carousel - Estático com Navegação */}
+          <div className="hidden md:block relative overflow-hidden">
+            <div 
+              className="flex gap-12 transition-transform duration-500 ease-in-out"
+              style={{ 
+                transform: `translateX(-${currentMultiversoIndex * 328}px)`,
+                width: `${multiversoProducts.length * 328}px`
+              }}
             >
               {multiversoProducts.map((product) => (
-                <ProductCard
-                  key={product.id}
-                  product={{
-                    ...product,
-                    id: product.id.toString(),
-                    sold: product.sales || Math.floor(Math.random() * 1000) + 100
-                  }}
-                  types={productTypes}
-                  colors={productColors}
-                  sizes={productSizes}
-                  onQuickBuy={handleQuickBuyProduct}
+                <div key={product.id} className="flex-shrink-0" style={{ width: '280px' }}>
+                  <ProductCard
+                    product={{
+                      ...product,
+                      id: product.id.toString(),
+                      sold: product.sales || Math.floor(Math.random() * 1000) + 100
+                    }}
+                    types={productTypes}
+                    colors={productColors}
+                    sizes={productSizes}
+                    onQuickBuy={handleQuickBuyProduct}
+                  />
+                </div>
+              ))}
+            </div>
+            
+            {/* Indicadores de Página - Estilo Netflix */}
+            <div className="flex justify-center mt-6 space-x-2">
+              {Array.from({ length: Math.max(1, multiversoProducts.length - 3) }, (_, index) => (
+                <button
+                  key={index}
+                  onClick={() => setCurrentMultiversoIndex(index)}
+                  className={`w-2 h-2 rounded-full transition-all duration-300 ${
+                    currentMultiversoIndex === index 
+                      ? 'bg-black scale-125' 
+                      : 'bg-gray-300 hover:bg-gray-400'
+                  }`}
                 />
               ))}
-            </Marquee>
+            </div>
           </div>
 
 
@@ -1107,7 +1135,7 @@ export default function HomePage() {
           {/* Mobile Carousel */}
           <div className="md:hidden">
             <div 
-              className="flex space-x-2 overflow-x-auto pb-4 cursor-grab active:cursor-grabbing select-none" 
+              className="flex gap-4 overflow-x-auto pb-4 cursor-grab active:cursor-grabbing select-none" 
               style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
               onMouseDown={handleMultiversoMouseDown}
               onMouseMove={handleMultiversoMouseMove}
@@ -1208,14 +1236,6 @@ export default function HomePage() {
             </div>
           </div>
 
-          {/* Mobile View All Button */}
-          <div className="mt-6 text-center md:hidden">
-            <Link href="/multiverso">
-              <Button variant="outline" className="text-black border-black hover:bg-black hover:text-white bg-transparent rounded-none font-bold uppercase">
-                VER LOJA COMPLETA
-              </Button>
-            </Link>
-          </div>
         </div>
       </section>
 
