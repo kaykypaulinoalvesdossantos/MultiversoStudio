@@ -2,6 +2,7 @@ import type React from "react"
 import type { Metadata } from "next"
 import "./globals.css"
 // import { CategoriesProvider } from "@/contexts/categories-context"
+import { CartProvider } from "@/contexts/cart-context"
 
 export const metadata: Metadata = {
   title: "Multiverso Estudio - Lojas dentro de lojas",
@@ -19,7 +20,9 @@ export default function RootLayout({
     <html lang="pt-BR">
       <body className="font-gotham">
         {/* <CategoriesProvider> */}
+        <CartProvider>
           {children}
+        </CartProvider>
         {/* </CategoriesProvider> */}
       </body>
     </html>

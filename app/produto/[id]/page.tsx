@@ -67,6 +67,52 @@ export default function ProductPage({ params }: ProductPageProps) {
     setIsQuickBuyOpen(true)
   }
 
+  const handleAddToCart = () => {
+    // Adicionar ao carrinho via localStorage
+    addToCart(product.id, selectedModel, selectedSize, selectedColor, quantity)
+  }
+
+  const addToCart = (productId: string, type: string, size: string, color: string, quantity: number) => {
+    // Buscar carrinho existente
+    const existingCart = localStorage.getItem('multiverso-cart')
+    let cartItems = existingCart ? JSON.parse(existingCart) : []
+
+    // Verificar se o item já existe
+    const existingItemIndex = cartItems.findIndex((item: any) => 
+      item.productId === productId &&
+      item.type === type &&
+      item.color === color &&
+      item.size === size
+    )
+
+    if (existingItemIndex >= 0) {
+      // Se já existe, aumenta a quantidade
+      cartItems[existingItemIndex].quantity += quantity
+    } else {
+      // Se não existe, adiciona novo item
+      const newItem = {
+        id: `${Date.now()}-${Math.random()}`,
+        productId,
+        name: product.name,
+        price: product.price,
+        originalPrice: product.originalPrice,
+        image: product.image,
+        type,
+        color,
+        size,
+        quantity,
+        store: product.store
+      }
+      cartItems.push(newItem)
+    }
+
+    // Salvar no localStorage
+    localStorage.setItem('multiverso-cart', JSON.stringify(cartItems))
+    
+    // Mostrar confirmação
+    alert(`Produto adicionado ao carrinho!\nTipo: ${type}\nCor: ${color}\nTamanho: ${size}\nQuantidade: ${quantity}`)
+  }
+
   return (
     <div className="min-h-screen bg-white">
       <Navbar />
@@ -257,12 +303,21 @@ export default function ProductPage({ params }: ProductPageProps) {
 
             {/* Botão Comprar */}
             <div className="pt-6 border-t border-gray-100">
-              <Button
-                onClick={handleQuickBuy}
-                className="w-full py-4 font-black tracking-widest uppercase bg-black hover:bg-gray-800 text-white text-lg font-gotham-black shadow-lg"
-              >
-                COMPRAR AGORA
-              </Button>
+              <div className="flex gap-3">
+                <Button
+                  onClick={handleQuickBuy}
+                  className="flex-1 py-4 font-black tracking-widest uppercase bg-black hover:bg-gray-800 text-white text-lg font-gotham-black shadow-lg"
+                >
+                  COMPRAR AGORA
+                </Button>
+                
+                <Button
+                  onClick={handleAddToCart}
+                  className="flex-1 py-4 font-black tracking-widest uppercase bg-white hover:bg-gray-100 text-black border-2 border-black text-lg font-gotham-black shadow-lg"
+                >
+                  ADICIONAR
+                </Button>
+              </div>
               
               <div className="mt-4 space-y-2 text-xs text-gray-500">
                 <div className="flex items-center gap-2">
@@ -335,12 +390,21 @@ export default function ProductPage({ params }: ProductPageProps) {
               </div>
 
               {/* Restante das seleções igual ao mobile mas com layout desktop */}
-              <Button
-                onClick={handleQuickBuy}
-                className="w-full py-4 font-black tracking-widest uppercase bg-black hover:bg-gray-800 text-white text-lg font-gotham-black"
-              >
-                COMPRAR AGORA
-              </Button>
+              <div className="flex gap-3">
+                <Button
+                  onClick={handleQuickBuy}
+                  className="flex-1 py-4 font-black tracking-widest uppercase bg-black hover:bg-gray-800 text-white text-lg font-gotham-black"
+                >
+                  COMPRAR AGORA
+                </Button>
+                
+                <Button
+                  onClick={handleAddToCart}
+                  className="flex-1 py-4 font-black tracking-widest uppercase bg-white hover:bg-gray-100 text-black border-2 border-black text-lg font-gotham-black"
+                >
+                  ADICIONAR
+                </Button>
+              </div>
             </div>
           </div>
         </section>

@@ -904,84 +904,24 @@ export default function HomePage() {
                 onTouchEnd={handleTrendingTouchEnd}
               >
                 {trendingProducts.slice(currentProductIndex, currentProductIndex + 2).map((product) => (
-                  <div key={product.id} className="flex-shrink-0 w-[calc(50%-8px)] group cursor-pointer">
-                    <div className="relative aspect-[2300/3066] overflow-hidden bg-gray-50 mb-4">
-                      <Image
-                        src={product.image || "/placeholder.svg"}
-                        alt={product.name}
-                        fill
-                        className="object-cover"
-                      />
-
-                      <div className="absolute top-2 left-2 flex flex-col space-y-1">
-                        <div className="text-black text-xs font-bold uppercase px-2 py-1 hover:bg-black hover:text-white transition-all duration-200 cursor-pointer">{product.badge}</div>
-                        {product.discount && (
-                          <div className="text-black text-xs font-bold uppercase px-2 py-1 hover:bg-black hover:text-white transition-all duration-200 cursor-pointer">{product.discount}</div>
-                        )}
-                      </div>
-
-                      <div className="absolute bottom-0 left-0 right-0 overflow-hidden">
-                        <Button
-                          className="w-full opacity-0 group-hover:opacity-100 transition-opacity bg-black hover:bg-black text-white rounded-none text-xs py-2"
-                          onClick={() => handleQuickBuy(product)}
-                        >
-                          <Marquee
-                            speed={50}
-                            gradient={false}
-                            className="text-white font-bold text-xs"
-                          >
-                            {buttonTexts.map((text, index) => (
-                              <span key={index} className="mx-1">
-                                {text}
-                              </span>
-                            ))}
-                          </Marquee>
-                        </Button>
-                      </div>
-                    </div>
-
-                    <div className="space-y-1">
-                      {/* Store Name */}
-                      <p className="text-xs text-gray-600 uppercase font-bold">{product.store}</p>
-                      
-                      {/* Product Name */}
-                      <Link href={`/produto/${product.id}`}>
-                        <h3 className="font-bold text-xs leading-tight uppercase text-black">
-                          {product.name}
-                        </h3>
-                      </Link>
-                      
-                      {/* Rating */}
-                      <div className="flex items-center space-x-1">
-                        <Star className="w-3 h-3 fill-yellow-400 text-yellow-400" />
-                        <span className="text-xs text-gray-600">{product.rating}</span>
-                        <span className="text-xs text-gray-500">({product.reviews})</span>
-                      </div>
-                      
-                      {/* Pricing */}
-                      <div className="flex items-center space-x-1">
-                        <span className="text-sm font-bold text-black">R$ {product.price.toFixed(2).replace(".", ",")}</span>
-                        {product.originalPrice && (
-                          <span className="text-xs text-gray-500 line-through">
-                            R$ {product.originalPrice.toFixed(2).replace(".", ",")}
-                          </span>
-                        )}
-                      </div>
-                      
-                      {/* Payment Terms */}
-                      <div className="text-xs text-green-600 font-semibold">3X SEM JUROS</div>
-                      
-                      {/* Sales Count */}
-                      <div className="text-xs text-gray-500 font-medium">{Math.floor(Math.random() * 1000) + 100} VENDIDOS</div>
-                    </div>
+                  <div key={product.id} className="flex-shrink-0 w-[calc(50%-8px)]">
+                    <ProductCard
+                      product={{
+                        ...product,
+                        id: product.id.toString(),
+                        sold: product.sales || Math.floor(Math.random() * 1000) + 100
+                      }}
+                      types={productTypes}
+                      colors={productColors}
+                      sizes={productSizes}
+                      onQuickBuy={handleQuickBuyProduct}
+                    />
                   </div>
                 ))}
               </div>
-
-
             </div>
-
           </div>
+
         </div>
       </section>
 
@@ -1146,91 +1086,18 @@ export default function HomePage() {
               onTouchEnd={handleMultiversoTouchEnd}
             >
               {multiversoProducts.slice(currentMultiversoIndex, currentMultiversoIndex + 2).map((product) => (
-                <div key={product.id} className="group cursor-pointer min-w-[280px] flex-shrink-0">
-                  <div className="relative aspect-[2300/3066] overflow-hidden bg-gray-50 mb-4">
-                    <Image src={product.image || "/placeholder.svg"} alt={product.name} fill className="object-cover" />
-
-                    <div className="absolute top-4 left-4 flex flex-col space-y-0.5">
-                      <div
-                        className="text-black text-xs font-bold uppercase px-2 py-1 hover:bg-black hover:text-white transition-all duration-200 cursor-pointer"
-                      >
-                        {product.badge}
-                      </div>
-                      {product.discount && (
-                        <div className="text-black text-xs font-bold uppercase px-2 py-1 hover:bg-black hover:text-white transition-all duration-200 cursor-pointer">
-                          {product.discount}
-                        </div>
-                      )}
-                      {product.freeShipping && (
-                        <div className="text-black text-xs font-bold uppercase px-2 py-1 hover:bg-black hover:text-white transition-all duration-200 cursor-pointer">
-                          FRETE GRÁTIS
-                        </div>
-                      )}
-                    </div>
-                    
-                    {/* Color Swatches */}
-                    <div className="absolute top-4 right-4 flex flex-col space-y-0.5">
-                      <div className="w-4 h-4 bg-black border border-white"></div>
-                      <div className="w-4 h-4 bg-white border border-gray-300"></div>
-                      <div className="w-4 h-4 bg-red-500 border border-white"></div>
-                      <div className="w-4 h-4 bg-gray-400 border border-white text-black text-xs font-bold flex items-center justify-center">+</div>
-                    </div>
-
-                    {/* Quick Buy Button - Bottom of image, full width */}
-                    <div className="absolute bottom-0 left-0 right-0 overflow-hidden">
-                      <Button
-                        className="w-full opacity-0 group-hover:opacity-100 transition-opacity bg-black hover:bg-black text-white rounded-none"
-                        onClick={() => handleQuickBuy(product)}
-                      >
-                        <Marquee
-                          speed={45}
-                          gradient={false}
-                          className="text-white font-bold"
-                        >
-                          {buttonTexts.map((text, index) => (
-                            <span key={index} className="mx-2">
-                              {text}
-                            </span>
-                          ))}
-                        </Marquee>
-                      </Button>
-                    </div>
-                  </div>
-
-                  <div className="space-y-1">
-                    {/* Store Name */}
-                    <p className="text-xs text-gray-600 uppercase font-bold">{product.store}</p>
-                    
-                    {/* Product Name */}
-                    <Link href={`/produto/${product.id}`}>
-                      <h3 className="font-bold text-sm leading-tight uppercase text-black">
-                        {product.name}
-                      </h3>
-                    </Link>
-                    
-                    {/* Rating */}
-                    <div className="flex items-center space-x-1">
-                      <Star className="w-3 h-3 fill-yellow-400 text-yellow-400" />
-                      <span className="text-xs text-gray-600">{product.rating}</span>
-                      <span className="text-xs text-gray-500">({product.reviews})</span>
-                    </div>
-                    
-                    {/* Pricing */}
-                    <div className="flex items-center space-x-2">
-                      <span className="text-lg font-bold text-black">R$ {product.price.toFixed(2).replace(".", ",")}</span>
-                      {product.originalPrice && (
-                        <span className="text-sm text-gray-500 line-through">
-                          R$ {product.originalPrice.toFixed(2).replace(".", ",")}
-                        </span>
-                      )}
-                    </div>
-                    
-                    {/* Payment Terms */}
-                    <div className="text-xs text-green-600 font-semibold">3X SEM JUROS</div>
-                    
-                    {/* Sales Count */}
-                    <div className="text-xs text-gray-500 font-medium">{Math.floor(Math.random() * 1000) + 100} VENDIDOS</div>
-                  </div>
+                <div key={product.id} className="flex-shrink-0" style={{ width: '280px' }}>
+                  <ProductCard
+                    product={{
+                      ...product,
+                      id: product.id.toString(),
+                      sold: product.sales || Math.floor(Math.random() * 1000) + 100
+                    }}
+                    types={productTypes}
+                    colors={productColors}
+                    sizes={productSizes}
+                    onQuickBuy={handleQuickBuyProduct}
+                  />
                 </div>
               ))}
             </div>

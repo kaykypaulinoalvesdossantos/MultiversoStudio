@@ -388,14 +388,14 @@ export default function MultiversoPage() {
       <section className="max-w-6xl mx-auto px-6 py-10 md:py-12">
         <div className="grid lg:grid-cols-12 gap-6">
           <div className="lg:col-span-6 bg-white hover:shadow-xl transition-shadow duration-300">
-            <div className="p-6 md:p-8">
+            <div className="p-4 md:p-6 lg:p-8">
               <h3 className="text-base md:text-lg font-semibold uppercase font-gotham-bold">Portal</h3>
               <p className="mt-2 text-sm text-gray-700 leading-7 font-gotham-book">Escolha por onde começar: lojas parceiras, coleções originais ou personalizáveis.</p>
-              <div className="mt-4 flex flex-wrap gap-3 text-[11px]">
-                <Link href="/lancamentos" className="px-3 py-2 font-bold border border-gray-900 hover:bg-black hover:text-white transition font-gotham-bold">
+              <div className="mt-4 flex flex-col sm:flex-row gap-3 text-[11px]">
+                <Link href="/lancamentos" className="px-3 py-2 font-bold border border-gray-900 hover:bg-black hover:text-white transition font-gotham-bold text-center">
                   Entrar no portal
                 </Link>
-                <Link href="/personalizaveis" className="px-3 py-2 font-bold border border-gray-300 hover:bg-gray-50 transition font-gotham-bold">
+                <Link href="/personalizaveis" className="px-3 py-2 font-bold border border-gray-300 hover:bg-gray-50 transition font-gotham-bold text-center">
                   Personalizáveis
                 </Link>
               </div>
@@ -405,7 +405,7 @@ export default function MultiversoPage() {
             <div className="aspect-[3/4] grid place-items-center">
               {/* PNG com fundo transparente 3:4 */}
               <div className="w-full h-full bg-gray-50 grid place-items-center">
-                <p className="text-gray-400 text-sm">Peça destaque — fundo transparente</p>
+                <p className="text-gray-400 text-sm px-4 text-center">Peça destaque — fundo transparente</p>
               </div>
             </div>
           </figure>
@@ -415,24 +415,24 @@ export default function MultiversoPage() {
       {/* UNIVERSOS (cartas retas) */}
       <section className="py-10 md:py-12">
         <div className="max-w-6xl mx-auto px-6">
-          <div className="flex items-end justify-between">
+          <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4">
             <h2 className="text-lg md:text-xl font-bold uppercase font-gotham-bold">Universos</h2>
-            <Link href="/parceiros" className="text-sm underline underline-offset-4 font-gotham-medium uppercase">ver todos</Link>
+            <Link href="/parceiros" className="text-sm underline underline-offset-4 font-gotham-medium uppercase self-start sm:self-auto">ver todos</Link>
           </div>
 
-          <div className="mt-6 grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+          <div className="mt-6 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6">
             {universes.map((universe) => (
               <Link key={universe.id} className="bg-white hover:shadow-xl transition-shadow duration-300 group" href={`/u/${universe.slug}`}>
                 <div className="aspect-square bg-gray-50 grid place-items-center">
                   <div className="max-h-[70%] opacity-80 group-hover:opacity-100 transition">
-                    <div className="w-16 h-16 bg-gray-300 rounded-full flex items-center justify-center">
-                      <span className="text-gray-600 font-bold text-lg">{universe.name.charAt(0)}</span>
+                    <div className="w-12 h-12 md:w-16 md:h-16 bg-gray-300 rounded-full flex items-center justify-center">
+                      <span className="text-gray-600 font-bold text-base md:text-lg">{universe.name.charAt(0)}</span>
                     </div>
                   </div>
                       </div>
-                <div className="p-4">
+                <div className="p-3 md:p-4">
                   <p className="text-sm font-semibold leading-snug font-gotham-bold">{universe.name}</p>
-                  <p className="text-[12px] text-gray-600 mt-1 font-gotham-medium">{universe.description}</p>
+                  <p className="text-[11px] md:text-[12px] text-gray-600 mt-1 font-gotham-medium">{universe.description}</p>
                     </div>
               </Link>
             ))}
@@ -443,12 +443,12 @@ export default function MultiversoPage() {
       {/* DESTAQUES (grade minimalista) */}
       <section className="py-10 md:py-12">
         <div className="max-w-6xl mx-auto px-6">
-          <div className="flex items-end justify-between">
+          <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4">
             <h2 className="text-lg md:text-xl font-bold uppercase font-gotham-bold">Destaques do Multiverso</h2>
-            <Link href="/lancamentos" className="text-sm underline underline-offset-4 font-gotham-medium uppercase">ver lançamentos</Link>
+            <Link href="/lancamentos" className="text-sm underline underline-offset-4 font-gotham-medium uppercase self-start sm:self-auto">ver lançamentos</Link>
           </div>
 
-          <div className="mt-6 grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+          <div className="mt-6 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6">
             {featuredProducts.map((product) => (
               <ProductCard
                 key={product.id}
@@ -477,12 +477,12 @@ export default function MultiversoPage() {
       {/* LANÇAMENTOS EXCLUSIVOS (comerciais) */}
       <section className="py-10">
         <div className="max-w-6xl mx-auto px-6">
-          <div className="flex items-end justify-between">
+          <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4">
             <h2 className="text-lg md:text-xl font-bold uppercase font-gotham-bold">Lançamentos Exclusivos</h2>
-            <Link href="/lancamentos" className="text-sm underline underline-offset-4 font-gotham-medium uppercase">Ver Todos</Link>
+            <Link href="/lancamentos" className="text-sm underline underline-offset-4 font-gotham-medium uppercase self-start sm:self-auto">Ver Todos</Link>
                   </div>
 
-          <div className="mt-6 grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+          <div className="mt-6 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6">
             {launchProducts.map((product) => (
               <ProductCard
                 key={product.id}
@@ -514,18 +514,18 @@ export default function MultiversoPage() {
           <h2 className="text-lg md:text-xl font-bold uppercase font-gotham-bold">Explore por Categoria</h2>
           <p className="mt-1 text-sm text-gray-600 font-gotham-book">Descubra produtos únicos organizados por categoria</p>
 
-          <div className="mt-6 grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-6">
+          <div className="mt-6 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4 md:gap-6">
             {categories.map((category) => (
               <Link key={category.slug} href={`/categoria/${category.slug}`} className="bg-white hover:shadow-xl transition-shadow duration-300 group">
                 <div className="aspect-square bg-gray-50 grid place-items-center relative overflow-hidden">
-                  <span className="text-sm font-semibold group-hover:underline font-gotham-bold z-10 relative">{category.name}</span>
+                  <span className="text-xs md:text-sm font-semibold group-hover:underline font-gotham-bold z-10 relative px-2 text-center">{category.name}</span>
                   <div className="absolute inset-0 bg-gradient-to-br from-gray-100 to-gray-200 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
                           </div>
-                <div className="p-3">
-                  <p className="text-xs text-gray-600 font-gotham-medium">{category.count} produtos disponíveis</p>
+                <div className="p-2 md:p-3">
+                  <p className="text-[10px] md:text-xs text-gray-600 font-gotham-medium">{category.count} produtos disponíveis</p>
                   <div className="mt-2 flex items-center justify-between">
-                    <span className="text-xs text-green-600 font-gotham-bold">Ver produtos</span>
-                    <span className="text-xs text-gray-400 group-hover:text-gray-600 transition-colors">→</span>
+                    <span className="text-[10px] md:text-xs text-green-600 font-gotham-bold">Ver produtos</span>
+                    <span className="text-[10px] md:text-xs text-gray-400 group-hover:text-gray-600 transition-colors">→</span>
                   </div>
                       </div>
               </Link>
@@ -534,42 +534,42 @@ export default function MultiversoPage() {
             {/* Categorias adicionais */}
             <Link href="/categoria/musica" className="bg-white hover:shadow-xl transition-shadow duration-300 group">
               <div className="aspect-square bg-gray-50 grid place-items-center relative overflow-hidden">
-                <span className="text-sm font-semibold group-hover:underline font-gotham-bold z-10 relative">Música</span>
+                <span className="text-xs md:text-sm font-semibold group-hover:underline font-gotham-bold z-10 relative px-2 text-center">Música</span>
                 <div className="absolute inset-0 bg-gradient-to-br from-gray-100 to-gray-200 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
             </div>
-              <div className="p-3">
-                <p className="text-xs text-gray-600 font-gotham-medium">167 produtos disponíveis</p>
+              <div className="p-2 md:p-3">
+                <p className="text-[10px] md:text-xs text-gray-600 font-gotham-medium">167 produtos disponíveis</p>
                 <div className="mt-2 flex items-center justify-between">
-                  <span className="text-xs text-green-600 font-gotham-bold">Ver produtos</span>
-                  <span className="text-xs text-gray-400 group-hover:text-gray-600 transition-colors">→</span>
+                  <span className="text-[10px] md:text-xs text-green-600 font-gotham-bold">Ver produtos</span>
+                  <span className="text-[10px] md:text-xs text-gray-400 group-hover:text-gray-600 transition-colors">→</span>
                 </div>
               </div>
             </Link>
             
             <Link href="/categoria/kits" className="bg-white hover:shadow-xl transition-shadow duration-300 group">
               <div className="aspect-square bg-gray-50 grid place-items-center relative overflow-hidden">
-                <span className="text-sm font-semibold group-hover:underline font-gotham-bold z-10 relative">Kits</span>
+                <span className="text-xs md:text-sm font-semibold group-hover:underline font-gotham-bold z-10 relative px-2 text-center">Kits</span>
                 <div className="absolute inset-0 bg-gradient-to-br from-gray-100 to-gray-200 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
                   </div>
-              <div className="p-3">
-                <p className="text-xs text-gray-600 font-gotham-medium">89 produtos disponíveis</p>
+              <div className="p-2 md:p-3">
+                <p className="text-[10px] md:text-xs text-gray-600 font-gotham-medium">89 produtos disponíveis</p>
                 <div className="mt-2 flex items-center justify-between">
-                  <span className="text-xs text-green-600 font-gotham-bold">Ver produtos</span>
-                  <span className="text-xs text-gray-400 group-hover:text-gray-600 transition-colors">→</span>
+                  <span className="text-[10px] md:text-xs text-green-600 font-gotham-bold">Ver produtos</span>
+                  <span className="text-[10px] md:text-xs text-gray-400 group-hover:text-gray-600 transition-colors">→</span>
                 </div>
               </div>
             </Link>
             
             <Link href="/categoria/lancamentos" className="bg-white hover:shadow-xl transition-shadow duration-300 group">
               <div className="aspect-square bg-gray-50 grid place-items-center relative overflow-hidden">
-                <span className="text-sm font-semibold group-hover:underline font-gotham-bold z-10 relative">Lançamentos</span>
+                <span className="text-xs md:text-sm font-semibold group-hover:underline font-gotham-bold z-10 relative px-2 text-center">Lançamentos</span>
                 <div className="absolute inset-0 bg-gradient-to-br from-gray-100 to-gray-200 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
                         </div>
-              <div className="p-3">
-                <p className="text-xs text-gray-600 font-gotham-medium">67 produtos disponíveis</p>
+              <div className="p-2 md:p-3">
+                <p className="text-[10px] md:text-xs text-gray-600 font-gotham-medium">67 produtos disponíveis</p>
                 <div className="mt-2 flex items-center justify-between">
-                  <span className="text-xs text-green-600 font-gotham-bold">Ver produtos</span>
-                  <span className="text-xs text-gray-400 group-hover:text-gray-600 transition-colors">→</span>
+                  <span className="text-[10px] md:text-xs text-green-600 font-gotham-bold">Ver produtos</span>
+                  <span className="text-[10px] md:text-xs text-gray-400 group-hover:text-gray-600 transition-colors">→</span>
                         </div>
                       </div>
             </Link>
@@ -579,15 +579,15 @@ export default function MultiversoPage() {
 
       {/* FILTROS + GRID PRODUTOS */}
       <section className="py-10">
-        <div className="max-w-6xl mx-auto px-6 grid grid-cols-12 gap-8">
+        <div className="max-w-6xl mx-auto px-6 grid grid-cols-12 gap-4 md:gap-8">
 
           {/* TOPO (mobile): botão mostra/oculta filtros */}
           <div className="col-span-12 md:hidden">
                             <Button
               onClick={() => setShowFilters(!showFilters)}
-              className="w-full border border-gray-900 py-2 text-sm font-semibold uppercase font-gotham-bold bg-white hover:bg-gray-50"
+              className="w-full border text-black rounded-none border-gray-900 py-3 text-sm font-semibold uppercase font-gotham-bold bg-white hover:bg-gray-50"
                             >
-              Filtros
+              {showFilters ? 'Ocultar Filtros' : 'Mostrar Filtros'}
                             </Button>
           </div>
 
@@ -596,12 +596,12 @@ export default function MultiversoPage() {
             <div>
               <h3 className="text-sm font-bold uppercase font-gotham-bold">Categorias</h3>
               <ul className="mt-2 space-y-1 text-sm font-gotham-medium uppercase">
-                <li><Link href="#" className="hover:text-gray-600">Multiverso Original (45)</Link></li>
-                <li><Link href="#" className="hover:text-gray-600">Todos os Produtos (1247)</Link></li>
-                <li><Link href="#" className="hover:text-gray-600">Camisetas (456)</Link></li>
-                <li><Link href="#" className="hover:text-gray-600">Canecas (234)</Link></li>
-                <li><Link href="#" className="hover:text-gray-600">Moletons (189)</Link></li>
-                <li><Link href="#" className="hover:text-gray-600">Acessórios (167)</Link></li>
+                <li><Link href="#" className="hover:text-gray-600 block py-1">Multiverso Original (45)</Link></li>
+                <li><Link href="#" className="hover:text-gray-600 block py-1">Todos os Produtos (1247)</Link></li>
+                <li><Link href="#" className="hover:text-gray-600 block py-1">Camisetas (456)</Link></li>
+                <li><Link href="#" className="hover:text-gray-600 block py-1">Canecas (234)</Link></li>
+                <li><Link href="#" className="hover:text-gray-600 block py-1">Moletons (189)</Link></li>
+                <li><Link href="#" className="hover:text-gray-600 block py-1">Acessórios (167)</Link></li>
               </ul>
             </div>
             <div>
@@ -626,9 +626,9 @@ export default function MultiversoPage() {
 
           {/* GRID */}
           <div className="col-span-12 md:col-span-9">
-            <div className="flex items-center justify-between">
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
               <h2 className="text-lg font-bold uppercase font-gotham-bold">Produtos Multiverso Original</h2>
-              <select className="border text-sm px-2 py-1 font-gotham-medium">
+              <select className="border text-sm px-3 py-2 font-gotham-medium w-full sm:w-auto">
                 <option>Ordenar</option>
                 <option>Mais vendidos</option>
                 <option>Menor preço</option>
@@ -636,7 +636,7 @@ export default function MultiversoPage() {
               </select>
             </div>
 
-            <div className="mt-6 grid grid-cols-2 md:grid-cols-3 gap-6">
+            <div className="mt-6 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 md:gap-6">
               {mainProducts.map((product) => (
                 <ProductCard
                   key={product.id}

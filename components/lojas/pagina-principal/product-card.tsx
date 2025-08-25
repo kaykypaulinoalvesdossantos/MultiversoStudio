@@ -5,6 +5,7 @@ import Image from "next/image"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import Marquee from "react-fast-marquee"
+import { useCart } from "@/contexts/cart-context"
 
 interface ProductType {
   id: string
@@ -52,6 +53,8 @@ export default function ProductCard({
   const [selectedColor, setSelectedColor] = useState<ProductColor | null>(null)
   const [selectedSize, setSelectedSize] = useState<string | null>(null)
   const [isHoveringBuy, setIsHoveringBuy] = useState(false)
+  const [showConfirmation, setShowConfirmation] = useState(false)
+  const { addToCart } = useCart()
 
   // Compra rápida sempre disponível
   const hasQuickBuy = true
@@ -76,11 +79,23 @@ export default function ProductCard({
   const handleSizeSelect = (size: string) => {
     setSelectedSize(size)
 
-    if (onQuickBuy && selectedType && selectedColor) {
-      onQuickBuy(product.id, selectedType.name, selectedColor.name, size)
-    } else {
-      // Fallback para alert (pode ser removido depois)
-      alert(`Produto adicionado ao carrinho!\nTipo: ${selectedType?.name}\nCor: ${selectedColor?.name}\nTamanho: ${size}`)
+    // Adicionar ao carrinho via contexto
+    if (selectedType && selectedColor) {
+      addToCart({
+        productId: product.id,
+        name: product.name,
+        price: product.price,
+        originalPrice: product.originalPrice,
+        image: product.image,
+        type: selectedType.name,
+        color: selectedColor.name,
+        size,
+        quantity: 1,
+        store: product.store
+      })
+
+      // Mostrar confirmação
+      setShowConfirmation(true)
     }
 
     // Reset do estado após um delay para mostrar confirmação
@@ -90,7 +105,8 @@ export default function ProductCard({
       setSelectedSize(null)
       setStep("initial")
       setIsHoveringBuy(false)
-    }, 1000)
+      setShowConfirmation(false)
+    }, 2000)
   }
 
   const handleMouseLeave = () => {
@@ -122,9 +138,16 @@ export default function ProductCard({
 
   return (
     <div
-      className="group cursor-pointer flex-shrink-0 w-80 mx-3 md:w-80 sm:w-72 w-64"
+      className="group cursor-pointer flex-shrink-0 w-full max-w-[280px] mx-auto"
       onMouseLeave={handleMouseLeave}
     >
+      {/* Confirmação de produto adicionado */}
+      {showConfirmation && (
+        <div className="absolute top-0 left-0 right-0 z-50 bg-green-500 text-white text-center py-2 font-bold text-sm animate-pulse">
+          ✓ PRODUTO ADICIONADO AO CARRINHO!
+        </div>
+      )}
+
       <div className="relative aspect-[2300/3066] overflow-hidden bg-gray-50 mb-1">
         <Image
           src={getCurrentImage() || "/placeholder.svg?height=400&width=300"}
@@ -136,17 +159,17 @@ export default function ProductCard({
         {/* Badges */}
         <div className="absolute top-2 left-2 md:top-4 md:left-4 flex flex-col space-y-0.5">
           {product.badge && (
-            <div className="text-xs font-bold uppercase text-black hover:text-gray-600 transition-all duration-200 cursor-pointer bg-white/80 px-1 py-0.5 md:bg-transparent md:px-0 md:py-0">
+            <div className="text-xs font-bold uppercase text-black hover:text-gray-600 transition-all duration-200 cursor-pointer bg-white/90 px-2 py-1 md:bg-transparent md:px-0 md:py-0">
               {product.badge}
             </div>
           )}
           {product.discount && (
-            <div className="text-xs font-bold uppercase text-black hover:text-gray-600 transition-all duration-200 cursor-pointer bg-white/80 px-1 py-0.5 md:bg-transparent md:px-0 md:py-0">
+            <div className="text-xs font-bold uppercase text-black hover:text-gray-600 transition-all duration-200 cursor-pointer bg-white/90 px-2 py-1 md:bg-transparent md:px-0 md:py-0">
               {product.discount}
             </div>
           )}
           {product.freeShipping && (
-            <div className="text-xs font-bold uppercase text-black hover:text-gray-600 transition-all duration-200 cursor-pointer bg-white/80 px-1 py-0.5 md:bg-transparent md:px-0 md:py-0">
+            <div className="text-xs font-bold uppercase text-black hover:text-gray-600 transition-all duration-200 cursor-pointer bg-white/90 px-2 py-1 md:bg-transparent md:px-0 md:py-0">
               FRETE GRÁTIS
             </div>
           )}
@@ -180,28 +203,28 @@ export default function ProductCard({
 
         {/* Quick Buy Button - Bottom of image, full width */}
         <div className="absolute bottom-0 left-0 right-0 overflow-hidden">
-          {/* Botão sempre visível no mobile, no desktop só quando não está no hover */}
-          <Button
-            className={`w-full transition-opacity bg-black hover:bg-black text-white rounded-none font-bold uppercase ${
-              isHoveringBuy ? 'md:opacity-0' : 'opacity-100'
-            }`}
-            onMouseEnter={handleBuyHover}
-            onMouseLeave={handleBuyLeave}
-            onClick={handleBuyClick}
-          >
-            {/* Marquee para estado inicial */}
-            <Marquee
-              speed={50}
-              gradient={false}
-              className="text-white font-bold"
+          {/* Botão só aparece quando não está configurando o produto */}
+          {!isHoveringBuy && (
+            <Button
+              className="w-full transition-opacity bg-black hover:bg-black text-white rounded-none font-bold uppercase opacity-100"
+              onMouseEnter={handleBuyHover}
+              onMouseLeave={handleBuyLeave}
+              onClick={handleBuyClick}
             >
-              {["COMPRAR", "COMPRAR", "COMPRAR", "COMPRAR"].map((text, index) => (
-                <span key={index} className="mx-2">
-                  {text}
-                </span>
-              ))}
-            </Marquee>
-          </Button>
+              {/* Marquee para estado inicial */}
+              <Marquee
+                speed={50}
+                gradient={false}
+                className="text-white font-bold"
+              >
+                {["COMPRAR", "COMPRAR", "COMPRAR", "COMPRAR"].map((text, index) => (
+                  <span key={index} className="mx-2">
+                    {text}
+                  </span>
+                ))}
+              </Marquee>
+            </Button>
+          )}
 
           {/* Quick Buy Flow - Só aparece se hasQuickBuy = true */}
           {hasQuickBuy && isHoveringBuy && step === "type" && (
@@ -283,7 +306,13 @@ export default function ProductCard({
         
         {/* Product Name */}
         <Link href={`/produto/${product.id}`}>
-          <h3 className="font-bold text-xs md:text-sm leading-tight uppercase text-black font-gotham-bold">
+          <h3 className="font-bold text-xs md:text-sm leading-tight uppercase text-black font-gotham-bold" style={{ 
+            display: '-webkit-box',
+            WebkitLineClamp: 2,
+            WebkitBoxOrient: 'vertical',
+            overflow: 'hidden',
+            textOverflow: 'ellipsis'
+          }}>
             {product.name}
           </h3>
         </Link>

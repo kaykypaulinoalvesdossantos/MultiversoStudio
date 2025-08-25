@@ -1,19 +1,23 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import Image from "next/image"
 import { X, Minus, Plus } from "lucide-react"
 import Marquee from "react-fast-marquee"
+import { useCart } from "@/contexts/cart-context"
 
 interface CartItem {
   id: string
+  productId: string
   name: string
   price: number
   originalPrice?: number
   color: string
   size: string
+  type: string
   quantity: number
   image: string
+  store: string
 }
 
 interface CartModalProps {
@@ -22,32 +26,32 @@ interface CartModalProps {
 }
 
 export default function CartModal({ isOpen, onClose }: CartModalProps) {
-  const [cartItems, setCartItems] = useState<CartItem[]>([
-    {
-      id: "1",
-      name: "JAQUETA WINDBREAKER LIGHT BAW OFF WHITE P",
-      price: 199.5,
-      originalPrice: 399.0,
-      color: "Branco",
-      size: "P",
-      quantity: 1,
-      image: "/placeholder.svg",
-    },
-  ])
-
+  const { items, updateQuantity, removeFromCart, getTotalProducts } = useCart()
   const [couponCode, setCouponCode] = useState("")
   const [cepCode, setCepCode] = useState("")
 
-  const updateQuantity = (id: string, newQuantity: number) => {
-    if (newQuantity < 1) return
-    setCartItems((items) => items.map((item) => (item.id === id ? { ...item, quantity: newQuantity } : item)))
-  }
+  // Carregar carrinho do localStorage quando modal abrir
+  useEffect(() => {
+    if (isOpen) {
+      const savedCart = localStorage.getItem('multiverso-cart')
+      if (savedCart) {
+        try {
+          // O contexto já carrega automaticamente, não precisamos fazer nada aqui
+        } catch (error) {
+          console.error('Erro ao carregar carrinho:', error)
+        }
+      }
+    }
+  }, [isOpen])
 
-  const removeItem = (id: string) => {
-    setCartItems((items) => items.filter((item) => item.id !== id))
-  }
+  // Salvar carrinho no localStorage sempre que mudar
+  useEffect(() => {
+    if (items.length > 0) {
+      localStorage.setItem('multiverso-cart', JSON.stringify(items))
+    }
+  }, [items])
 
-  const subtotal = cartItems.reduce((sum, item) => sum + item.price * item.quantity, 0)
+  const subtotal = items.reduce((sum, item) => sum + item.price * item.quantity, 0)
   const shipping = 4.99
   const total = subtotal + shipping
 
@@ -63,7 +67,7 @@ export default function CartModal({ isOpen, onClose }: CartModalProps) {
       <div className="fixed right-0 top-0 h-full w-full max-w-md bg-white/10 backdrop-blur-md border-l border-white/20 shadow-2xl">
         <div className="relative flex h-full flex-col">
           <div className="flex items-center justify-between p-4 bg-white/10 backdrop-blur-md border-b border-white/20 shadow-xl">
-            <h2 className="text-lg font-bold text-white tracking-wide drop-shadow-2xl font-gotham-black">MOCHILA | {cartItems.length}</h2>
+            <h2 className="text-lg font-bold text-white tracking-wide drop-shadow-2xl font-gotham-black">MOCHILA | {getTotalProducts()}</h2>
             <button
               onClick={onClose}
               className="p-2 text-white hover:bg-white/20 hover:text-white hover:backdrop-blur-sm transition-all duration-200 border border-white/20"
@@ -73,13 +77,13 @@ export default function CartModal({ isOpen, onClose }: CartModalProps) {
           </div>
 
           <div className="flex-1 overflow-y-auto bg-white/5 backdrop-blur-md">
-            {cartItems.length === 0 ? (
+            {items.length === 0 ? (
               <div className="relative flex h-full items-center justify-center">
                 <p className="text-white font-medium drop-shadow-2xl font-gotham-medium">Sua mochila está vazio</p>
               </div>
             ) : (
               <div className="relative p-4">
-                {cartItems.map((item) => (
+                {items.map((item) => (
                   <div
                     key={item.id}
                     className="pb-4 border-b border-white/20 mb-4 bg-white/10 backdrop-blur-md p-4 shadow-xl border border-white/20"
@@ -113,6 +117,10 @@ export default function CartModal({ isOpen, onClose }: CartModalProps) {
 
                         <div className="flex items-center gap-4 mb-3">
                           <div className="flex items-center gap-2">
+                            <span className="text-xs text-white drop-shadow-xl font-gotham-medium">Tipo:</span>
+                            <span className="text-xs text-white/80 font-gotham-medium">{item.type}</span>
+                          </div>
+                          <div className="flex items-center gap-2">
                             <span className="text-xs text-white drop-shadow-xl font-gotham-medium">Cor:</span>
                             <div className="w-3 h-3 bg-white border border-white/60 shadow-lg rounded-sm"></div>
                           </div>
@@ -139,7 +147,7 @@ export default function CartModal({ isOpen, onClose }: CartModalProps) {
                           </div>
 
                           <button
-                            onClick={() => removeItem(item.id)}
+                            onClick={() => removeFromCart(item.id)}
                             className="text-xs font-bold text-white hover:bg-red-500/30 hover:backdrop-blur-sm px-4 py-2 border border-white/30 bg-white/10 backdrop-blur-md shadow-xl transition-all duration-200 uppercase font-gotham-bold drop-shadow-xl"
                           >
                             REMOVER
@@ -153,7 +161,7 @@ export default function CartModal({ isOpen, onClose }: CartModalProps) {
             )}
           </div>
 
-          {cartItems.length > 0 && (
+          {items.length > 0 && (
             <div className="bg-white/10 backdrop-blur-md border-t border-white/20 shadow-xl">
               {remainingForFreeShipping > 0 && (
                 <div className="relative p-4 border-b border-white/20">
@@ -220,11 +228,11 @@ export default function CartModal({ isOpen, onClose }: CartModalProps) {
               <div className="relative p-4">
                 <button className="group relative overflow-hidden w-full bg-white/10 backdrop-blur-md text-white py-4 text-lg font-bold hover:bg-white/20 border border-white/20 transition-all duration-300 shadow-xl font-gotham-black">
                   <div className="relative z-10">
-                                         <Marquee
-                       speed={50}
-                       gradient={false}
-                       className="text-current font-bold"
-                     >
+                    <Marquee
+                      speed={50}
+                      gradient={false}
+                      className="text-current font-bold"
+                    >
                       {buttonTexts.map((text, index) => (
                         <span key={index} className="mx-4">
                           {text}
@@ -233,7 +241,7 @@ export default function CartModal({ isOpen, onClose }: CartModalProps) {
                     </Marquee>
                   </div>
                   <div className="absolute inset-0 bg-white/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300 backdrop-blur-sm"></div>
-                  </button>
+                </button>
               </div>
             </div>
           )}

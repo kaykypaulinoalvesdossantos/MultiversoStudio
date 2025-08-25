@@ -4,6 +4,7 @@ import { useState, useEffect } from "react"
 import { Menu, X } from "lucide-react"
 import { usePathname } from "next/navigation"
 import CartModal from "./cart-modal"
+import { useCart } from "@/contexts/cart-context"
 
 interface CategoryItem {
   name: string
@@ -18,28 +19,95 @@ export function Navbar() {
   const [isHovered, setIsHovered] = useState(false)
   const [expandedCategories, setExpandedCategories] = useState<string[]>([])
   const [isCartOpen, setIsCartOpen] = useState(false)
+  const [isMounted, setIsMounted] = useState(false)
+  const [isSearchOpen, setIsSearchOpen] = useState(false)
+  const [searchQuery, setSearchQuery] = useState("")
   const pathname = usePathname()
+  const { getTotalItems, getTotalProducts } = useCart()
 
   // Detecta se está na página principal
   const isHomePage = pathname === "/"
 
   useEffect(() => {
+    setIsMounted(true)
+  }, [])
+
+  useEffect(() => {
+    if (!isMounted) return
+
     const handleScroll = () => {
       // Só aplica o efeito de scroll na página principal
       if (isHomePage) {
-        setIsScrolled(window.scrollY > 200)
+        setIsScrolled(window.scrollY > 10) // Reduzido de 200px para 10px
       }
     }
 
     window.addEventListener("scroll", handleScroll)
     return () => window.removeEventListener("scroll", handleScroll)
-  }, [isHomePage])
+  }, [isHomePage, isMounted])
 
   const toggleCategory = (categoryName: string) => {
     setExpandedCategories(prev => 
       prev.includes(categoryName) 
         ? prev.filter(cat => cat !== categoryName)
         : [...prev, categoryName]
+    )
+  }
+
+  const handleSearchToggle = () => {
+    setIsSearchOpen(!isSearchOpen)
+    if (!isSearchOpen) {
+      // Abrindo a pesquisa
+      setTimeout(() => {
+        const searchInput = document.querySelector('input[type="text"]') as HTMLInputElement
+        if (searchInput) {
+          searchInput.focus()
+        }
+      }, 100)
+    } else {
+      // Fechando a pesquisa
+      setSearchQuery("")
+    }
+  }
+
+  const handleSearchSubmit = (e: React.FormEvent) => {
+    e.preventDefault()
+    if (searchQuery.trim()) {
+      // Implementar busca real aqui
+      console.log("🔍 Pesquisando por:", searchQuery)
+      
+      // Simular busca (substitua por sua API real)
+      const searchResults = performSearch(searchQuery)
+      
+      if (searchResults.length > 0) {
+        // Redirecionar para página de resultados ou mostrar modal
+        console.log("✅ Resultados encontrados:", searchResults)
+        // window.location.href = `/busca?q=${encodeURIComponent(searchQuery)}`
+      } else {
+        console.log("❌ Nenhum resultado encontrado")
+        // Mostrar mensagem de "nenhum resultado"
+      }
+      
+      // Fechar pesquisa após busca
+      setIsSearchOpen(false)
+      setSearchQuery("")
+    }
+  }
+
+  const handleSearchClose = () => {
+    setIsSearchOpen(false)
+    setSearchQuery("")
+  }
+
+  // Função de busca simulada (substitua por sua API real)
+  const performSearch = (query: string) => {
+    const allProducts = [
+      "Caneca Multiverso", "Camiseta Gamer", "Kit Café Premium",
+      "Boné StreetWear", "Moletom Premium", "Caneca Térmica"
+    ]
+    
+    return allProducts.filter(product => 
+      product.toLowerCase().includes(query.toLowerCase())
     )
   }
 
@@ -107,6 +175,7 @@ export function Navbar() {
     isDarkBackground = false,
     onClick,
     noAnimation = false,
+    showCartCount = false,
   }: {
     iconSrc: string
     tooltip: string
@@ -116,6 +185,7 @@ export function Navbar() {
     isDarkBackground?: boolean
     onClick?: () => void
     noAnimation?: boolean
+    showCartCount?: boolean
   }) => {
     const [isHovered, setIsHovered] = useState(false)
     const [displayText, setDisplayText] = useState("")
@@ -142,7 +212,7 @@ export function Navbar() {
 
     return (
       <div
-        className="flex items-center"
+        className="flex items-center relative"
         onMouseEnter={() => setIsHovered(true)}
         onMouseLeave={() => setIsHovered(false)}
       >
@@ -159,6 +229,14 @@ export function Navbar() {
             >
               <image href={iconSrc} width="100" height="100" />
             </svg>
+            
+            {/* Contador do carrinho */}
+            {showCartCount && getTotalProducts() > 0 && (
+              <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center">
+                {getTotalProducts() > 99 ? '99+' : getTotalProducts()}
+              </span>
+            )}
+            
             <span
               className={`ml-3 text-sm font-medium transition-all duration-500 ease-out whitespace-nowrap cursor-pointer ${
                 isHovered ? "opacity-100 translate-x-0" : "opacity-0 -translate-x-4"
@@ -186,6 +264,14 @@ export function Navbar() {
             >
               <image href={iconSrc} width="100" height="100" />
             </svg>
+            
+            {/* Contador do carrinho */}
+            {showCartCount && getTotalProducts() > 0 && (
+              <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center">
+                {getTotalProducts() > 99 ? '99+' : getTotalProducts()}
+              </span>
+            )}
+            
             <span
               className={`ml-3 text-sm font-medium transition-all duration-500 ease-out whitespace-nowrap cursor-pointer ${
                 isHovered ? "opacity-100 translate-x-0" : "opacity-0 -translate-x-4"
@@ -234,7 +320,7 @@ export function Navbar() {
     if (isHomePage) {
       return isScrolled || isHovered 
         ? "/icons/LOGO PRETO PRA BRANCO.svg"  // Logo preta quando navbar branco
-        : "/icons/LOGO PRETO PRA BRANCO.svg"  // Logo branca quando navbar transparente
+        : "/icons/LOGO BRANCO PRA PRETO.svg"  // Logo branca quando navbar transparente
     } else {
       return "/icons/LOGO PRETO PRA BRANCO.svg"  // Logo preta em outras páginas
     }
@@ -300,6 +386,31 @@ export function Navbar() {
     }
   }
 
+  // Renderiza o navbar apenas após a montagem para evitar erro de hidratação
+  if (!isMounted) {
+    return (
+      <nav className="fixed top-0 left-0 right-0 z-50 bg-white border-b border-gray-200 shadow-lg">
+        <div className="max-w-7xl mx-auto px-6">
+          <div className="flex items-center justify-between h-20">
+            <div className="flex items-center">
+              <div className="w-32 h-8 bg-gray-200 animate-pulse rounded"></div>
+            </div>
+            <div className="hidden lg:flex items-center space-x-8">
+              {navigationItems.map((item) => (
+                <div key={item.name} className="w-20 h-4 bg-gray-200 animate-pulse rounded"></div>
+              ))}
+            </div>
+            <div className="flex items-center space-x-4">
+              {[1, 2, 3, 4].map((i) => (
+                <div key={i} className="w-7 h-7 bg-gray-200 animate-pulse rounded"></div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </nav>
+    )
+  }
+
   return (
     <>
       {/* Desktop Navbar */}
@@ -308,66 +419,114 @@ export function Navbar() {
         onMouseEnter={() => setIsHovered(true)}
         onMouseLeave={() => setIsHovered(false)}
       >
-        <div className="max-w-7xl mx-auto px-6">
+        <div className="max-w-7xl mx-auto px-4">
           <div className="flex items-center justify-between h-20">
-            <div className="flex items-center">
+            {/* Logo - sempre à esquerda */}
+            <div className="flex items-center flex-shrink-0">
               <a href="/" className="flex items-center hover:opacity-80 transition-opacity">
                 <img 
                   src={getLogoSource()} 
                   alt="Multiverso Estudio" 
                   width={120} 
                   height={120} 
-                  className="mr-4 object-contain transition-all duration-300" 
+                  className="mr-2 object-contain transition-all duration-300" 
                 />
               </a>
             </div>
 
-            {/* Navigation Links */}
-            <div className="hidden lg:flex items-center space-x-8">
-              {navigationItems.map((item) => (
-                <div key={item.name} className="relative group">
-                  <a
-                    href={item.href}
-                    className={`group/link relative text-sm font-medium transition-all duration-300 ease-out cursor-pointer ${getTextColor()}`}
-                  >
-                    <span className={`font-medium transition-all duration-300 ease-out ${
-                      isHomePage 
-                        ? (isScrolled || isHovered ? "group-hover/link:font-black" : "group-hover/link:font-bold")
-                        : "group-hover/link:font-black"
-                    }`}>
-                      {item.name}
-                    </span>
-                    <span className={`absolute bottom-0 left-0 right-0 h-0.5 transform scale-x-0 group-hover/link:scale-x-100 transition-transform duration-300 ease-out origin-left ${getUnderlineColor()}`}></span>
-                  </a>
-                  
-                  {/* Dropdown das subcategorias */}
-                  {item.hasSubs && (
-                    <div className={`absolute top-full left-0 w-56 border shadow-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 ease-out z-50 ${getDropdownStyle()}`}>
-                      <div className="py-3">
-                        {item.subcategories?.map((subcat, index) => (
-                          <a
-                            key={subcat}
-                            href={`${item.href}/${subcat.toLowerCase().replace(/\s+/g, '-')}`}
-                            className={`group/item relative block px-6 py-3 text-sm transition-all duration-300 ease-out ${getDropdownTextColor()}`}
-                            style={{ animationDelay: `${index * 50}ms` }}
-                          >
-                            <span className={`font-normal transition-all duration-300 ease-out ${getDropdownHoverColor()}`}>
-                              {subcat}
-                            </span>
-                            <span className={`absolute bottom-0 left-6 right-6 h-0.5 transform scale-x-0 group-hover/item:scale-x-100 transition-transform duration-300 ease-out origin-left ${getDropdownUnderlineColor()}`}></span>
-                          </a>
-                        ))}
-                      </div>
+            {/* Centro - Links de navegação OU Campo de pesquisa */}
+            <div className="flex-1 flex justify-center">
+              {!isSearchOpen ? (
+                // Links de navegação
+                <div className="flex items-center space-x-8">
+                  {navigationItems.map((item) => (
+                    <div key={item.name} className="relative group">
+                      <a
+                        href={item.href}
+                        className={`group/link relative text-sm font-medium transition-all duration-300 ease-out cursor-pointer ${getTextColor()}`}
+                      >
+                        <span className={`font-medium transition-all duration-300 ease-out ${
+                          isHomePage 
+                            ? (isScrolled || isHovered ? "group-hover/link:font-black" : "group-hover/link:font-bold")
+                            : "group-hover/link:font-black"
+                        }`}>
+                          {item.name}
+                        </span>
+                        <span className={`absolute bottom-0 left-0 right-0 h-0.5 transform scale-x-0 group-hover/link:scale-x-100 transition-transform duration-200 ease-in-out origin-left pointer-events-none ${getUnderlineColor()}`}></span>
+                      </a>
+                      
+                      {/* Dropdown das subcategorias */}
+                      {item.hasSubs && (
+                        <div className={`absolute top-full left-0 w-56 border shadow-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 ease-out z-50 ${getDropdownStyle()}`}>
+                          <div className="py-3">
+                            {item.subcategories?.map((subcat, index) => (
+                              <a
+                                key={subcat}
+                                href={`${item.href}/${subcat.toLowerCase().replace(/\s+/g, '-')}`}
+                                className={`group/item relative block px-6 py-3 text-sm transition-all duration-300 ease-out ${getDropdownTextColor()}`}
+                                style={{ animationDelay: `${index * 50}ms` }}
+                              >
+                                <span className={`font-normal transition-all duration-300 ease-out ${getDropdownHoverColor()}`}>
+                                  {subcat}
+                                </span>
+                                <span className={`absolute bottom-0 left-6 right-6 h-0.5 transform scale-x-0 group-hover/item:scale-x-100 transition-transform duration-200 ease-in-out origin-left pointer-events-none ${getDropdownUnderlineColor()}`}></span>
+                              </a>
+                            ))}
+                          </div>
+                        </div>
+                      )}
                     </div>
-                  )}
-              </div>
-              ))}
+                  ))}
+                </div>
+              ) : (
+                // Campo de pesquisa
+                <div className="w-full max-w-2xl">
+                  <form onSubmit={handleSearchSubmit} className="relative w-full">
+                    <input
+                      type="text"
+                      value={searchQuery}
+                      onChange={(e) => setSearchQuery(e.target.value)}
+                      placeholder="Digite sua pesquisa..."
+                      className={`w-full px-6 py-3 border rounded-none focus:outline-none focus:ring-1 focus:ring-black transition-all duration-300 text-lg ${
+                        isHomePage && !isScrolled 
+                          ? "bg-white/20 border-white/30 text-white placeholder-white/80 focus:bg-white focus:text-black focus:placeholder-gray-500 focus:border-gray-300" 
+                          : "bg-white border-gray-200 text-black placeholder-gray-500 focus:bg-white focus:text-black focus:border-gray-300"
+                      }`}
+                      autoFocus
+                    />
+                    <button
+                      type="submit"
+                      className={`absolute right-16 top-1/2 transform -translate-y-1/2 px-4 py-1.5 font-bold transition-all duration-300 text-sm ${
+                        isHomePage && !isScrolled 
+                          ? "text-black hover:text-gray-600 hover:bg-gray-100"
+                          : "text-black hover:text-gray-600 hover:bg-gray-100"
+                      }`}
+                    >
+                      BUSCAR
+                    </button>
+                    <button
+                      type="button"
+                      onClick={handleSearchClose}
+                      className={`absolute right-4 top-1/2 transform -translate-y-1/2 w-8 h-8 flex items-center justify-center font-bold transition-all duration-300 text-lg text-black hover:text-gray-600 hover:bg-gray-100`}
+                    >
+                      ✕
+                    </button>
+                  </form>
+                </div>
+              )}
             </div>
 
-            <div className="flex items-center space-x-4">
-              <IconWithTooltip iconSrc="/icons/pesquisa icon.svg" tooltip="Pesquisar" href="/pesquisa" isDarkBackground={getIconDarkBackground()} />
+            {/* Ícones - sempre à direita */}
+            <div className="flex items-center space-x-3 flex-shrink-0">
+              <IconWithTooltip 
+                iconSrc="/icons/pesquisa icon.svg" 
+                tooltip="Pesquisar" 
+                href="#" 
+                onClick={handleSearchToggle}
+                isDarkBackground={getIconDarkBackground()} 
+              />
               <IconWithTooltip iconSrc="/icons/dúvidas icon.svg" tooltip="Central de Ajuda" href="/duvidas" noAnimation={true} isDarkBackground={getIconDarkBackground()} />
-              <IconWithTooltip iconSrc="/icons/mochila icon.svg" tooltip="Mochila" href="#" onClick={() => setIsCartOpen(true)} isDarkBackground={getIconDarkBackground()} />
+              <IconWithTooltip iconSrc="/icons/mochila icon.svg" tooltip="Mochila" href="#" onClick={() => setIsCartOpen(true)} isDarkBackground={getIconDarkBackground()} showCartCount={true} />
               <IconWithTooltip iconSrc="/icons/login icon.svg" tooltip="Login/Cadastro" href="/login" isDarkBackground={getIconDarkBackground()} />
             </div>
           </div>
@@ -377,38 +536,117 @@ export function Navbar() {
       {/* Tablet/Laptop Navbar */}
       <nav
         className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 ease-out hidden md:block lg:hidden ${
-          isScrolled ? "bg-black" : "bg-black"
+          isHomePage ? (isScrolled ? "bg-white" : "bg-black") : "bg-white"
         }`}
       >
-        <div className="px-6">
+        <div className="px-4">
           <div className="flex items-center justify-between h-20">
             {/* Hamburger Menu */}
-            <button onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)} className="text-white">
+            <button onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)} className={isHomePage && !isScrolled ? "text-white" : "text-black"}>
               {isMobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
             </button>
 
+            {/* Centro - Logo OU Logo + Campo de pesquisa */}
             <div className="flex items-center absolute left-1/2 transform -translate-x-1/2">
-              {isScrolled && (
-                <div className="flex items-center animate-fade-in">
-                  <a href="/" className="flex items-center hover:opacity-80 transition-opacity">
-                    <img src="/icons/TIPOGRAFIA PARA PRETO.svg" alt="Multiverso Estudio" width={120} height={120} className="mr-2 object-contain" />
-                  </a>
-                </div>
-              )}
-              {!isScrolled && (
-                <div className="flex items-center">
-                  <a href="/" className="flex items-center hover:opacity-80 transition-opacity">
-                    <img src="/icons/LUNETA PARA PRETO.svg" alt="Multiverso Estudio" width={120} height={120} className="mr-2 object-contain" />
-                  </a>
+              {!isSearchOpen ? (
+                // Apenas logo
+                <>
+                  {isHomePage ? (
+                    // Página principal: logo adaptativo
+                    <>
+                      {isScrolled ? (
+                        <div className="flex items-center animate-fade-in">
+                          <a href="/" className="flex items-center hover:opacity-80 transition-opacity">
+                            <img src="/icons/LOGO PRETO PRA BRANCO.svg" alt="Multiverso Estudio" width={120} height={120} className="mr-2 object-contain" />
+                          </a>
+                        </div>
+                      ) : (
+                        <div className="flex items-center">
+                          <a href="/" className="flex items-center hover:opacity-80 transition-opacity">
+                            <img src="/icons/LOGO BRANCO PRA PRANCO.svg" alt="Multiverso Estudio" width={120} height={120} className="mr-2 object-contain" />
+                          </a>
+                        </div>
+                      )}
+                    </>
+                  ) : (
+                    // Outras páginas: sempre logo preta
+                    <div className="flex items-center">
+                      <a href="/" className="flex items-center hover:opacity-80 transition-opacity">
+                        <img src="/icons/LOGO PRETO PRA BRANCO.svg" alt="Multiverso Estudio" width={120} height={120} className="mr-2 object-contain" />
+                      </a>
+                    </div>
+                  )}
+                </>
+              ) : (
+                // Logo + Campo de pesquisa
+                <div className="flex items-center space-x-4">
+                  {/* Logo pequeno */}
+                  <div className="flex items-center">
+                    <a href="/" className="flex items-center hover:opacity-80 transition-opacity">
+                      <img 
+                        src={isHomePage && !isScrolled ? "/icons/LOGO BRANCO PRA PRANCO.svg" : "/icons/LOGO PRETO PRA BRANCO.svg"} 
+                        alt="Multiverso Estudio" 
+                        width={80} 
+                        height={80} 
+                        className="mr-2 object-contain" 
+                      />
+                    </a>
+                  </div>
+
+                  {/* Campo de pesquisa */}
+                  <div className="w-80">
+                    <form onSubmit={handleSearchSubmit} className="relative">
+                      <input
+                        type="text"
+                        value={searchQuery}
+                        onChange={(e) => setSearchQuery(e.target.value)}
+                        placeholder="Digite sua pesquisa..."
+                        className={`w-full px-4 py-2 border rounded-none focus:outline-none focus:ring-1 focus:ring-black transition-all duration-300 text-base ${
+                          isHomePage && !isScrolled 
+                            ? "bg-white/20 border-white/30 text-white placeholder-white/80 focus:bg-white focus:text-black focus:border-gray-300" 
+                            : "bg-white border-gray-200 text-black placeholder-gray-500 focus:bg-white focus:text-black focus:border-gray-300"
+                        }`}
+                        autoFocus
+                      />
+                      <button
+                        type="submit"
+                        className={`absolute right-12 top-1/2 transform -translate-y-1/2 px-3 py-1 text-sm font-bold transition-all duration-300 ${
+                          isHomePage && !isScrolled 
+                            ? "text-white hover:text-black hover:bg-white/20" 
+                            : "text-black hover:text-gray-600 hover:bg-gray-100"
+                        }`}
+                      >
+                        BUSCAR
+                      </button>
+                      <button
+                        type="button"
+                        onClick={handleSearchClose}
+                        className={`absolute right-2 top-1/2 transform -translate-y-1/2 w-6 h-6 flex items-center justify-center text-sm font-bold transition-all duration-300 ${
+                          isHomePage && !isScrolled 
+                            ? "text-white hover:text-black hover:bg-white/20" 
+                            : "text-black hover:text-gray-600 hover:bg-gray-100"
+                        }`}
+                      >
+                        ✕
+                      </button>
+                    </form>
+                  </div>
                 </div>
               )}
             </div>
 
-            <div className="flex items-center space-x-3">
-              <IconWithTooltip iconSrc="/icons/pesquisa icon.svg" tooltip="Pesquisar" href="/pesquisa" isDarkBackground={true} />
-              <IconWithTooltip iconSrc="/icons/dúvidas icon.svg" tooltip="Central de Ajuda" href="/duvidas" isDarkBackground={true} noAnimation={true} />
-              <IconWithTooltip iconSrc="/icons/mochila icon.svg" tooltip="Mochila" href="#" onClick={() => setIsCartOpen(true)} isDarkBackground={true} />
-              <IconWithTooltip iconSrc="/icons/login icon.svg" tooltip="Login/Cadastro" href="/login" isDarkBackground={true} />
+            {/* Ícones - sempre à direita */}
+            <div className="flex items-center space-x-2">
+              <IconWithTooltip iconSrc="/icons/dúvidas icon.svg" tooltip="Central de Ajuda" href="/duvidas" isDarkBackground={isHomePage && !isScrolled} noAnimation={true} />
+              <IconWithTooltip iconSrc="/icons/mochila icon.svg" tooltip="Mochila" href="#" onClick={() => setIsCartOpen(true)} isDarkBackground={isHomePage && !isScrolled} showCartCount={true} />
+              <IconWithTooltip 
+                iconSrc="/icons/login icon.svg" 
+                tooltip="Login/Cadastro" 
+                href="/login" 
+                width={16} 
+                height={16} 
+                isDarkBackground={isHomePage && !isScrolled}
+              />
             </div>
           </div>
         </div>
@@ -423,35 +661,92 @@ export function Navbar() {
               {isMobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
             </button>
 
+            {/* Centro - Logo OU Logo + Campo de pesquisa */}
             <div className="flex items-center absolute left-1/2 transform -translate-x-1/2">
+              {!isSearchOpen ? (
+                // Apenas logo
+                <>
               {isHomePage ? (
                 // Página principal: logo adaptativo
                 <>
-                  {isScrolled && (
+                      {isScrolled ? (
                     <div className="flex items-center animate-fade-in">
                       <a href="/" className="flex items-center hover:opacity-80 transition-opacity">
-                        <img src="/icons/TIPOGRAFIA PARA PRETO.svg" alt="Multiverso Estudio" width={80} height={80} className="mr-2 object-contain" />
+                            <img src="/icons/TIPOGRAFIA PARA PRETO.svg" alt="Multiverso Estudio" width={80} height={80} className="mr-2 object-contain"  />
+                          </a>
+                        </div>
+                      ) : (
+                        <div className="flex items-center">
+                          <a href="/" className="flex items-center hover:opacity-80 transition-opacity">
+                            <img src="/icons/LOGO BRANCO PRA PRETO.svg" alt="Multiverso Estudio" width={80} height={80} className="mr-2 object-contain" />
                       </a>
                     </div>
                   )}
-                  {!isScrolled && (
+                    </>
+                  ) : (
+                    // Outras páginas: sempre logo preta
                     <div className="flex items-center">
                       <a href="/" className="flex items-center hover:opacity-80 transition-opacity">
-                        <img src="/icons/LUNETA PARA PRETO.svg" alt="Multiverso Estudio" width={80} height={80} className="mr-2 object-contain" />
+                        <img src="/icons/LOGO PRETO PRA BRANCO.svg" alt="Multiverso Estudio" width={80} height={80} className="mr-2 object-contain" />
                       </a>
                     </div>
                   )}
                 </>
               ) : (
-                // Outras páginas: sempre logo preto
+                // Logo + Campo de pesquisa
+                <div className="flex items-center space-x-3">
+                  {/* Logo pequeno */}
                 <div className="flex items-center">
                   <a href="/" className="flex items-center hover:opacity-80 transition-opacity">
-                    <img src="/icons/TIPOGRAFIA PARA PRETO.svg" alt="Multiverso Estudio" width={80} height={80} className="mr-2 object-contain" />
-                  </a>
+                      <img 
+                        src={isHomePage && !isScrolled ? "/icons/LOGO BRANCO PRA PRETO.svg" : "/icons/LOGO PRETO PRA BRANCO.svg"} 
+                        alt="Multiverso Estudio" 
+                        width={60} 
+                        height={60} 
+                        className="mr-2 object-contain" 
+                      />
+                    </a>
+                  </div>
+
+                  {/* Campo de pesquisa */}
+                  <div className="w-48">
+                    <form onSubmit={handleSearchSubmit} className="relative">
+                      <input
+                        type="text"
+                        value={searchQuery}
+                        onChange={(e) => setSearchQuery(e.target.value)}
+                        placeholder="Pesquisar..."
+                        className={`w-full px-3 py-2 border rounded-none focus:outline-none focus:ring-1 focus:ring-black transition-all duration-300 text-sm ${
+                          isHomePage && !isScrolled 
+                            ? "bg-white/20 border-white/30 text-white placeholder-white/80 focus:bg-white focus:text-black focus:border-gray-300" 
+                            : "bg-white border-gray-200 text-black placeholder-gray-500 focus:bg-white focus:text-black focus:border-gray-300"
+                        }`}
+                        autoFocus
+                      />
+                      <button
+                        type="submit"
+                        className={`absolute right-8 top-1/2 transform -translate-y-1/2 px-2 py-1 text-xs font-bold transition-all duration-300 ${
+                          isHomePage && !isScrolled 
+                            ? "text-white hover:text-black hover:bg-white/20" 
+                            : "text-black hover:text-gray-600 hover:bg-gray-100"
+                        }`}
+                      >
+                        OK
+                      </button>
+                      <button
+                        type="button"
+                        onClick={handleSearchClose}
+                        className={`absolute right-1 top-1/2 transform -translate-y-1/2 w-5 h-5 flex items-center justify-center text-xs font-bold transition-all duration-300 text-black hover:text-gray-600 hover:bg-gray-100`}
+                      >
+                        ✕
+                      </button>
+                    </form>
+                  </div>
                 </div>
               )}
           </div>
 
+            {/* Ícones - sempre à direita */}
             <div className="flex items-center space-x-2">
               <IconWithTooltip
                 iconSrc="/icons/dúvidas icon.svg"
@@ -470,6 +765,7 @@ export function Navbar() {
                 width={16}
                 height={16}
                 isDarkBackground={isHomePage}
+                showCartCount={true}
               />
               <IconWithTooltip 
                 iconSrc="/icons/login icon.svg" 
@@ -487,19 +783,54 @@ export function Navbar() {
       {/* Mobile Menu Overlay */}
           {isMobileMenuOpen && (
         <div className={`fixed inset-0 z-40 md:hidden animate-in fade-in duration-500 ease-out ${isHomePage ? "bg-black" : "bg-white"}`}>
-          <div className="pt-16 px-4 animate-in slide-in-from-top-4 duration-500 ease-out delay-100">
+          <div className="pt-20 px-4 animate-in slide-in-from-top-4 duration-500 ease-out delay-100">
+            {/* Campo de Pesquisa Mobile */}
+            <div className="mb-6 animate-in slide-in-from-left-4 duration-500 ease-out delay-50">
+              <form onSubmit={handleSearchSubmit} className="relative">
+                <input
+                  type="text"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  placeholder="Pesquisar produtos..."
+                  className={`w-full px-4 py-3 pl-12 text-sm border-2 rounded-none font-gotham-medium focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-300 ${
+                    isHomePage 
+                      ? "bg-white/10 border-white/30 text-white placeholder-white/60 focus:bg-white focus:text-black focus:placeholder-gray-500 focus:border-black" 
+                      : "bg-gray-50 border-gray-300 text-black placeholder-gray-500 focus:bg-white focus:text-black focus:border-black"
+                  }`}
+                />
+                <div className={`absolute left-3 top-1/2 transform -translate-y-1/2 ${
+                  isHomePage ? "text-white/60" : "text-gray-400"
+                }`}>
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <circle cx="11" cy="11" r="8"></circle>
+                    <path d="m21 21-4.35-4.35"></path>
+                  </svg>
+                </div>
+                <button 
+                  type="submit"
+                  className={`absolute right-3 top-1/2 transform -translate-y-1/2 px-3 py-1 text-xs font-bold uppercase transition-all duration-300 ${
+                    isHomePage 
+                      ? "text-black/80 hover:text-black border border-gray-300 hover:border-black"
+                      : "text-black/80 hover:text-black border border-gray-300 hover:border-black"
+                  }`}
+                >
+                  Buscar
+                </button>
+              </form>
+            </div>
+
             {/* Action Buttons */}
-            <div className="mb-8 space-y-3 animate-in slide-in-from-left-4 duration-500 ease-out delay-100">
-                              <button className={`w-full py-3 border text-center rounded transition-all duration-300 ease-out ${
+            <div className="mb-8 space-y-3 animate-in slide-in-from-left-4 duration-500 ease-out delay-100 ">
+              <button className={`w-full py-3 border text-center  transition-all duration-300 ease-out font-gotham-bold rounded-none ${
                   isHomePage 
                     ? "border-white text-white hover:bg-white hover:text-black" 
                     : "border-black text-black hover:bg-black hover:text-white"
                 }`}>
                   JÁ SOU EXPLORADOR
                 </button>
-                <button className={`w-full py-3 border text-center rounded transition-all duration-300 ease-out ${
+              <button className={`w-full py-3 border text-center  transition-all duration-300 ease-out font-gotham-bold rounded-none ${
                   isHomePage 
-                    ? "border-white text-white hover:bg-white hover:text-black" 
+                  ? "border-white text-white hover:bg-black hover:text-white" 
                     : "border-black text-black hover:bg-black hover:text-white"
                 }`}>CRIAR CONTA</button>
             </div>
@@ -520,7 +851,7 @@ export function Navbar() {
                         <span className="font-medium group-hover/link:font-black transition-all duration-300 ease-out">
                           {item.name}
                         </span>
-                        <span className={`absolute bottom-0 left-0 right-0 h-0.5 transform scale-x-0 group-hover/link:scale-x-100 transition-transform duration-300 ease-out origin-left ${
+                      <span className={`absolute bottom-0 left-0 right-0 h-0.5 transform scale-x-0 group-hover/link:scale-x-100 transition-transform duration-200 ease-in-out origin-left pointer-events-none ${
                           isHomePage ? "bg-white" : "bg-black"
                         }`}></span>
                       </a>
@@ -555,7 +886,7 @@ export function Navbar() {
                                   <span className="font-normal group-hover/subcat:font-black transition-all duration-300 ease-out">
                                     {subcat}
                                   </span>
-                                  <span className={`absolute bottom-0 left-0 right-0 h-0.5 transform scale-x-0 group-hover/subcat:scale-x-100 transition-transform duration-300 ease-out origin-left ${
+                              <span className={`absolute bottom-0 left-0 right-0 h-0.5 transform scale-x-0 group-hover/subcat:scale-x-100 transition-transform duration-200 ease-in-out origin-left pointer-events-none ${
                                     isHomePage ? "bg-white" : "bg-black"
                                   }`}></span>
                                 </div>
@@ -586,6 +917,36 @@ export function Navbar() {
               isHomePage ? "bg-black/90 backdrop-blur-sm" : "bg-white/90 backdrop-blur-sm"
             }`}>
               <div className="space-y-6">
+                {/* Campo de Pesquisa Tablet */}
+                <div className="animate-in slide-in-from-left-4 duration-500 ease-out delay-50">
+                  <div className="relative">
+                    <input
+                      type="text"
+                      placeholder="Pesquisar produtos..."
+                      className={`w-full px-4 py-3 pl-12 text-sm border rounded-none focus:outline-none focus:ring-1 focus:ring-black transition-all duration-300 text-base ${
+                        isHomePage 
+                          ? "bg-white/20 border-white/30 text-white placeholder-white/60 focus:bg-white focus:text-black focus:placeholder-gray-500 focus:border-gray-300" 
+                          : "bg-gray-50 border-gray-300 text-black placeholder-gray-500 focus:bg-white focus:text-black focus:border-gray-300"
+                      }`}
+                    />
+                    <div className={`absolute left-3 top-1/2 transform -translate-y-1/2 ${
+                      isHomePage ? "text-white/60" : "text-gray-400"
+                    }`}>
+                      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                        <circle cx="11" cy="11" r="8"></circle>
+                        <path d="m21 21-4.35-4.35"></path>
+                      </svg>
+                    </div>
+                    <button className={`absolute right-3 top-1/2 transform -translate-y-1/2 px-3 py-1 text-xs font-bold uppercase transition-all duration-300 ${
+                      isHomePage 
+                        ? "text-black/80 hover:text-black border border-gray-300 hover:border-black"
+                        : "text-black/80 hover:text-black border border-gray-300 hover:border-black"
+                    }`}>
+                      Buscar
+                    </button>
+                  </div>
+                </div>
+
                 {mobileMenuItems.map((item, index) => (
                   <div key={item.name}>
                     <div 
@@ -635,7 +996,7 @@ export function Navbar() {
                                 <span className="font-normal group-hover/subcat:font-black transition-all duration-300 ease-out">
                                   {subcat}
                                 </span>
-                                <span className={`absolute bottom-0 left-0 right-0 h-0.5 transform scale-x-0 group-hover/subcat:scale-x-100 transition-transform duration-300 ease-out origin-left ${
+                                <span className={`absolute bottom-0 left-0 right-0 h-0.5 transform scale-x-0 group-hover/subcat:scale-x-100 transition-transform duration-300 ease-out origin-left pointer-events-none ${
                                   isHomePage ? "bg-white" : "bg-black"
                                 }`}></span>
                               </div>
@@ -658,8 +1019,6 @@ export function Navbar() {
           </div>
         </div>
       )}
-
-
 
       {/* Cart Modal */}
       <CartModal isOpen={isCartOpen} onClose={() => setIsCartOpen(false)} />

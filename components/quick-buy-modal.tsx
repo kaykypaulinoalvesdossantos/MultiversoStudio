@@ -65,17 +65,51 @@ export default function QuickBuyModal({ isOpen, onClose, product }: QuickBuyModa
       return
     }
     
-    // Aqui você pode implementar a lógica de compra
-    console.log("Compra rápida:", {
-      product: product.name,
-      model: selectedModel,
-        size: selectedSize,
-        color: selectedColor,
-        quantity,
-      totalPrice
-      })
+    // Adicionar ao carrinho via localStorage
+    addToCart(product.id, selectedModel, selectedSize, selectedColor, quantity)
     
     onClose()
+  }
+
+  const addToCart = (productId: string, type: string, size: string, color: string, quantity: number) => {
+    // Buscar carrinho existente
+    const existingCart = localStorage.getItem('multiverso-cart')
+    let cartItems = existingCart ? JSON.parse(existingCart) : []
+
+    // Verificar se o item já existe
+    const existingItemIndex = cartItems.findIndex((item: any) => 
+      item.productId === productId &&
+      item.type === type &&
+      item.color === color &&
+      item.size === size
+    )
+
+    if (existingItemIndex >= 0) {
+      // Se já existe, aumenta a quantidade
+      cartItems[existingItemIndex].quantity += quantity
+    } else {
+      // Se não existe, adiciona novo item
+      const newItem = {
+        id: `${Date.now()}-${Math.random()}`,
+        productId,
+        name: product.name,
+        price: product.price,
+        originalPrice: product.originalPrice,
+        image: product.image,
+        type,
+        color,
+        size,
+        quantity,
+        store: product.store
+      }
+      cartItems.push(newItem)
+    }
+
+    // Salvar no localStorage
+    localStorage.setItem('multiverso-cart', JSON.stringify(cartItems))
+    
+    // Mostrar confirmação
+    alert(`Produto adicionado ao carrinho!\nTipo: ${type}\nCor: ${color}\nTamanho: ${size}\nQuantidade: ${quantity}`)
   }
 
   // Função para verificar se todas as opções foram selecionadas
