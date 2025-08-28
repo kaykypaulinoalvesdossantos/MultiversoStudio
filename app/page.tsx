@@ -258,7 +258,7 @@ export default function HomePage() {
         setMultiversoLoading(true)
         console.log('🔄 Buscando produtos exclusivos Multiverso...')
         
-        const response = await fetch('http://https://api.multiversoestudiocrm.com.br/api/public/products/main-store')
+        const response = await fetch('https://api.multiversoestudiocrm.com.br/api/public/products/main-store')
         
         if (!response.ok) {
           throw new Error(`Erro ${response.status}: ${response.statusText}`)

@@ -112,7 +112,7 @@ class MultiversoExclusiveProductsService {
   private baseURL: string;
 
   constructor() {
-    this.baseURL = process.env.CRM_API_URL || 'http://https://api.multiversoestudiocrm.com.br';
+    this.baseURL = process.env.CRM_API_URL || 'https://api.multiversoestudiocrm.com.br';
     
     if (!this.baseURL) {
       console.warn('CRM_API_URL não configurada no arquivo .env');

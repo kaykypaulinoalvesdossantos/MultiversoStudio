@@ -31,7 +31,7 @@ export interface AuthResponse {
 }
 
 export class AuthService {
-  private baseUrl = 'http://https://api.multiversoestudiocrm.com.br/api/public'
+  private baseUrl = 'https://api.multiversoestudiocrm.com.br/api/public'
 
   // ✅ REGISTRAR NOVO CLIENTE - ATUALIZADO PARA JWT + PERFIL
   async registerCustomer(customerData: CustomerData): Promise<AuthResponse> {
