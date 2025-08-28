@@ -97,31 +97,112 @@ export default function CheckoutPage() {
     "RS", "RO", "RR", "SC", "SP", "SE", "TO"
   ]
   
-  // Função para buscar endereço por CEP
+  // Função para buscar endereço por CEP (SIMPLES E FUNCIONAL)
   const searchAddressByCEP = async (cep: string) => {
-    if (!cep || cep.replace(/\D/g, '').length !== 8) return;
+    console.log('🔍 Buscando endereço para CEP:', cep);
+    
+    if (!cep || cep.replace(/\D/g, '').length !== 8) {
+      console.log('❌ CEP inválido');
+      return;
+    }
     
     try {
-      // Buscar endereço via API de CEP
-      const response = await fetch(`https://viacep.com.br/ws/${cep.replace(/\D/g, '')}/json/`);
-      const data = await response.json();
+      // Limpar campos de endereço
+      setForm(prev => ({
+        ...prev,
+        street: "",
+        neighborhood: "",
+        city: "",
+        state: ""
+      }));
       
-      if (!data.erro) {
-        setForm(prev => ({
-          ...prev,
-          street: data.logradouro || "",
-          neighborhood: data.bairro || "",
-          city: data.localidade || "",
-          state: data.uf || ""
-        }));
-        
-        // Calcular frete automaticamente após preencher endereço
-        calculateFreight(cep);
+      const response = await fetch(`https://viacep.com.br/ws/${cep.replace(/\D/g, '')}/json/`);
+      
+      if (!response.ok) {
+        throw new Error('Erro na API');
       }
+      
+      const data = await response.json();
+      console.log('📋 Dados recebidos:', data);
+      
+      if (data.erro) {
+        alert('CEP não encontrado. Verifique se está correto.');
+        return;
+      }
+      
+      // Preencher endereço automaticamente
+      setForm(prev => ({
+        ...prev,
+        street: data.logradouro || "",
+        neighborhood: data.bairro || "",
+        city: data.localidade || "",
+        state: data.uf || ""
+      }));
+      
+      console.log('✅ Endereço preenchido automaticamente');
+      
     } catch (error) {
-      console.error('Erro ao buscar endereço por CEP:', error);
+      console.error('❌ Erro ao buscar endereço:', error);
+      alert('Erro ao buscar endereço. Tente novamente.');
     }
   };
+
+  // Função para calcular frete (SIMPLES E FUNCIONAL)
+  const handleCalculateFreight = async () => {
+    console.log('🚀 Calculando frete...');
+    
+    // Validar se tem CEP
+    if (!form.zipCode || form.zipCode.replace(/\D/g, '').length < 8) {
+      alert('Por favor, informe um CEP válido.');
+      return;
+    }
+    
+    // Validar se tem endereço básico
+    if (!form.street || !form.neighborhood || !form.city || !form.state) {
+      alert('Por favor, aguarde o endereço ser preenchido automaticamente.');
+      return;
+    }
+    
+    // Validar se tem número
+    if (!form.number) {
+      alert('Por favor, preencha o número da casa.');
+      return;
+    }
+    
+    console.log('✅ Validado! Calculando frete para:', form.zipCode);
+    
+    setIsCalculatingFreight(true);
+    try {
+      await calculateFreight(form.zipCode);
+    } finally {
+      setIsCalculatingFreight(false);
+    }
+  };
+
+  // Função para verificar se pode calcular frete
+  const canCalculateFreight = () => {
+    return form.zipCode && 
+           form.zipCode.replace(/\D/g, '').length === 8 &&
+           form.street && 
+           form.neighborhood && 
+           form.city && 
+           form.state &&
+           form.number;
+  };
+
+  // Função para verificar se o endereço está completo
+  const isAddressComplete = () => {
+    return canCalculateFreight();
+  };
+
+  // Buscar endereço automaticamente quando CEP estiver completo
+  useEffect(() => {
+    const cleanCEP = form.zipCode.replace(/\D/g, '');
+    if (cleanCEP.length === 8) {
+      // Só buscar se o CEP estiver completo
+      searchAddressByCEP(form.zipCode);
+    }
+  }, [form.zipCode]);
 
   // Função para calcular frete quando o CEP for informado
   const calculateFreight = async (cep: string) => {
@@ -188,25 +269,12 @@ export default function CheckoutPage() {
     }
   };
 
-  // Calcular frete quando o CEP mudar
-  useEffect(() => {
-    if (form.zipCode && form.zipCode.replace(/\D/g, '').length === 8) {
-      // Se não tiver endereço preenchido, buscar por CEP
-      if (!form.street) {
-        searchAddressByCEP(form.zipCode);
-      } else {
-        // Se já tiver endereço, apenas calcular frete
-        calculateFreight(form.zipCode);
-      }
-    }
-  }, [form.zipCode]);
-
   const getShippingPrice = () => {
     if (!selectedFreight) return 0;
     
     // Usar a função de validação do FreightService
     return freightService.getValidPrice(selectedFreight);
-  }
+  };
 
   const getTotal = () => {
     const subtotal = getTotalPrice();
@@ -219,11 +287,19 @@ export default function CheckoutPage() {
     }
     
     return subtotal + shipping;
-  }
-  
+  };
+
   // Carregar dados pessoais quando usuário estiver logado
   useEffect(() => {
-    if (isLoggedIn && customer) {
+    console.log('👤 useEffect dados pessoais:', { 
+      isLoggedIn, 
+      hasCustomer: !!customer, 
+      isLoading,
+      hasFirstName: !!form.firstName
+    });
+    
+    if (isLoggedIn && customer && !form.firstName) {
+      console.log('✅ Preenchendo dados pessoais automaticamente');
       // Preencher dados pessoais automaticamente
       setForm(prev => ({
         ...prev,
@@ -234,18 +310,21 @@ export default function CheckoutPage() {
         cpf: customer.cpf || ""
       }))
       setShowRegisterPrompt(false)
+    } else if (isLoggedIn && customer && form.firstName) {
+      console.log('✅ Dados pessoais já preenchidos, não preenchendo novamente');
     } else if (!isLoggedIn && !isLoading) {
+      console.log('❌ Usuário não logado, mostrando prompt de registro');
       // Se não estiver logado e não estiver carregando, mostrar prompt de registro
       setShowRegisterPrompt(true)
     }
-  }, [isLoggedIn, customer, isLoading])
+  }, [isLoggedIn, customer, isLoading, form.firstName])
 
   // Carregar endereço completo do usuário quando estiver logado
   useEffect(() => {
     const loadCustomerAddress = async () => {
       if (isLoggedIn && customer) {
         try {
-          console.log('Carregando endereço para usuário:', customer.email);
+          console.log('👤 Carregando endereço para usuário logado:', customer.email);
           
           // Buscar perfil completo do usuário para pegar endereços
           const profile = await fetch('/api/public/customers/profile', {
@@ -255,15 +334,16 @@ export default function CheckoutPage() {
             }
           }).then(res => res.json());
 
-          console.log('Profile carregado:', profile);
+          console.log('📋 Profile carregado:', profile);
 
           if (profile.success && profile.customer.addresses && profile.customer.addresses.length > 0) {
             // Pegar o endereço padrão ou o primeiro disponível
             const defaultAddress = profile.customer.addresses.find((addr: CustomerAddress) => addr.type === 'SHIPPING') || profile.customer.addresses[0];
             
-            console.log('Endereço encontrado:', defaultAddress);
+            console.log('🏠 Endereço encontrado:', defaultAddress);
             
             if (defaultAddress) {
+              console.log('✅ Preenchendo formulário com endereço do usuário');
               setForm(prev => ({
                 ...prev,
                 street: defaultAddress.street || "",
@@ -275,28 +355,38 @@ export default function CheckoutPage() {
                 zipCode: defaultAddress.zipCode || ""
               }));
 
-              // Calcular frete automaticamente com o CEP carregado
+              // NÃO calcular frete automaticamente - usuário deve clicar no botão
               if (defaultAddress.zipCode) {
-                console.log('Calculando frete para CEP:', defaultAddress.zipCode);
-                calculateFreight(defaultAddress.zipCode);
+                console.log('✅ Endereço carregado automaticamente. Agora preencha o número e clique em "Calcular Frete".');
+                console.log('🚫 NÃO calculando frete automaticamente!');
               }
             }
           } else {
-            console.log('Nenhum endereço encontrado no perfil');
+            console.log('❌ Nenhum endereço encontrado no perfil');
           }
         } catch (error) {
-          console.error('Erro ao carregar endereço:', error);
+          console.error('❌ Erro ao carregar endereço:', error);
         }
       }
     };
 
-    if (isLoggedIn && customer) {
+    // Evitar execução desnecessária se não estiver logado ou se já carregou o endereço
+    if (isLoggedIn && customer && !form.street) {
+      console.log('👤 Usuário logado, carregando endereço...');
       loadCustomerAddress();
+    } else if (isLoggedIn && customer && form.street) {
+      console.log('👤 Usuário logado com endereço já carregado, não carregando novamente');
     }
-  }, [isLoggedIn, customer]);
+  }, [isLoggedIn, customer, form.street]);
   
   useEffect(() => {
+    console.log('🛒 useEffect carrinho mudou:', { 
+      itemsLength: items.length, 
+      hasWindow: typeof window !== 'undefined' 
+    });
+    
     if (items.length === 0 && typeof window !== 'undefined') {
+      console.log('🛒 Carrinho vazio, redirecionando para home');
       router.push('/')
     }
   }, [items, router])
@@ -319,6 +409,12 @@ export default function CheckoutPage() {
     
     if (!form.acceptTerms) return false
     
+    // Validar se o endereço está completo
+    if (!canCalculateFreight()) {
+      console.error('Endereço incompleto para checkout');
+      return false
+    }
+    
     // Validar se o frete foi selecionado e é válido
     if (!selectedFreight) {
       console.error('Nenhum frete selecionado');
@@ -335,14 +431,18 @@ export default function CheckoutPage() {
   }
   
   const handleCheckout = async () => {
-    if (!validateForm()) {
-      if (!selectedFreight) {
-        alert("Por favor, informe o CEP e aguarde o cálculo do frete para continuar.")
-        return
-      }
-      alert("Por favor, preencha todos os campos obrigatórios e aceite os termos.")
-      return
-    }
+         if (!validateForm()) {
+       if (!canCalculateFreight()) {
+         alert("Por favor, complete todos os campos do endereço antes de continuar.")
+         return
+       }
+       if (!selectedFreight) {
+         alert("Por favor, calcule o frete antes de continuar.")
+         return
+       }
+       alert("Por favor, preencha todos os campos obrigatórios e aceite os termos.")
+       return
+     }
     
     setIsProcessing(true)
     
@@ -557,18 +657,20 @@ export default function CheckoutPage() {
             <div className="mt-3 p-3 bg-green-50 border border-green-200 rounded-lg">
               <p className="text-sm text-green-800">
                 <span className="font-medium">Bem-vindo(a), {customer.name?.split(' ')[0]}!</span> 
-                {form.street ? (
-                  <>
-                    Seus dados pessoais e endereço foram preenchidos automaticamente.
-
-                  </>
-                ) : (
-                  <>
-                    Seus dados pessoais foram preenchidos automaticamente.
-                    <span className="block mt-1 text-yellow-700">
-                      ⚠️ Preencha o CEP para buscar seu endereço e calcular o frete.
-                    </span>
-                  </>
+                                 {form.street ? (
+                   <>
+                     Seus dados pessoais e endereço foram preenchidos automaticamente.
+                     <span className="block mt-1 text-blue-700">
+                       ✅ Agora complete o número da casa e clique em "Calcular Frete" para calcular o frete.
+                     </span>
+                   </>
+                 ) : (
+                                     <>
+                     Seus dados pessoais foram preenchidos automaticamente.
+                     <span className="block mt-1 text-yellow-700">
+                       ⚠️ Digite o CEP para preencher automaticamente o endereço, depois complete o número (obrigatório) e complemento (opcional), então clique em "Calcular Frete".
+                     </span>
+                   </>
                 )}
               </p>
             </div>
@@ -577,9 +679,9 @@ export default function CheckoutPage() {
           {!isLoggedIn && (
             <div className="mt-3 p-3 bg-blue-50 border border-blue-200 rounded-none">
               <div className="flex items-center justify-between">
-                <p className="text-sm text-blue-800">
-                  <span className="font-medium">Faça login</span> para preencher automaticamente seus dados pessoais e endereço.
-                </p>
+                                 <p className="text-sm text-blue-800">
+                   <span className="font-medium">Faça login</span> para preencher automaticamente seus dados pessoais e endereço, ou preencha manualmente e clique em "Calcular Frete".
+                 </p>
                 <Button 
                   size="sm" 
                   variant="outline"
@@ -687,11 +789,11 @@ export default function CheckoutPage() {
                       />
                     </div>
                     
-                    <div className="p-3 bg-blue-50 border border-blue-200 rounded-none">
-                      <p className="text-sm text-blue-800">
-                        <span className="font-medium">💡 Dica:</span> Ao finalizar a compra, uma conta será criada automaticamente com estes dados para facilitar suas próximas compras.
-                      </p>
-                    </div>
+                                         <div className="p-3 bg-blue-50 border border-blue-200 rounded-none">
+                       <p className="text-sm text-blue-800">
+                         <span className="font-medium">💡 Dica:</span> Ao finalizar a compra, uma conta será criada automaticamente com estes dados para facilitar suas próximas compras. Depois digite o CEP para preencher automaticamente o endereço, complete o número (obrigatório) e complemento (opcional), então clique em "Calcular Frete".
+                       </p>
+                     </div>
                   </div>
                 )}
               </CardContent>
@@ -712,61 +814,17 @@ export default function CheckoutPage() {
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
-                {isLoggedIn && form.street ? (
-                  // Mostrar endereço como texto para usuários logados com endereço
-                  <div className="space-y-4">
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                      <div className="md:col-span-2">
-                        <Label className="text-sm font-medium text-gray-600">Rua</Label>
-                        <p className="text-lg font-semibold text-gray-900">{form.street}</p>
-                      </div>
-                      <div>
-                        <Label className="text-sm font-medium text-gray-600">Número</Label>
-                        <p className="text-lg font-semibold text-gray-900">{form.number}</p>
-                      </div>
-                    </div>
-                    
-                    {form.complement && (
-                      <div>
-                        <Label className="text-sm font-medium text-gray-600">Complemento</Label>
-                        <p className="text-lg font-semibold text-gray-900">{form.complement}</p>
-                      </div>
-                    )}
-                    
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      <div>
-                        <Label className="text-sm font-medium text-gray-600">Bairro</Label>
-                        <p className="text-lg font-semibold text-gray-900">{form.neighborhood}</p>
-                      </div>
-                      <div>
-                        <Label className="text-sm font-medium text-gray-600">Cidade</Label>
-                        <p className="text-lg font-semibold text-gray-900">{form.city}</p>
-                      </div>
-                    </div>
-                    
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      <div>
-                        <Label className="text-sm font-medium text-gray-600">Estado</Label>
-                        <p className="text-lg font-semibold text-gray-900">{form.state}</p>
-                      </div>
-                      <div>
-                        <Label className="text-sm font-medium text-gray-600">CEP</Label>
-                        <p className="text-lg font-semibold text-gray-900">{form.zipCode}</p>
-                      </div>
-                    </div>
-                  </div>
-                ) : (
-                  // Formulário de endereço para usuários não logados ou sem endereço
-                  <div className="space-y-4">
-                    <div className="p-3 bg-blue-50 border border-blue-200 rounded-none">
-                      <p className="text-sm text-blue-800">
-                        <span className="font-medium">💡 Dica:</span> 
-                        {isLoggedIn 
-                          ? 'Preencha o CEP para buscar automaticamente seu endereço e calcular o frete.'
-                          : 'Preencha o CEP para buscar automaticamente seu endereço e calcular o frete.'
-                        }
-                      </p>
-                    </div>
+                {/* Sempre mostrar formulário editável */}
+                <div className="space-y-4">
+                                         <div className="p-3 bg-blue-50 border border-blue-200 rounded-none">
+                       <p className="text-sm text-blue-800">
+                         <span className="font-medium">💡 Dica:</span> 
+                         {isLoggedIn 
+                           ? 'Digite o CEP para preencher automaticamente o endereço, depois complete o número (obrigatório) e complemento (opcional), então clique em "Calcular Frete".'
+                           : 'Digite o CEP para preencher automaticamente o endereço, depois complete o número (obrigatório) e complemento (opcional), então clique em "Calcular Frete".'
+                         }
+                       </p>
+                     </div>
                     
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <div>
@@ -801,11 +859,10 @@ export default function CheckoutPage() {
                           value={form.street}
                           onChange={(e) => updateForm('street', e.target.value)}
                           placeholder="Nome da rua"
-                          readOnly={true}
-                          className="bg-gray-100 cursor-not-allowed"
+                          className={form.street ? "bg-green-50" : ""}
                         />
                         <p className="text-xs text-gray-500 mt-1">
-                          Preenchido automaticamente pelo CEP
+                          {form.street ? "Preenchido automaticamente pelo CEP (pode editar)" : "Preenchido automaticamente pelo CEP"}
                         </p>
                       </div>
                       <div>
@@ -815,11 +872,10 @@ export default function CheckoutPage() {
                           value={form.neighborhood}
                           onChange={(e) => updateForm('neighborhood', e.target.value)}
                           placeholder="Nome do bairro"
-                          readOnly={true}
-                          className="bg-gray-100 cursor-not-allowed"
+                          className={form.neighborhood ? "bg-green-50" : ""}
                         />
                         <p className="text-xs text-gray-500 mt-1">
-                          Preenchido automaticamente pelo CEP
+                          {form.neighborhood ? "Preenchido automaticamente pelo CEP (pode editar)" : "Preenchido automaticamente pelo CEP"}
                         </p>
                       </div>
                     </div>
@@ -832,11 +888,10 @@ export default function CheckoutPage() {
                           value={form.city}
                           onChange={(e) => updateForm('city', e.target.value)}
                           placeholder="Nome da cidade"
-                          readOnly={true}
-                          className="bg-gray-100 cursor-not-allowed"
+                          className={form.city ? "bg-green-50" : ""}
                         />
                         <p className="text-xs text-gray-500 mt-1">
-                          Preenchido automaticamente pelo CEP
+                          {form.city ? "Preenchido automaticamente pelo CEP (pode editar)" : "Preenchido automaticamente pelo CEP"}
                         </p>
                       </div>
                       <div>
@@ -844,12 +899,12 @@ export default function CheckoutPage() {
                         <Input
                           id="state"
                           value={form.state}
+                          onChange={(e) => updateForm('state', e.target.value)}
                           placeholder="Estado"
-                          readOnly={true}
-                          className="bg-gray-100 cursor-not-allowed"
+                          className={form.state ? "bg-green-50" : ""}
                         />
                         <p className="text-xs text-gray-500 mt-1">
-                          Preenchido automaticamente pelo CEP
+                          {form.state ? "Preenchido automaticamente pelo CEP (pode editar)" : "Preenchido automaticamente pelo CEP"}
                         </p>
                       </div>
                     </div>
@@ -863,8 +918,37 @@ export default function CheckoutPage() {
                         placeholder="Apartamento, bloco, etc."
                       />
                     </div>
+
+                    {/* Botão para calcular frete */}
+                    <div className="pt-4">
+                      <Button
+                        onClick={handleCalculateFreight}
+                        disabled={!canCalculateFreight() || isCalculatingFreight}
+                        className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3"
+                      >
+                        {isCalculatingFreight ? (
+                          <div className="flex items-center gap-2">
+                            <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                            Calculando frete...
+                          </div>
+                        ) : (
+                          <div className="flex items-center gap-2">
+                            <Truck className="w-4 h-4" />
+                            Calcular Frete
+                          </div>
+                        )}
+                      </Button>
+                      
+                                             {!canCalculateFreight() && (
+                         <p className="text-xs text-gray-500 mt-2 text-center">
+                           {!form.street ? 'Digite o CEP para buscar o endereço' : 
+                            !form.number ? 'Preencha o número da casa para calcular o frete' : 
+                            'Preencha todos os campos obrigatórios para calcular o frete'}
+                         </p>
+                       )}
+                    </div>
                   </div>
-                )}
+                
               </CardContent>
             </Card>
             
@@ -877,18 +961,18 @@ export default function CheckoutPage() {
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                {!form.zipCode || form.zipCode.replace(/\D/g, '').length < 8 ? (
-                  <div className="p-4 bg-yellow-50 border border-yellow-200 rounded-none">
-                    <p className="text-sm text-yellow-800">
-                      {isLoggedIn ? (
-                        <>
-                          {form.street ? 'Carregando seu endereço...' : 'Digite o CEP para buscar seu endereço e calcular as opções de frete disponíveis.'}
-                        </>
-                      ) : (
-                        'Digite o CEP para buscar seu endereço e calcular as opções de frete disponíveis.'
-                      )}
-                    </p>
-                  </div>
+                                 {!canCalculateFreight() ? (
+                   <div className="p-4 bg-yellow-50 border border-yellow-200 rounded-none">
+                     <p className="text-sm text-yellow-800">
+                       {isLoggedIn ? (
+                         <>
+                           {form.street ? 'Complete o número da casa (obrigatório) e complemento (opcional), depois clique em "Calcular Frete" para ver as opções disponíveis.' : 'Digite o CEP para preencher automaticamente o endereço, depois complete o número (obrigatório) e complemento (opcional), então clique em "Calcular Frete".'}
+                         </>
+                       ) : (
+                         'Digite o CEP para preencher automaticamente o endereço, depois complete o número (obrigatório) e complemento (opcional), então clique em "Calcular Frete".'
+                       )}
+                     </p>
+                   </div>
                 ) : isCalculatingFreight ? (
                   <div className="p-4 flex items-center justify-center">
                     <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-black mr-3"></div>
@@ -1050,21 +1134,26 @@ export default function CheckoutPage() {
             </Card>
             
             {/* Botão de Finalizar Compra */}
-            <Button
-              onClick={handleCheckout}
-              disabled={isProcessing || !validateForm() || !selectedFreight}
-              className="w-full h-12 text-lg font-semibold rounded-none"
-            >
+                         <Button
+               onClick={handleCheckout}
+                               disabled={isProcessing || !validateForm() || !canCalculateFreight() || !selectedFreight}
+               className="w-full h-12 text-lg font-semibold rounded-none"
+             >
               {isProcessing ? (
                 <div className="flex items-center gap-2">
                   <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
                   Processando...
                 </div>
-              ) : !selectedFreight ? (
-                <div className="flex items-center gap-2">
-                  <Truck className="w-5 h-5" />
-                  Calcule o frete primeiro
-                </div>
+                                                           ) : !canCalculateFreight() ? (
+                  <div className="flex items-center gap-2">
+                    <MapPin className="w-5 h-5" />
+                    Complete o endereço primeiro
+                  </div>
+               ) : !selectedFreight ? (
+                 <div className="flex items-center gap-2">
+                   <Truck className="w-5 h-5" />
+                   Calcule o frete primeiro
+                 </div>
               ) : (
                 <div className="flex items-center gap-2">
                   <Lock className="w-5 h-5" />
