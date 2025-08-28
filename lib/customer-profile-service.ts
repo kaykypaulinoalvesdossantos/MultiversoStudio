@@ -59,7 +59,7 @@ export interface ProfileResponse {
 }
 
 export class CustomerProfileService {
-  private baseUrl = 'http://localhost:5010/api/public'
+  private baseUrl = 'https://api.multiversoestudiocrm.com.br/api/public'
 
   // ✅ OBTER PERFIL COMPLETO DO CUSTOMER
   async getCustomerProfile(): Promise<ProfileResponse> {
