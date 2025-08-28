@@ -9,6 +9,10 @@ const nextConfig = {
   images: {
     unoptimized: true,
   },
+  // Desabilita o prerendering para evitar erros de window durante build
+  experimental: {
+    ppr: false,
+  },
 }
 
 export default nextConfig

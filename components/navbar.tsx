@@ -38,13 +38,15 @@ export function Navbar() {
 
     const handleScroll = () => {
       // Só aplica o efeito de scroll na página principal
-      if (isHomePage) {
+      if (isHomePage && typeof window !== 'undefined') {
         setIsScrolled(window.scrollY > 10) // Reduzido de 200px para 10px
       }
     }
 
-    window.addEventListener("scroll", handleScroll)
-    return () => window.removeEventListener("scroll", handleScroll)
+    if (typeof window !== 'undefined') {
+      window.addEventListener("scroll", handleScroll)
+      return () => window.removeEventListener("scroll", handleScroll)
+    }
   }, [isHomePage, isMounted])
 
   const toggleCategory = (categoryName: string) => {

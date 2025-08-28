@@ -1,5 +1,7 @@
 "use client"
 
+export const dynamic = 'force-dynamic'
+
 import { useState, useEffect, useCallback } from "react"
 import Image from "next/image"
 import Link from "next/link"
@@ -460,16 +462,14 @@ export default function HomePage() {
   }
 
   const nextProducts = () => {
-    // @ts-ignore
-    if (window.latestProductsNavigation) {
-      window.latestProductsNavigation.nextProducts()
+    if (typeof window !== 'undefined' && (window as any).latestProductsNavigation) {
+      (window as any).latestProductsNavigation.nextProducts()
     }
   }
 
   const prevProducts = () => {
-    // @ts-ignore
-    if (window.latestProductsNavigation) {
-      window.latestProductsNavigation.prevProducts()
+    if (typeof window !== 'undefined' && (window as any).latestProductsNavigation) {
+      (window as any).latestProductsNavigation.prevProducts()
     }
   }
 

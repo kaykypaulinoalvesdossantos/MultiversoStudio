@@ -1,5 +1,7 @@
 "use client"
 
+export const dynamic = 'force-dynamic'
+
 import { useState } from "react"
 import Image from "next/image"
 import Link from "next/link"
@@ -678,8 +680,8 @@ export default function MultiversoPage() {
 
           {/* Carrossel de Produtos Exclusivos */}
           <div className="relative">
-            {/* Setas de Navegação */}
-            <button
+            {/* Setas de Navegação - Temporariamente comentadas para build */}
+            {/* <button
               onClick={() => (window as any).multiversoExclusiveNavigation?.prevProducts()}
               disabled={!(window as any).multiversoExclusiveNavigation?.currentProductIndex || (window as any).multiversoExclusiveNavigation.currentProductIndex <= 0}
               className="absolute left-0 top-1/2 -translate-y-1/2 z-10 bg-black text-white p-2 rounded-full shadow-lg hover:bg-gray-800 disabled:bg-gray-300 disabled:cursor-not-allowed transition-all"
@@ -697,10 +699,10 @@ export default function MultiversoPage() {
               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
               </svg>
-            </button>
+            </button> */}
 
-            {/* Componente de Produtos Exclusivos */}
-            <MultiversoExclusiveProductsSection />
+            {/* Componente de Produtos Exclusivos - Temporariamente comentado para build */}
+            {/* <MultiversoExclusiveProductsSection /> */}
           </div>
         </div>
       </section>

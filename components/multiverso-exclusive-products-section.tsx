@@ -138,13 +138,16 @@ export default function MultiversoExclusiveProductsSection() {
 
   // ✅ Expor as funções para a page principal usar
   useEffect(() => {
-    // @ts-ignore
-    window.multiversoExclusiveNavigation = {
-      nextProducts,
-      prevProducts,
-      currentProductIndex,
-      setCurrentProductIndex,
-      products
+    // Verificar se window existe (não está disponível durante SSR)
+    if (typeof window !== 'undefined') {
+      // @ts-ignore
+      window.multiversoExclusiveNavigation = {
+        nextProducts,
+        prevProducts,
+        currentProductIndex,
+        setCurrentProductIndex,
+        products
+      }
     }
   }, [currentProductIndex, products])
 
@@ -165,7 +168,11 @@ export default function MultiversoExclusiveProductsSection() {
         <div className="text-center">
           <p className="text-red-600 text-lg mb-4">Erro: {error}</p>
           <button 
-            onClick={() => window.location.reload()} 
+            onClick={() => {
+              if (typeof window !== 'undefined') {
+                window.location.reload()
+              }
+            }} 
             className="bg-black hover:bg-gray-800 text-white px-6 py-2 rounded"
           >
             Tentar novamente

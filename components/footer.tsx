@@ -10,6 +10,9 @@ export default function Footer() {
   const [isCartOpen, setIsCartOpen] = useState(false)
   // JavaScript para o accordion funcionar (mobile)
   useEffect(() => {
+    // Verificar se window existe (não está disponível durante SSR)
+    if (typeof window === 'undefined') return;
+    
     const onResize = () => {
       const isMobile = window.matchMedia('(max-width: 767px)').matches;
       const groups = document.querySelectorAll('details[name="mv-accordion"]') as NodeListOf<HTMLDetailsElement>;
