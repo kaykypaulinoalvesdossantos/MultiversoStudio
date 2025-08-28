@@ -354,7 +354,7 @@ O service trata automaticamente:
 ## 🔧 Configuração
 
 O service está configurado para usar:
-- **Base URL**: `http://localhost:5010/api/public`
+- **Base URL**: `http://https://api.multiversoestudiocrm.com.br/api/public`
 - **Headers**: `Authorization: Bearer {token}`
 - **Método**: `GET`, `PUT`, `POST` conforme necessário
 - **Autenticação**: JWT automática
@@ -367,3 +367,5 @@ O service está configurado para usar:
 - `lib/auth-service.ts` - Integração com autenticação
 
 **Agora você tem um sistema completo de perfil de customer integrado com JWT!** 🎉
+
+

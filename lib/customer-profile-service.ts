@@ -328,3 +328,5 @@ export class CustomerProfileService {
 
 // ✅ INSTÂNCIA GLOBAL DO SERVICE
 export const customerProfileService = new CustomerProfileService()
+
+

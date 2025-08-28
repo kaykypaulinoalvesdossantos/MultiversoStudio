@@ -18,7 +18,7 @@ export default function MultiversoExclusiveProductsSection() {
         console.log('🔄 Iniciando busca de produtos exclusivos Multiverso...')
         
         // ✅ CHAMA SUA API REAL - MESMO PADRÃO DOS PRODUTOS EM ALTA
-        const response = await fetch('http://localhost:5010/api/public/products/main-store')
+        const response = await fetch('http://https://api.multiversoestudiocrm.com.br/api/public/products/main-store')
         
         if (!response.ok) {
           throw new Error(`Erro ${response.status}: ${response.statusText}`)
