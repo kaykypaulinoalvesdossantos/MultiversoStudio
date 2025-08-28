@@ -9,6 +9,7 @@ import { Badge } from "@/components/ui/badge"
 import { Input } from "@/components/ui/input"
 import { Separator } from "@/components/ui/separator"
 import { Navbar } from "@/components/navbar"
+import { authService, CustomerData, LoginData } from "@/lib/auth-service"
 import {
   Eye,
   EyeOff,
@@ -32,6 +33,192 @@ export default function LoginPage() {
   const [isForgotPassword, setIsForgotPassword] = useState(false)
   const [showPassword, setShowPassword] = useState(false)
   const [showConfirmPassword, setShowConfirmPassword] = useState(false)
+  
+  // ✅ ESTADOS PARA OS FORMULÁRIOS
+  const [formData, setFormData] = useState<CustomerData>({
+    name: "",
+    email: "",
+    password: "",
+    phone: "",
+    cpf: "",
+    zipCode: "",
+    street: "",
+    number: "",
+    neighborhood: "",
+    city: "",
+    state: "",
+    complement: ""
+  })
+  
+  const [loginData, setLoginData] = useState<LoginData>({
+    email: "",
+    password: ""
+  })
+  
+  const [forgotPasswordEmail, setForgotPasswordEmail] = useState("")
+  const [confirmPassword, setConfirmPassword] = useState("")
+  
+  // ✅ ESTADOS DE LOADING E MENSAGENS
+  const [isLoading, setIsLoading] = useState(false)
+  const [message, setMessage] = useState("")
+  const [messageType, setMessageType] = useState<"success" | "error">("success")
+  
+  // ✅ FUNÇÃO PARA ATUALIZAR DADOS DO FORMULÁRIO
+  const handleInputChange = (field: keyof CustomerData, value: string) => {
+    setFormData(prev => ({ ...prev, [field]: value }))
+  }
+  
+  // ✅ FUNÇÃO PARA ATUALIZAR DADOS DO LOGIN
+  const handleLoginInputChange = (field: keyof LoginData, value: string) => {
+    setLoginData(prev => ({ ...prev, [field]: value }))
+  }
+  
+  // ✅ FUNÇÃO PARA REGISTRAR CLIENTE
+  const handleRegister = async (e: React.FormEvent) => {
+    e.preventDefault()
+    setIsLoading(true)
+    setMessage("")
+    
+    try {
+      // ✅ VALIDAÇÕES
+      if (!authService.validateEmail(formData.email)) {
+        throw new Error("E-mail inválido")
+      }
+      
+      if (!authService.validatePassword(formData.password)) {
+        throw new Error("Senha deve ter pelo menos 6 caracteres")
+      }
+      
+      if (formData.password !== confirmPassword) {
+        throw new Error("As senhas não coincidem")
+      }
+      
+      if (!authService.validateCPF(formData.cpf)) {
+        throw new Error("CPF inválido")
+      }
+      
+      if (!authService.validatePhone(formData.phone)) {
+        throw new Error("Telefone inválido")
+      }
+      
+      if (!authService.validateZipCode(formData.zipCode)) {
+        throw new Error("CEP inválido")
+      }
+      
+      // ✅ CHAMAR API
+      const response = await authService.registerCustomer(formData)
+      
+      if (response.success) {
+        setMessageType("success")
+        setMessage(response.message)
+        // ✅ LIMPAR FORMULÁRIO APÓS SUCESSO
+        setFormData({
+          name: "",
+          email: "",
+          password: "",
+          phone: "",
+          cpf: "",
+          zipCode: "",
+          street: "",
+          number: "",
+          neighborhood: "",
+          city: "",
+          state: "",
+          complement: ""
+        })
+        setConfirmPassword("")
+        // ✅ MUDAR PARA LOGIN APÓS REGISTRO
+        setTimeout(() => {
+          setIsLogin(true)
+          setMessage("")
+        }, 3000)
+      } else {
+        setMessageType("error")
+        setMessage(response.message)
+      }
+      
+    } catch (error) {
+      setMessageType("error")
+      setMessage(error instanceof Error ? error.message : "Erro ao registrar cliente")
+    } finally {
+      setIsLoading(false)
+    }
+  }
+  
+  // ✅ FUNÇÃO PARA FAZER LOGIN
+  const handleLogin = async (e: React.FormEvent) => {
+    e.preventDefault()
+    setIsLoading(true)
+    setMessage("")
+    
+    try {
+      // ✅ VALIDAÇÕES
+      if (!authService.validateEmail(loginData.email)) {
+        throw new Error("E-mail inválido")
+      }
+      
+      if (!authService.validatePassword(loginData.password)) {
+        throw new Error("Senha deve ter pelo menos 6 caracteres")
+      }
+      
+      // ✅ CHAMAR API
+      const response = await authService.loginCustomer(loginData)
+      
+      if (response.success) {
+        setMessageType("success")
+        setMessage(response.message)
+        // ✅ REDIRECIONAR PARA HOME APÓS LOGIN
+        setTimeout(() => {
+          window.location.href = "/"
+        }, 2000)
+      } else {
+        setMessageType("error")
+        setMessage(response.message)
+      }
+      
+    } catch (error) {
+      setMessageType("error")
+      setMessage(error instanceof Error ? error.message : "Erro ao fazer login")
+    } finally {
+      setIsLoading(false)
+    }
+  }
+  
+  // ✅ FUNÇÃO PARA RECUPERAR SENHA
+  const handleForgotPassword = async (e: React.FormEvent) => {
+    e.preventDefault()
+    setIsLoading(true)
+    setMessage("")
+    
+    try {
+      // ✅ VALIDAÇÃO
+      if (!authService.validateEmail(forgotPasswordEmail)) {
+        throw new Error("E-mail inválido")
+      }
+      
+      // ✅ CHAMAR API
+      const response = await authService.forgotPassword(forgotPasswordEmail)
+      
+      if (response.success) {
+        setMessageType("success")
+        setMessage(response.message)
+        // ✅ VOLTAR PARA LOGIN APÓS SUCESSO
+        setTimeout(() => {
+          setIsForgotPassword(false)
+          setMessage("")
+        }, 3000)
+      } else {
+        setMessageType("error")
+        setMessage(response.message)
+      }
+      
+    } catch (error) {
+      setMessageType("error")
+      setMessage(error instanceof Error ? error.message : "Erro ao recuperar senha")
+    } finally {
+      setIsLoading(false)
+    }
+  }
 
   const featuredProducts = [
     {
@@ -214,39 +401,72 @@ export default function LoginPage() {
 
                 {/* Forgot Password Form */}
                 {isForgotPassword ? (
-                  <div className="space-y-6">
+                  <form onSubmit={handleForgotPassword} className="space-y-6">
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-2">E-mail</label>
                       <div className="relative">
                         <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
-                        <Input type="email" placeholder="seu@email.com" className="pl-10 h-12" />
+                        <Input 
+                          type="email" 
+                          placeholder="seu@email.com" 
+                          className="pl-10 h-12"
+                          value={forgotPasswordEmail}
+                          onChange={(e) => setForgotPasswordEmail(e.target.value)}
+                          required
+                        />
                       </div>
                     </div>
 
-                    <Button className="w-full h-12 bg-black hover:bg-gray-800 text-lg">
-                      Enviar Instruções
+                    {/* ✅ MENSAGEM DE SUCESSO/ERRO */}
+                    {message && (
+                      <div className={`p-3 rounded-lg text-sm ${
+                        messageType === "success" 
+                          ? "bg-green-100 text-green-700 border border-green-200" 
+                          : "bg-red-100 text-red-700 border border-red-200"
+                      }`}>
+                        {message}
+                      </div>
+                    )}
+
+                    <Button 
+                      type="submit"
+                      className="w-full h-12 bg-black hover:bg-gray-800 text-lg"
+                      disabled={isLoading}
+                    >
+                      {isLoading ? "Enviando..." : "Enviar Instruções"}
                     </Button>
 
                     <div className="text-center">
                       <Button
+                        type="button"
                         variant="ghost"
-                        onClick={() => setIsForgotPassword(false)}
+                        onClick={() => {
+                          setIsForgotPassword(false)
+                          setMessage("")
+                        }}
                         className="text-black hover:text-gray-700"
                       >
                         Voltar ao login
                       </Button>
                     </div>
-                  </div>
+                  </form>
                 ) : (
                   /* Login/Register Form */
-                  <div className="space-y-6">
+                  <form onSubmit={isLogin ? handleLogin : handleRegister} className="space-y-6">
                     {/* Name field (only for register) */}
                     {!isLogin && (
                       <div>
                         <label className="block text-sm font-medium text-gray-700 mb-2">Nome Completo</label>
                         <div className="relative">
                           <User className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
-                          <Input type="text" placeholder="Seu nome completo" className="pl-10 h-12" />
+                          <Input 
+                            type="text" 
+                            placeholder="Seu nome completo" 
+                            className="pl-10 h-12"
+                            value={formData.name}
+                            onChange={(e) => handleInputChange("name", e.target.value)}
+                            required={!isLogin}
+                          />
                         </div>
                       </div>
                     )}
@@ -257,7 +477,32 @@ export default function LoginPage() {
                         <label className="block text-sm font-medium text-gray-700 mb-2">Telefone</label>
                         <div className="relative">
                           <Phone className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
-                          <Input type="tel" placeholder="(11) 99999-9999" className="pl-10 h-12" />
+                          <Input 
+                            type="tel" 
+                            placeholder="(11) 99999-9999" 
+                            className="pl-10 h-12"
+                            value={formData.phone}
+                            onChange={(e) => handleInputChange("phone", e.target.value)}
+                            required={!isLogin}
+                          />
+                        </div>
+                      </div>
+                    )}
+
+                    {/* CPF field (only for register) */}
+                    {!isLogin && (
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">CPF</label>
+                        <div className="relative">
+                          <User className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+                          <Input 
+                            type="text" 
+                            placeholder="123.456.789-00" 
+                            className="pl-10 h-12"
+                            value={formData.cpf}
+                            onChange={(e) => handleInputChange("cpf", e.target.value)}
+                            required={!isLogin}
+                          />
                         </div>
                       </div>
                     )}
@@ -267,7 +512,17 @@ export default function LoginPage() {
                       <label className="block text-sm font-medium text-gray-700 mb-2">E-mail</label>
                       <div className="relative">
                         <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
-                        <Input type="email" placeholder="seu@email.com" className="pl-10 h-12" />
+                        <Input 
+                          type="email" 
+                          placeholder="seu@email.com" 
+                          className="pl-10 h-12"
+                          value={isLogin ? loginData.email : formData.email}
+                          onChange={(e) => isLogin 
+                            ? handleLoginInputChange("email", e.target.value)
+                            : handleInputChange("email", e.target.value)
+                          }
+                          required
+                        />
                       </div>
                     </div>
 
@@ -280,6 +535,12 @@ export default function LoginPage() {
                           type={showPassword ? "text" : "password"}
                           placeholder="••••••••"
                           className="pl-10 pr-10 h-12"
+                          value={isLogin ? loginData.password : formData.password}
+                          onChange={(e) => isLogin 
+                            ? handleLoginInputChange("password", e.target.value)
+                            : handleInputChange("password", e.target.value)
+                          }
+                          required
                         />
                         <Button
                           type="button"
@@ -303,6 +564,9 @@ export default function LoginPage() {
                             type={showConfirmPassword ? "text" : "password"}
                             placeholder="••••••••"
                             className="pl-10 pr-10 h-12"
+                            value={confirmPassword}
+                            onChange={(e) => setConfirmPassword(e.target.value)}
+                            required={!isLogin}
                           />
                           <Button
                             type="button"
@@ -317,15 +581,94 @@ export default function LoginPage() {
                       </div>
                     )}
 
-                    {/* Birth Date field (only for register) */}
+                    {/* Address fields (only for register) */}
                     {!isLogin && (
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">Data de Nascimento</label>
-                        <div className="relative">
-                          <Calendar className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
-                          <Input type="date" className="pl-10 h-12" />
+                      <>
+                        <div className="grid grid-cols-2 gap-4">
+                          <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-2">CEP</label>
+                            <Input 
+                              type="text" 
+                              placeholder="01234-567" 
+                              className="h-12"
+                              value={formData.zipCode}
+                              onChange={(e) => handleInputChange("zipCode", e.target.value)}
+                              required
+                            />
+                          </div>
+                          <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-2">Estado</label>
+                            <Input 
+                              type="text" 
+                              placeholder="SP" 
+                              className="h-12"
+                              value={formData.state}
+                              onChange={(e) => handleInputChange("state", e.target.value)}
+                              required
+                            />
+                          </div>
                         </div>
+                        
+                        <div>
+                          <label className="block text-sm font-medium text-gray-700 mb-2">Rua</label>
+                          <Input 
+                            type="text" 
+                            placeholder="Rua das Flores" 
+                            className="h-12"
+                            value={formData.street}
+                            onChange={(e) => handleInputChange("street", e.target.value)}
+                            required
+                          />
+                        </div>
+                        
+                        <div className="grid grid-cols-2 gap-4">
+                          <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-2">Número</label>
+                            <Input 
+                              type="text" 
+                              placeholder="123" 
+                              className="h-12"
+                              value={formData.number}
+                              onChange={(e) => handleInputChange("number", e.target.value)}
+                              required
+                            />
+                          </div>
+                          <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-2">Bairro</label>
+                            <Input 
+                              type="text" 
+                              placeholder="Centro" 
+                              className="h-12"
+                              value={formData.neighborhood}
+                              onChange={(e) => handleInputChange("neighborhood", e.target.value)}
+                              required
+                            />
+                          </div>
+                        </div>
+                        
+                      <div>
+                          <label className="block text-sm font-medium text-gray-700 mb-2">Cidade</label>
+                          <Input 
+                            type="text" 
+                            placeholder="São Paulo" 
+                            className="h-12"
+                            value={formData.city}
+                            onChange={(e) => handleInputChange("city", e.target.value)}
+                            required
+                          />
+                        </div>
+                        
+                        <div>
+                          <label className="block text-sm font-medium text-gray-700 mb-2">Complemento (opcional)</label>
+                          <Input 
+                            type="text" 
+                            placeholder="Apto 45" 
+                            className="h-12"
+                            value={formData.complement}
+                            onChange={(e) => handleInputChange("complement", e.target.value)}
+                          />
                       </div>
+                      </>
                     )}
 
                     {/* Remember me / Terms (conditional) */}
@@ -337,7 +680,7 @@ export default function LoginPage() {
                         </label>
                       ) : (
                         <label className="flex items-start space-x-2">
-                          <input type="checkbox" className="rounded border-gray-300 mt-1" />
+                          <input type="checkbox" className="rounded border-gray-300 mt-1" required />
                           <span className="text-sm text-gray-600">
                             Aceito os{" "}
                             <Link href="/termos" className="text-black hover:underline">
@@ -353,6 +696,7 @@ export default function LoginPage() {
 
                       {isLogin && (
                         <Button
+                          type="button"
                           variant="ghost"
                           onClick={() => setIsForgotPassword(true)}
                           className="text-black hover:text-gray-700 p-0"
@@ -362,9 +706,27 @@ export default function LoginPage() {
                       )}
                     </div>
 
+                    {/* ✅ MENSAGEM DE SUCESSO/ERRO */}
+                    {message && (
+                      <div className={`p-3 rounded-lg text-sm ${
+                        messageType === "success" 
+                          ? "bg-green-100 text-green-700 border border-green-200" 
+                          : "bg-red-100 text-red-700 border border-red-200"
+                      }`}>
+                        {message}
+                      </div>
+                    )}
+
                     {/* Submit Button */}
-                    <Button className="w-full h-12 bg-black hover:bg-gray-800 text-lg">
-                      {isLogin ? "Entrar" : "Criar Conta"}
+                    <Button 
+                      type="submit"
+                      className="w-full h-12 bg-black hover:bg-gray-800 text-lg"
+                      disabled={isLoading}
+                    >
+                      {isLoading 
+                        ? (isLogin ? "Entrando..." : "Criando conta...") 
+                        : (isLogin ? "Entrar" : "Criar Conta")
+                      }
                     </Button>
 
                     {/* Divider */}
@@ -400,7 +762,7 @@ export default function LoginPage() {
                         </Button>
                       </p>
                     </div>
-                  </div>
+                  </form>
                 )}
 
                 {/* Benefits for new users */}
@@ -439,3 +801,4 @@ export default function LoginPage() {
     </div>
   )
 }
+

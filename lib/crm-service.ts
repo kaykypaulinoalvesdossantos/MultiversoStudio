@@ -18,7 +18,7 @@ class CRMService {
   private baseURL: string;
 
   constructor() {
-    this.baseURL = process.env.CRM_API_URL || '';
+    this.baseURL = process.env.CRM_API_URL || 'http://localhost:5010';
     
     if (!this.baseURL) {
       console.warn('CRM_API_URL não configurada no arquivo .env');
@@ -63,6 +63,11 @@ class CRMService {
   }
 
   // ===== MÉTODOS PARA PRODUTOS =====
+  
+  // ✅ NOVA ROTA: Produtos em alta da sua API externa
+  async getLatestProducts(limit: number = 10): Promise<ApiResponse<any>> {
+    return this.request<any>(`/api/products/latest/latest-products?limit=${limit}`);
+  }
   
   // Buscar todos os produtos
   async getProdutos(params?: FiltrosProduto): Promise<ApiResponse<Produto[]>> {

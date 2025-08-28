@@ -10,6 +10,7 @@ import Footer from "@/components/footer"
 import QuickBuyModal from "@/components/quick-buy-modal"
 import ProductCard from "@/components/lojas/multiverso/product-card"
 import Marquee from "react-fast-marquee"
+import MultiversoExclusiveProductsSection from "@/components/multiverso-exclusive-products-section"
 
 interface Product {
   id: string
@@ -659,6 +660,47 @@ export default function MultiversoPage() {
                 />
               ))}
             </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ✅ PRODUTOS EXCLUSIVOS MULTIVERSO */}
+      <section className="py-12 md:py-16 bg-gray-50">
+        <div className="max-w-6xl mx-auto px-6">
+          <div className="text-center mb-12">
+            <h2 className="text-2xl md:text-4xl font-bold uppercase font-gotham-black mb-4">
+              PRODUTOS EXCLUSIVOS MULTIVERSO
+            </h2>
+            <p className="text-base md:text-lg text-gray-600 font-gotham-book max-w-2xl mx-auto">
+              Descubra nossa coleção exclusiva de produtos criados especialmente para os verdadeiros exploradores do Multiverso
+            </p>
+          </div>
+
+          {/* Carrossel de Produtos Exclusivos */}
+          <div className="relative">
+            {/* Setas de Navegação */}
+            <button
+              onClick={() => (window as any).multiversoExclusiveNavigation?.prevProducts()}
+              disabled={!(window as any).multiversoExclusiveNavigation?.currentProductIndex || (window as any).multiversoExclusiveNavigation.currentProductIndex <= 0}
+              className="absolute left-0 top-1/2 -translate-y-1/2 z-10 bg-black text-white p-2 rounded-full shadow-lg hover:bg-gray-800 disabled:bg-gray-300 disabled:cursor-not-allowed transition-all"
+            >
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+              </svg>
+            </button>
+
+            <button
+              onClick={() => (window as any).multiversoExclusiveNavigation?.nextProducts()}
+              disabled={!(window as any).multiversoExclusiveNavigation?.currentProductIndex || !(window as any).multiversoExclusiveNavigation?.products || (window as any).multiversoExclusiveNavigation.currentProductIndex >= ((window as any).multiversoExclusiveNavigation.products.length - 4)}
+              className="absolute right-0 top-1/2 -translate-y-1/2 z-10 bg-black text-white p-2 rounded-full shadow-lg hover:bg-gray-800 disabled:bg-gray-300 disabled:cursor-not-allowed transition-all"
+            >
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+              </svg>
+            </button>
+
+            {/* Componente de Produtos Exclusivos */}
+            <MultiversoExclusiveProductsSection />
           </div>
         </div>
       </section>

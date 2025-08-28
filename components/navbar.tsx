@@ -5,6 +5,7 @@ import { Menu, X } from "lucide-react"
 import { usePathname } from "next/navigation"
 import CartModal from "./cart-modal"
 import { useCart } from "@/contexts/cart-context"
+import { CustomerProfileButton } from "./customer-profile-button"
 
 interface CategoryItem {
   name: string
@@ -527,7 +528,7 @@ export function Navbar() {
               />
               <IconWithTooltip iconSrc="/icons/dúvidas icon.svg" tooltip="Central de Ajuda" href="/duvidas" noAnimation={true} isDarkBackground={getIconDarkBackground()} />
               <IconWithTooltip iconSrc="/icons/mochila icon.svg" tooltip="Mochila" href="#" onClick={() => setIsCartOpen(true)} isDarkBackground={getIconDarkBackground()} showCartCount={true} />
-              <IconWithTooltip iconSrc="/icons/login icon.svg" tooltip="Login/Cadastro" href="/login" isDarkBackground={getIconDarkBackground()} />
+              <CustomerProfileButton isDarkBackground={getIconDarkBackground()} />
             </div>
           </div>
         </div>
@@ -639,14 +640,7 @@ export function Navbar() {
             <div className="flex items-center space-x-2">
               <IconWithTooltip iconSrc="/icons/dúvidas icon.svg" tooltip="Central de Ajuda" href="/duvidas" isDarkBackground={isHomePage && !isScrolled} noAnimation={true} />
               <IconWithTooltip iconSrc="/icons/mochila icon.svg" tooltip="Mochila" href="#" onClick={() => setIsCartOpen(true)} isDarkBackground={isHomePage && !isScrolled} showCartCount={true} />
-              <IconWithTooltip 
-                iconSrc="/icons/login icon.svg" 
-                tooltip="Login/Cadastro" 
-                href="/login" 
-                width={16} 
-                height={16} 
-                isDarkBackground={isHomePage && !isScrolled}
-              />
+              <CustomerProfileButton isDarkBackground={isHomePage && !isScrolled} />
             </div>
           </div>
         </div>
@@ -767,14 +761,7 @@ export function Navbar() {
                 isDarkBackground={isHomePage}
                 showCartCount={true}
               />
-              <IconWithTooltip 
-                iconSrc="/icons/login icon.svg" 
-                tooltip="Login/Cadastro" 
-                href="/login" 
-                width={16} 
-                height={16} 
-                isDarkBackground={isHomePage}
-              />
+              <CustomerProfileButton isDarkBackground={isHomePage} />
             </div>
           </div>
         </div>

@@ -2,9 +2,12 @@
 
 import { useState, useEffect } from "react"
 import Image from "next/image"
-import { X, Minus, Plus } from "lucide-react"
+import { X, Minus, Plus, ShoppingCart } from "lucide-react"
 import Marquee from "react-fast-marquee"
 import { useCart } from "@/contexts/cart-context"
+import { useRouter } from "next/navigation"
+import { freightService } from "@/lib"
+import { useCustomerAuth } from "@/hooks/use-customer-auth"
 
 interface CartItem {
   id: string
@@ -27,8 +30,10 @@ interface CartModalProps {
 
 export default function CartModal({ isOpen, onClose }: CartModalProps) {
   const { items, updateQuantity, removeFromCart, getTotalProducts } = useCart()
+  const { isLoggedIn, customer } = useCustomerAuth()
   const [couponCode, setCouponCode] = useState("")
   const [cepCode, setCepCode] = useState("")
+  const router = useRouter()
 
   // Carregar carrinho do localStorage quando modal abrir
   useEffect(() => {
@@ -51,14 +56,68 @@ export default function CartModal({ isOpen, onClose }: CartModalProps) {
     }
   }, [items])
 
+  // Carregar endereço automaticamente quando usuário estiver logado
+  useEffect(() => {
+    const loadCustomerAddress = async () => {
+      if (isLoggedIn && customer && isOpen) {
+        try {
+          // Buscar perfil completo do usuário para pegar endereços
+          const profile = await fetch('/api/public/customers/profile', {
+            headers: {
+              'Authorization': `Bearer ${localStorage.getItem('customerToken')}`,
+              'Content-Type': 'application/json'
+            }
+          }).then(res => res.json());
+
+          if (profile.success && profile.customer.addresses && profile.customer.addresses.length > 0) {
+            // Pegar o endereço padrão ou o primeiro disponível
+            const defaultAddress = profile.customer.addresses.find((addr: any) => addr.isDefault) || profile.customer.addresses[0];
+            
+            if (defaultAddress && defaultAddress.zipCode) {
+              setCepCode(defaultAddress.zipCode);
+              
+              // Calcular frete automaticamente
+              setIsCalculatingFreight(true);
+              try {
+                const result = await freightService.calculateFreight(items, defaultAddress.zipCode);
+                if (result.success && result.freightOptions.length > 0) {
+                  const firstFreight = result.freightOptions[0];
+                  setFreightPrice(firstFreight.custom_price || firstFreight.price);
+                }
+              } catch (error) {
+                console.error('Erro ao calcular frete:', error);
+                setFreightPrice(15.90); // Frete padrão
+              } finally {
+                setIsCalculatingFreight(false);
+              }
+            }
+          }
+        } catch (error) {
+          console.error('Erro ao carregar endereço:', error);
+        }
+      }
+    };
+
+    loadCustomerAddress();
+  }, [isLoggedIn, customer, isOpen, items]);
+
   const subtotal = items.reduce((sum, item) => sum + item.price * item.quantity, 0)
-  const shipping = 4.99
-  const total = subtotal + shipping
+  const [freightPrice, setFreightPrice] = useState(0)
+  const [isCalculatingFreight, setIsCalculatingFreight] = useState(false)
+  const total = subtotal + freightPrice
 
   const freeShippingThreshold = 299.0
   const remainingForFreeShipping = Math.max(0, freeShippingThreshold - subtotal)
+  
+  // Calcular frete grátis baseado no valor do pedido
+  const shouldShowFreeShipping = subtotal >= freeShippingThreshold && freightPrice === 0
 
   const buttonTexts = ["COMPRAR", "FINALIZAR", "CHECKOUT", "PAGAR", "COMPRAR"]
+
+  const handleCheckout = () => {
+    onClose() // Fechar modal
+    router.push('/checkout') // Redirecionar para checkout
+  }
 
   if (!isOpen) return null
 
@@ -163,7 +222,13 @@ export default function CartModal({ isOpen, onClose }: CartModalProps) {
 
           {items.length > 0 && (
             <div className="bg-white/10 backdrop-blur-md border-t border-white/20 shadow-xl">
-              {remainingForFreeShipping > 0 && (
+              {shouldShowFreeShipping ? (
+                <div className="relative p-4 border-b border-white/20">
+                  <p className="text-sm font-bold text-green-400 mb-2 drop-shadow-2xl font-gotham-bold">
+                    🎉 Frete Grátis! Pedido acima de R$ {freeShippingThreshold.toFixed(2).replace(".", ",")}
+                  </p>
+                </div>
+              ) : remainingForFreeShipping > 0 ? (
                 <div className="relative p-4 border-b border-white/20">
                   <p className="text-sm font-bold text-white mb-2 drop-shadow-2xl font-gotham-bold">
                     Faltam R$ {remainingForFreeShipping.toFixed(2).replace(".", ",")} para ganhar Frete Grátis!
@@ -175,13 +240,17 @@ export default function CartModal({ isOpen, onClose }: CartModalProps) {
                     />
                   </div>
                 </div>
-              )}
+              ) : null}
 
               <div className="relative p-4 border-b border-white/20 bg-white/10 backdrop-blur-md">
                 <div className="flex justify-between text-sm text-white mb-2 font-gotham-medium drop-shadow-xl">
                   <span>Produtos: R$ {subtotal.toFixed(2).replace(".", ",")}</span>
-                  <span>Frete: R$ {shipping.toFixed(2).replace(".", ",")}</span>
                 </div>
+                {freightPrice > 0 && (
+                  <div className="flex justify-between text-sm text-white mb-2 font-gotham-medium drop-shadow-xl">
+                    <span>Frete: R$ {freightPrice.toFixed(2).replace(".", ",")}</span>
+                  </div>
+                )}
                 <div className="flex justify-between text-sm font-bold text-white font-gotham-black drop-shadow-xl">
                   <span>SUBTOTAL</span>
                   <span>R$ {subtotal.toFixed(2).replace(".", ",")}</span>
@@ -207,15 +276,46 @@ export default function CartModal({ isOpen, onClose }: CartModalProps) {
                 <div className="flex gap-2">
                   <input
                     type="text"
-                    placeholder="DIGITE O SEU CEP"
+                    placeholder={isLoggedIn ? "SEU CEP CARREGADO AUTOMATICAMENTE" : "DIGITE O SEU CEP"}
                     value={cepCode}
                     onChange={(e) => setCepCode(e.target.value)}
                     className="flex-1 px-4 py-3 border border-white/30 text-sm font-medium focus:outline-none bg-white/10 backdrop-blur-md text-white placeholder-white/80 shadow-xl font-gotham-medium focus:border-white/50 transition-all"
                   />
-                  <button className="px-6 py-3 bg-white text-black text-sm font-bold hover:bg-black hover:text-white hover:backdrop-blur-md border border-white/30 transition-all duration-200 shadow-xl font-gotham-bold">
-                    Aplicar
+                  <button 
+                    onClick={async () => {
+                      if (cepCode.replace(/\D/g, '').length === 8) {
+                        setIsCalculatingFreight(true);
+                        try {
+                          const result = await freightService.calculateFreight(items, cepCode);
+                          if (result.success && result.freightOptions.length > 0) {
+                            // Usar o primeiro frete disponível
+                            const firstFreight = result.freightOptions[0];
+                            setFreightPrice(firstFreight.custom_price || firstFreight.price);
+                          }
+                        } catch (error) {
+                          console.error('Erro ao calcular frete:', error);
+                          setFreightPrice(15.90); // Frete padrão
+                        } finally {
+                          setIsCalculatingFreight(false);
+                        }
+                      }
+                    }}
+                    disabled={isCalculatingFreight || cepCode.replace(/\D/g, '').length !== 8}
+                    className="px-6 py-3 bg-white text-black text-sm font-bold hover:bg-black hover:text-white hover:backdrop-blur-md border border-white/30 transition-all duration-200 shadow-xl font-gotham-bold disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    {isCalculatingFreight ? 'Calculando...' : 'Aplicar'}
                   </button>
                 </div>
+                {isLoggedIn && cepCode && (
+                  <div className="mt-2 text-sm text-green-400">
+                    ✅ Endereço carregado automaticamente
+                  </div>
+                )}
+                {freightPrice > 0 && (
+                  <div className="mt-2 text-sm text-white/80">
+                    Frete: {freightService.formatFreightPrice(freightPrice)}
+                  </div>
+                )}
               </div>
 
               <div className="relative p-4 border-b border-white/20 bg-white/10 backdrop-blur-md">
@@ -223,16 +323,24 @@ export default function CartModal({ isOpen, onClose }: CartModalProps) {
                   <span>TOTAL</span>
                   <span>R$ {total.toFixed(2).replace(".", ",")}</span>
                 </div>
+                {freightPrice > 0 && (
+                  <div className="text-xs text-white/80 mt-1 text-center">
+                    Inclui frete de R$ {freightPrice.toFixed(2).replace(".", ",")}
+                  </div>
+                )}
               </div>
 
               <div className="relative p-4">
-                <button className="group relative overflow-hidden w-full bg-white/10 backdrop-blur-md text-white py-4 text-lg font-bold hover:bg-white/20 border border-white/20 transition-all duration-300 shadow-xl font-gotham-black">
+                <button 
+                  onClick={handleCheckout}
+                  className="group relative overflow-hidden w-full bg-white/10 backdrop-blur-md text-white py-4 text-lg font-bold hover:bg-white/20 border border-white/20 transition-all duration-300 shadow-xl font-gotham-black cursor-pointer"
+                >
                   <div className="relative z-10">
-                    <Marquee
-                      speed={50}
-                      gradient={false}
-                      className="text-current font-bold"
-                    >
+                                         <Marquee
+                       speed={50}
+                       gradient={false}
+                       className="text-current font-bold"
+                     >
                       {buttonTexts.map((text, index) => (
                         <span key={index} className="mx-4">
                           {text}
@@ -241,7 +349,7 @@ export default function CartModal({ isOpen, onClose }: CartModalProps) {
                     </Marquee>
                   </div>
                   <div className="absolute inset-0 bg-white/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300 backdrop-blur-sm"></div>
-                </button>
+                  </button>
               </div>
             </div>
           )}

@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useCallback } from "react"
 import Image from "next/image"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
@@ -24,6 +24,8 @@ import QuickBuyModal from "@/components/quick-buy-modal"
 import ProductCard from "@/components/lojas/pagina-principal/product-card"
 import Marquee from "react-fast-marquee"
 
+import LatestProductsSection from "@/components/latest-products-section"
+
 export default function HomePage() {
   const [searchQuery, setSearchQuery] = useState("")
   const [currentBanner, setCurrentBanner] = useState(0)
@@ -42,6 +44,8 @@ export default function HomePage() {
   const [isMultiversoDragging, setIsMultiversoDragging] = useState(false)
   const [multiversoStartX, setMultiversoStartX] = useState(0)
   const [multiversoScrollLeft, setMultiversoScrollLeft] = useState(0)
+
+
 
   // Dados para o carrossel secundário
   const secondaryBanners = [
@@ -224,126 +228,7 @@ export default function HomePage() {
   const currentBannerData = banners[currentBanner]
   const currentSecondaryBannerData = secondaryBanners[currentSecondaryBanner]
 
-  const trendingProducts = [
-    {
-      id: 1,
-      name: "Camiseta Cafézini Garganttinni - Edição Limitada",
-      price: 79.9,
-      originalPrice: 99.9,
-      image: "/placeholder.svg?height=400&width=400",
-      store: "Sacocheio.tv",
-      rating: 4.8,
-      reviews: 234,
-      sales: 856,
-      badge: "Lançamento",
-      badgeColor: "bg-amber-500",
-      discount: "20% OFF",
-      freeShipping: true,
-    },
-    {
-      id: 2,
-      name: "Caneca Noir Cinemagrath - Edição Terror",
-      price: 55.9,
-      originalPrice: 69.9,
-      image: "/placeholder.svg?height=400&width=400",
-      store: "Cinemagrath",
-      rating: 4.9,
-      reviews: 156,
-      sales: 567,
-      badge: "Cult Classic",
-      badgeColor: "bg-blue-500",
-      discount: "20% OFF",
-      freeShipping: true,
-    },
-    {
-      id: 3,
-      name: "Kit Gamer Pro - Camiseta + Caneca RGB",
-      price: 139.9,
-      originalPrice: 179.9,
-      image: "/placeholder.svg?height=400&width=400",
-      store: "Canal do Gamer",
-      rating: 4.8,
-      reviews: 123,
-      sales: 567,
-      badge: "Gamer Choice",
-      badgeColor: "bg-blue-600",
-      discount: "22% OFF",
-      freeShipping: true,
-    },
-    {
-      id: 4,
-      name: "Moletom Indie Vibes - Algodão Orgânico",
-      price: 159.9,
-      image: "/placeholder.svg?height=400&width=400",
-      store: "Música Indie",
-      rating: 4.7,
-      reviews: 89,
-      sales: 432,
-      badge: "Indie Vibes",
-      badgeColor: "bg-amber-600",
-      freeShipping: true,
-    },
-    {
-      id: 5,
-      name: "Hoodie Flow Podcast - Edição Especial",
-      price: 189.9,
-      originalPrice: 229.9,
-      image: "/placeholder.svg?height=400&width=400",
-      store: "Flow Podcast",
-      rating: 4.9,
-      reviews: 445,
-      sales: 1234,
-      badge: "Podcast",
-      badgeColor: "bg-purple-600",
-      discount: "17% OFF",
-      freeShipping: true,
-    },
-    {
-      id: 6,
-      name: "Camiseta Multiverso Estudio - Logo Oficial",
-      price: 69.9,
-      originalPrice: 89.9,
-      image: "/placeholder.svg?height=400&width=400",
-      store: "Multiverso Estudio",
-      rating: 4.9,
-      reviews: 567,
-      sales: 2345,
-      badge: "Exclusivo",
-      badgeColor: "bg-black",
-      discount: "22% OFF",
-      freeShipping: true,
-    },
-    {
-      id: 7,
-      name: "Kit Completo Gamer RGB - 5 Peças",
-      price: 299.9,
-      originalPrice: 399.9,
-      image: "/placeholder.svg?height=400&width=400",
-      store: "Gaming Pro",
-      rating: 4.8,
-      reviews: 234,
-      sales: 789,
-      badge: "Premium",
-      badgeColor: "bg-green-600",
-      discount: "25% OFF",
-      freeShipping: true,
-    },
-    {
-      id: 8,
-      name: "Coleção Limitada Cafézini - 3 Peças",
-      price: 199.9,
-      originalPrice: 299.9,
-      image: "/placeholder.svg?height=400&width=400",
-      store: "Sacocheio.tv",
-      rating: 4.9,
-      reviews: 678,
-      sales: 1456,
-      badge: "Coleção",
-      badgeColor: "bg-amber-500",
-      discount: "33% OFF",
-      freeShipping: true,
-    }
-  ]
+  // ✅ REMOVIDO: Dados hardcoded de trendingProducts (agora vem da API)
 
   // Dados para o QuickBuyProductCard
   const productTypes = [
@@ -360,95 +245,108 @@ export default function HomePage() {
 
   const productSizes = ["P", "M", "G", "GG", "G1", "G2"]
 
-  const multiversoProducts = [
-    {
-      id: 7,
-      name: "Camiseta Multiverso Estudio - Logo Oficial",
-      price: 69.9,
-      originalPrice: 89.9,
-      image: "/placeholder.svg?height=400&width=400",
-      store: "Multiverso Estudio",
-      rating: 4.9,
-      reviews: 567,
-      badge: "Exclusivo",
+  // ✅ REMOVER PRODUTOS MOCADOS E USAR API REAL
+  const [multiversoProducts, setMultiversoProducts] = useState<any[]>([])
+  const [multiversoLoading, setMultiversoLoading] = useState(true)
+
+  // ✅ BUSCAR PRODUTOS EXCLUSIVOS MULTIVERSO DA API
+  useEffect(() => {
+    const fetchMultiversoProducts = async () => {
+      try {
+        setMultiversoLoading(true)
+        console.log('🔄 Buscando produtos exclusivos Multiverso...')
+        
+        const response = await fetch('http://localhost:5010/api/public/products/main-store')
+        
+        if (!response.ok) {
+          throw new Error(`Erro ${response.status}: ${response.statusText}`)
+        }
+
+        const data = await response.json()
+        console.log('📡 Resposta API Multiverso:', data)
+        
+        if (!data.products || !Array.isArray(data.products)) {
+          throw new Error('Formato de resposta inválido da API Multiverso')
+        }
+
+        // ✅ MAPEAR PRODUTOS PARA O FORMATO CORRETO
+        const mappedProducts = data.products.map((product: any) => {
+          const variants = product.variants || []
+          const hasVariants = variants.length > 0
+          
+          let types: Array<{id: string, name: string, price: number, originalPrice?: number}> = []
+          let colors: Array<{name: string, value: string, image: string}> = []
+          let sizes: string[] = []
+          
+          if (hasVariants) {
+            variants.forEach((variant: any) => {
+              if (variant.name && variant.type) {
+                types.push({
+                  id: variant.id,
+                  name: variant.name,
+                  price: parseFloat(product.price) || 0,
+                  originalPrice: 0
+                })
+              }
+              if (variant.colors && Array.isArray(variant.colors)) {
+                variant.colors.forEach((color: string) => {
+                  colors.push({
+                    name: color,
+                    value: color.toLowerCase(),
+                    image: product.mainImage || "/placeholder.jpg"
+                  })
+                })
+              }
+              if (variant.sizes && Array.isArray(variant.sizes)) {
+                sizes = [...sizes, ...variant.sizes]
+              }
+            })
+          }
+          
+          // Remover duplicatas
+          types = types.filter((type, index, self) => 
+            index === self.findIndex(t => t.name === type.name)
+          )
+          colors = colors.filter((color, index, self) => 
+            index === self.findIndex(c => c.name === color.name)
+          )
+          sizes = [...new Set(sizes)]
+          
+          return {
+            id: product.id,
+            name: product.name,
+            price: parseFloat(product.price) || 0,
+            originalPrice: 0,
+            image: product.mainImage || "/placeholder.jpg",
+            store: product.store?.name || "Multiverso Estúdios",
+            rating: 5,
+            reviews: 0,
+            sales: 0,
+            badge: "Multiverso Original",
       badgeColor: "bg-black",
-      discount: "22% OFF",
-      freeShipping: true,
-    },
-    {
-      id: 8,
-      name: "Kit Multiverso Premium - Camiseta + Caneca",
-      price: 119.9,
-      originalPrice: 159.9,
-      image: "/placeholder.svg?height=400&width=400",
-      store: "Multiverso Estudio",
-      rating: 4.9,
-      reviews: 567,
-      badge: "Premium",
-      badgeColor: "bg-gray-800",
-      discount: "25% OFF",
-      freeShipping: true,
-    },
-    {
-      id: 9,
-      name: "Caneca Multiverso - Lojas dentro de Lojas",
-      price: 49.9,
-      originalPrice: 69.9,
-      image: "/placeholder.svg?height=400&width=400",
-      store: "Multiverso Estudio",
-      rating: 4.9,
-      reviews: 567,
-      badge: "Original",
-      badgeColor: "bg-black",
-      discount: "29% OFF",
-      freeShipping: true,
-    },
-    {
-      id: 10,
-      name: "Hoodie Multiverso - Edição Limitada",
-      price: 159.9,
-      originalPrice: 199.9,
-      image: "/placeholder.svg?height=400&width=400",
-      store: "Multiverso Estudio",
-      rating: 4.9,
-      reviews: 789,
-      sales: 2345,
-      badge: "Limitada",
-      badgeColor: "bg-red-600",
-      discount: "20% OFF",
-      freeShipping: true,
-    },
-    {
-      id: 11,
-      name: "Kit Multiverso Completo - 4 Peças",
-      price: 249.9,
-      originalPrice: 349.9,
-      image: "/placeholder.svg?height=400&width=400",
-      store: "Multiverso Estudio",
-      rating: 4.9,
-      reviews: 456,
-      sales: 1234,
-      badge: "Completo",
-      badgeColor: "bg-blue-600",
-      discount: "29% OFF",
-      freeShipping: true,
-    },
-    {
-      id: 12,
-      name: "Camiseta Multiverso - Design Exclusivo",
-      price: 79.9,
-      originalPrice: 99.9,
-      image: "/placeholder.svg?height=400&width=400",
-      store: "Multiverso Estudio",
-      rating: 4.9,
-      reviews: 678,
-      sales: 3456,
-      badge: "Exclusivo",
-      badgeColor: "bg-black",
-      discount: "20% OFF",
-      freeShipping: true,
+            discount: "",
+            freeShipping: false,
+            // Dados para o ProductCard
+            types: types.length > 0 ? types : undefined,
+            colors: colors.length > 0 ? colors : undefined,
+            sizes: sizes.length > 0 ? sizes : undefined
+          }
+        })
+        
+        console.log('✅ Produtos Multiverso mapeados:', mappedProducts)
+        setMultiversoProducts(mappedProducts)
+        
+      } catch (err) {
+        console.error('❌ Erro ao buscar produtos Multiverso:', err)
+        // Fallback para produtos vazios em caso de erro
+        setMultiversoProducts([])
+      } finally {
+        setMultiversoLoading(false)
+      }
     }
-  ]
+
+    fetchMultiversoProducts()
+  }, [])
 
   const featuredStores = [
     {
@@ -497,30 +395,7 @@ export default function HomePage() {
     },
   ]
 
-  // Auto-rotate trending products carousel
-  useEffect(() => {
-    const interval = setInterval(() => {
-      if (isTrendingDragging) return // Pausa quando está arrastando
-      
-      const carousel = document.querySelector('.trending-carousel')
-      if (carousel) {
-        const cardWidth = 320 // Largura do card + gap
-        const currentScroll = carousel.scrollLeft
-        
-        // Avança continuamente
-        carousel.scrollBy({ left: cardWidth, behavior: 'smooth' })
-        
-        // Se chegou ao final da primeira cópia, volta ao início suavemente
-        if (currentScroll >= (trendingProducts.length * cardWidth)) {
-          setTimeout(() => {
-            carousel.scrollTo({ left: 0, behavior: 'auto' })
-          }, 500) // Pequeno delay para transição suave
-        }
-      }
-    }, 3000) // Muda a cada 3 segundos para ser mais dinâmico
-    
-    return () => clearInterval(interval)
-  }, [trendingProducts.length, isTrendingDragging])
+
 
   // Auto-rotate multiverso products carousel
   useEffect(() => {
@@ -578,37 +453,38 @@ export default function HomePage() {
     // Aqui você pode implementar a lógica de adicionar ao carrinho
     console.log(`Produto ${productId} adicionado: ${type} - ${color} - ${size}`)
     // Por enquanto, abre o modal
-    const product = trendingProducts.find(p => p.id.toString() === productId)
-    if (product) {
-      setQuickBuyProduct(product)
-    }
+    // const product = trendingProducts.find(p => p.id.toString() === productId)
+    // if (product) {
+    //   setQuickBuyProduct(product)
+    // }
   }
 
   const nextProducts = () => {
-    const maxIndex = Math.max(0, trendingProducts.length - 4)
-    if (currentProductIndex < maxIndex) {
-      setCurrentProductIndex(prev => prev + 1)
+    // @ts-ignore
+    if (window.latestProductsNavigation) {
+      window.latestProductsNavigation.nextProducts()
     }
   }
 
   const prevProducts = () => {
-    if (currentProductIndex > 0) {
-      setCurrentProductIndex(prev => prev - 1)
+    // @ts-ignore
+    if (window.latestProductsNavigation) {
+      window.latestProductsNavigation.prevProducts()
     }
   }
 
-  const prevMultiverso = () => {
-    if (currentMultiversoIndex > 0) {
-      setCurrentMultiversoIndex(prev => prev - 1)
+  // ✅ FUNÇÕES DE NAVEGAÇÃO COM VERIFICAÇÃO DE CLIENTE
+  const handleNextMultiverso = useCallback(() => {
+    if (typeof window !== 'undefined' && (window as any).latestProductsNavigation) {
+      (window as any).latestProductsNavigation.nextProducts()
     }
-  }
+  }, [])
 
-  const nextMultiverso = () => {
-    const maxIndex = Math.max(0, multiversoProducts.length - 4)
-    if (currentMultiversoIndex < maxIndex) {
-      setCurrentMultiversoIndex(prev => prev + 1)
+  const handlePrevMultiverso = useCallback(() => {
+    if (typeof window !== 'undefined' && (window as any).latestProductsNavigation) {
+      (window as any).latestProductsNavigation.prevProducts()
     }
-  }
+  }, [])
 
   const scrollToExplorerIndex = (index: number) => {
     const carousel = document.querySelector('.explorers-carousel')
@@ -683,7 +559,7 @@ export default function HomePage() {
   const handleTrendingTouchStart = (e: React.TouchEvent) => {
     setIsTrendingDragging(true)
     setTrendingStartX(e.touches[0].pageX - (e.currentTarget as HTMLElement).offsetLeft)
-    setTrendingScrollLeft((e.currentTarget as HTMLElement).scrollLeft)
+    setExplorerScrollLeft((e.currentTarget as HTMLElement).scrollLeft)
   }
 
   const handleTrendingTouchMove = (e: React.TouchEvent) => {
@@ -821,12 +697,12 @@ export default function HomePage() {
                   size="icon"
                   variant="outline"
                   className={`w-8 h-8 border-black rounded-none ${
-                    currentProductIndex === 0 
+                    typeof window !== 'undefined' && (window as any).latestProductsNavigation?.currentProductIndex === 0
                       ? 'text-gray-400 border-gray-400 cursor-not-allowed' 
                       : 'text-black hover:bg-black hover:text-white'
                   }`}
                   onClick={prevProducts}
-                  disabled={currentProductIndex === 0}
+                  disabled={typeof window !== 'undefined' && (window as any).latestProductsNavigation?.currentProductIndex === 0}
                 >
                   <ChevronLeft className="w-4 h-4" />
                 </Button>
@@ -834,93 +710,20 @@ export default function HomePage() {
                   size="icon"
                   variant="outline"
                   className={`w-8 h-8 border-black rounded-none ${
-                    currentProductIndex >= Math.max(0, trendingProducts.length - 4)
+                    typeof window !== 'undefined' && (window as any).latestProductsNavigation?.currentProductIndex >= Math.max(0, ((window as any).latestProductsNavigation?.products?.length || 0) - 4)
                       ? 'text-gray-400 border-gray-400 cursor-not-allowed' 
                       : 'text-black hover:bg-black hover:text-white'
                   }`}
                   onClick={nextProducts}
-                  disabled={currentProductIndex >= Math.max(0, trendingProducts.length - 4)}
+                  disabled={typeof window !== 'undefined' && (window as any).latestProductsNavigation?.currentProductIndex >= Math.max(0, ((window as any).latestProductsNavigation?.products?.length || 0) - 4)}
                 >
                   <ChevronRight className="w-4 h-4" />
                 </Button>
               </div>
             </div>
 
-          {/* Desktop Carousel - Estático com Navegação */}
-          <div className="hidden md:block relative overflow-hidden">
-            <div 
-              className="flex gap-12 transition-transform duration-500 ease-in-out"
-              style={{ 
-                transform: `translateX(-${currentProductIndex * 328}px)`,
-                width: `${trendingProducts.length * 328}px`
-              }}
-            >
-              {trendingProducts.map((product) => (
-                <div key={product.id} className="flex-shrink-0" style={{ width: '280px' }}>
-                  <ProductCard
-                    product={{
-                      ...product,
-                      id: product.id.toString(),
-                      sold: product.sales
-                    }}
-                    types={productTypes}
-                    colors={productColors}
-                    sizes={productSizes}
-                    onQuickBuy={handleQuickBuyProduct}
-                  />
-                </div>
-              ))}
-            </div>
-            
-            {/* Indicadores de Página - Estilo Netflix */}
-            <div className="flex justify-center mt-6 space-x-2">
-              {Array.from({ length: Math.max(1, trendingProducts.length - 3) }, (_, index) => (
-                <button
-                  key={index}
-                  onClick={() => setCurrentProductIndex(index)}
-                  className={`w-2 h-2 rounded-full transition-all duration-300 ${
-                    currentProductIndex === index 
-                      ? 'bg-black scale-125' 
-                      : 'bg-gray-300 hover:bg-gray-400'
-                  }`}
-                />
-              ))}
-            </div>
-          </div>
-
-
-
-          {/* Mobile Carousel */}
-          <div className="md:hidden">
-            <div className="relative">
-              <div 
-                className="flex gap-4 overflow-hidden cursor-grab active:cursor-grabbing select-none"
-                onMouseDown={handleTrendingMouseDown}
-                onMouseMove={handleTrendingMouseMove}
-                onMouseUp={handleTrendingMouseUp}
-                onMouseLeave={handleTrendingMouseUp}
-                onTouchStart={handleTrendingTouchStart}
-                onTouchMove={handleTrendingTouchMove}
-                onTouchEnd={handleTrendingTouchEnd}
-              >
-                {trendingProducts.slice(currentProductIndex, currentProductIndex + 2).map((product) => (
-                  <div key={product.id} className="flex-shrink-0 w-[calc(50%-8px)]">
-                    <ProductCard
-                      product={{
-                        ...product,
-                        id: product.id.toString(),
-                        sold: product.sales || Math.floor(Math.random() * 1000) + 100
-                      }}
-                      types={productTypes}
-                      colors={productColors}
-                      sizes={productSizes}
-                      onQuickBuy={handleQuickBuyProduct}
-                    />
-                  </div>
-                ))}
-              </div>
-            </div>
-          </div>
+          {/* ✅ PRODUTOS EM ALTA DA API */}
+          <LatestProductsSection />
 
         </div>
       </section>
@@ -1007,7 +810,7 @@ export default function HomePage() {
                     ? 'text-gray-400 border-gray-400 cursor-not-allowed' 
                     : 'text-black hover:bg-black hover:text-white'
                 }`}
-                onClick={prevMultiverso}
+                onClick={handlePrevMultiverso}
                 disabled={currentMultiversoIndex === 0}
               >
                 <ChevronLeft className="w-4 h-4" />
@@ -1020,7 +823,7 @@ export default function HomePage() {
                       ? 'text-gray-400 border-gray-400 cursor-not-allowed' 
                       : 'text-black hover:bg-black hover:text-white'
                   }`}
-                onClick={nextMultiverso}
+                onClick={handleNextMultiverso}
                                   disabled={currentMultiversoIndex >= Math.max(0, multiversoProducts.length - 4)}
               >
                 <ChevronRight className="w-4 h-4" />
@@ -1030,6 +833,19 @@ export default function HomePage() {
 
           {/* Desktop Carousel - Estático com Navegação */}
           <div className="hidden md:block relative overflow-hidden">
+            {multiversoLoading ? (
+              <div className="flex items-center justify-center py-20">
+                <div className="text-center">
+                  <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-black mx-auto mb-4"></div>
+                  <p className="text-gray-600 text-lg">Carregando produtos exclusivos...</p>
+                </div>
+              </div>
+            ) : multiversoProducts.length === 0 ? (
+              <div className="text-center py-20">
+                <p className="text-gray-500 text-lg">Nenhum produto exclusivo encontrado.</p>
+              </div>
+            ) : (
+              <>
             <div 
               className="flex gap-12 transition-transform duration-500 ease-in-out"
               style={{ 
@@ -1043,11 +859,11 @@ export default function HomePage() {
                     product={{
                       ...product,
                       id: product.id.toString(),
-                      sold: product.sales || Math.floor(Math.random() * 1000) + 100
-                    }}
-                    types={productTypes}
-                    colors={productColors}
-                    sizes={productSizes}
+                          sold: product.sales || 0
+                        }}
+                        types={product.types}
+                        colors={product.colors}
+                        sizes={product.sizes}
                     onQuickBuy={handleQuickBuyProduct}
                   />
                 </div>
@@ -1068,12 +884,27 @@ export default function HomePage() {
                 />
               ))}
             </div>
+              </>
+            )}
           </div>
 
 
 
           {/* Mobile Carousel */}
           <div className="md:hidden">
+            {multiversoLoading ? (
+              <div className="flex items-center justify-center py-20">
+                <div className="text-center">
+                  <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-black mx-auto mb-4"></div>
+                  <p className="text-gray-600 text-lg">Carregando produtos exclusivos...</p>
+                </div>
+              </div>
+            ) : multiversoProducts.length === 0 ? (
+              <div className="text-center py-20">
+                <p className="text-gray-500 text-lg">Nenhum produto exclusivo encontrado.</p>
+              </div>
+            ) : (
+              <div className="relative">
             <div 
               className="flex gap-4 overflow-x-auto pb-4 cursor-grab active:cursor-grabbing select-none" 
               style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
@@ -1086,21 +917,23 @@ export default function HomePage() {
               onTouchEnd={handleMultiversoTouchEnd}
             >
               {multiversoProducts.slice(currentMultiversoIndex, currentMultiversoIndex + 2).map((product) => (
-                <div key={product.id} className="flex-shrink-0" style={{ width: '280px' }}>
-                  <ProductCard
-                    product={{
-                      ...product,
-                      id: product.id.toString(),
-                      sold: product.sales || Math.floor(Math.random() * 1000) + 100
-                    }}
-                    types={productTypes}
-                    colors={productColors}
-                    sizes={productSizes}
-                    onQuickBuy={handleQuickBuyProduct}
-                  />
-                </div>
-              ))}
-            </div>
+                    <div key={product.id} className="flex-shrink-0" style={{ width: '280px' }}>
+                      <ProductCard
+                        product={{
+                          ...product,
+                          id: product.id.toString(),
+                          sold: product.sales || 0
+                        }}
+                        types={product.types}
+                        colors={product.colors}
+                        sizes={product.sizes}
+                        onQuickBuy={handleQuickBuyProduct}
+                      />
+                      </div>
+                  ))}
+                    </div>
+                  </div>
+            )}
           </div>
 
         </div>
