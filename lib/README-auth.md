@@ -264,7 +264,7 @@ O service trata automaticamente:
 ## 🔧 Configuração
 
 O service está configurado para usar:
-- **Base URL**: `https://api.multiversoestudiocrm.com.br/api/public`
+- **Base URL**: `http://localhost:5010/api/public`
 - **Headers**: `Content-Type: application/json`
 - **Método**: `POST` para todas as operações
 - **Autenticação**: `Authorization: Bearer {token}` para APIs protegidas

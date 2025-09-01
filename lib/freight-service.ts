@@ -46,7 +46,7 @@ export interface FreightRequest {
 }
 
 class FreightService {
-  private baseUrl = 'https://api.multiversoestudiocrm.com.br/api/public/freight'
+  private baseUrl = 'http://localhost:5010/api/public/freight'
 
   /**
    * Calcula o frete para os produtos do carrinho

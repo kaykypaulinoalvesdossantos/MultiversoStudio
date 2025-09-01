@@ -80,7 +80,7 @@ export interface OrderResponse {
 }
 
 class OrderService {
-  private baseUrl = 'https://api.multiversoestudiocrm.com.br/api/public/orders';
+  private baseUrl = 'http://localhost:5010/api/public/orders';
 
   /**
    * Cria um novo pedido no sistema

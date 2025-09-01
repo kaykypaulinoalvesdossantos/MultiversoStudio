@@ -18,7 +18,7 @@ export default function LatestProductsSection() {
         console.log('🔄 Iniciando busca de produtos em alta da sua API...')
         
         // ✅ CHAMA SUA API REAL
-        const response = await fetch('https://api.multiversoestudiocrm.com.br/api/products/latest/latest-products?limit=8')
+        const response = await fetch('http://localhost:5010/api/products/latest/latest-products?limit=8')
         
         if (!response.ok) {
           throw new Error(`Erro ${response.status}: ${response.statusText}`)
