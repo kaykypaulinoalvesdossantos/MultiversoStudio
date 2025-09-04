@@ -29,7 +29,9 @@ import {
   ArrowLeft,
   Shield,
   Lock,
-  AlertCircle
+  AlertCircle,
+  Check,
+  X
 } from "lucide-react"
 
 interface CustomerAddress {
@@ -90,6 +92,8 @@ export default function CheckoutPage() {
   const [freightOptions, setFreightOptions] = useState<FreightOption[]>([])
   const [isCalculatingFreight, setIsCalculatingFreight] = useState(false)
   const [selectedFreight, setSelectedFreight] = useState<FreightOption | null>(null)
+  const [addressLoaded, setAddressLoaded] = useState(false)
+  const [isEditingAddress, setIsEditingAddress] = useState(false)
   
   const brazilianStates = [
     "AC", "AL", "AP", "AM", "BA", "CE", "DF", "ES", "GO", "MA", 
@@ -238,18 +242,79 @@ export default function CheckoutPage() {
         console.log('Opções filtradas:', validOptions);
         
         if (validOptions.length > 0) {
-          // Selecionar automaticamente o frete mais rápido (menor prazo de entrega)
+           // Selecionar 4 opções diferentes para o cliente escolher
+           let selectedOptions: FreightOption[] = [];
+           
+           // 1. Frete mais barato
+           const cheapestFreight = validOptions.reduce((cheapest, current) => {
+             const currentPrice = current.custom_price || current.price;
+             const cheapestPrice = cheapest.custom_price || cheapest.price;
+             return (currentPrice < cheapestPrice) ? current : cheapest;
+           });
+           selectedOptions.push(cheapestFreight);
+           
+           // 2. Frete mais rápido
           const fastestFreight = validOptions.reduce((fastest, current) => {
             const currentTime = current.delivery_time || current.custom_delivery_time;
             const fastestTime = fastest.delivery_time || fastest.custom_delivery_time;
             return (currentTime < fastestTime) ? current : fastest;
           });
           
-          console.log('Frete mais rápido selecionado:', fastestFreight);
-          
-          setFreightOptions([fastestFreight]); // Mostrar apenas o mais rápido
-          setSelectedFreight(fastestFreight);
-          setShippingMethod(fastestFreight.id.toString());
+           // Só adicionar se for diferente do mais barato
+           if (fastestFreight.id !== cheapestFreight.id) {
+             selectedOptions.push(fastestFreight);
+           }
+           
+           // 3. Frete intermediário (preço médio)
+           const sortedByPrice = validOptions
+             .filter(option => option.id !== cheapestFreight.id && option.id !== fastestFreight.id)
+             .sort((a, b) => {
+               const priceA = a.custom_price || a.price;
+               const priceB = b.custom_price || b.price;
+               return priceA - priceB;
+             });
+           
+           if (sortedByPrice.length > 0) {
+             const middleIndex = Math.floor(sortedByPrice.length / 2);
+             selectedOptions.push(sortedByPrice[middleIndex]);
+           }
+           
+           // 4. Frete premium (mais rápido entre os restantes)
+           const remainingOptions = validOptions.filter(option => 
+             !selectedOptions.some(selected => selected.id === option.id)
+           );
+           
+           if (remainingOptions.length > 0) {
+             const premiumFreight = remainingOptions.reduce((fastest, current) => {
+               const currentTime = current.delivery_time || current.custom_delivery_time;
+               const fastestTime = fastest.delivery_time || fastest.custom_delivery_time;
+               return (currentTime < fastestTime) ? current : fastest;
+             });
+             selectedOptions.push(premiumFreight);
+           }
+           
+           // Garantir que temos no máximo 4 opções
+           selectedOptions = selectedOptions.slice(0, 4);
+           
+           // Se ainda não temos 4 opções, adicionar opções aleatórias
+           while (selectedOptions.length < 4 && validOptions.length > selectedOptions.length) {
+             const remainingOptions = validOptions.filter(option => 
+               !selectedOptions.some(selected => selected.id === option.id)
+             );
+             if (remainingOptions.length > 0) {
+               const randomIndex = Math.floor(Math.random() * remainingOptions.length);
+               selectedOptions.push(remainingOptions[randomIndex]);
+             } else {
+               break;
+             }
+           }
+           
+           console.log('Opções selecionadas para o cliente:', selectedOptions);
+           
+           setFreightOptions(selectedOptions);
+           // Não selecionar automaticamente - deixar o cliente escolher
+           setSelectedFreight(null);
+           setShippingMethod("");
         } else {
           console.error('Nenhuma opção de frete válida encontrada após filtro');
           setFreightOptions([]);
@@ -319,65 +384,83 @@ export default function CheckoutPage() {
     }
   }, [isLoggedIn, customer, isLoading, form.firstName])
 
-  // Carregar endereço completo do usuário quando estiver logado
+  // ✅ CARREGAR ENDEREÇO DO USUÁRIO LOGADO AUTOMATICAMENTE
   useEffect(() => {
     const loadCustomerAddress = async () => {
       if (isLoggedIn && customer) {
         try {
-          console.log('👤 Carregando endereço para usuário logado:', customer.email);
+          console.log('🔄 Carregando endereço do usuário logado...');
           
-          // Buscar perfil completo do usuário para pegar endereços
-          const profile = await fetch('/api/public/customers/profile', {
-            headers: {
-              'Authorization': `Bearer ${localStorage.getItem('customerToken')}`,
-              'Content-Type': 'application/json'
-            }
-          }).then(res => res.json());
-
-          console.log('📋 Profile carregado:', profile);
-
-          if (profile.success && profile.customer.addresses && profile.customer.addresses.length > 0) {
+          // ✅ USAR DADOS QUE JÁ ESTÃO DISPONÍVEIS NO CUSTOMER
+          if (customer.addresses && customer.addresses.length > 0) {
             // Pegar o endereço padrão ou o primeiro disponível
-            const defaultAddress = profile.customer.addresses.find((addr: CustomerAddress) => addr.type === 'SHIPPING') || profile.customer.addresses[0];
-            
-            console.log('🏠 Endereço encontrado:', defaultAddress);
+            const defaultAddress = customer.addresses.find((addr: any) => addr.isDefault) || customer.addresses[0];
             
             if (defaultAddress) {
-              console.log('✅ Preenchendo formulário com endereço do usuário');
+              console.log('✅ Endereço encontrado:', defaultAddress);
+              
+              // Preencher formulário com dados do usuário
               setForm(prev => ({
                 ...prev,
+                firstName: customer.name?.split(' ')[0] || "",
+                lastName: customer.name?.split(' ').slice(1).join(' ') || "",
+                email: customer.email || "",
+                phone: customer.phone || "",
+                cpf: customer.cpf || "",
+                zipCode: defaultAddress.zipCode || "",
                 street: defaultAddress.street || "",
                 number: defaultAddress.number || "",
                 complement: defaultAddress.complement || "",
                 neighborhood: defaultAddress.neighborhood || "",
                 city: defaultAddress.city || "",
-                state: defaultAddress.state || "",
-                zipCode: defaultAddress.zipCode || ""
+                state: defaultAddress.state || ""
               }));
 
-              // NÃO calcular frete automaticamente - usuário deve clicar no botão
+              // Calcular frete automaticamente se tiver CEP
               if (defaultAddress.zipCode) {
-                console.log('✅ Endereço carregado automaticamente. Agora preencha o número e clique em "Calcular Frete".');
-                console.log('🚫 NÃO calculando frete automaticamente!');
+                console.log('🚀 Calculando frete automaticamente...');
+                setIsCalculatingFreight(true);
+                try {
+                  await calculateFreight(defaultAddress.zipCode);
+                  setAddressLoaded(true);
+                } catch (error) {
+                  console.error('Erro ao calcular frete:', error);
+                } finally {
+                  setIsCalculatingFreight(false);
+                }
               }
             }
           } else {
-            console.log('❌ Nenhum endereço encontrado no perfil');
+            console.log('⚠️ Usuário não tem endereços cadastrados');
+            // Preencher apenas dados pessoais
+            setForm(prev => ({
+              ...prev,
+              firstName: customer.name?.split(' ')[0] || "",
+              lastName: customer.name?.split(' ').slice(1).join(' ') || "",
+              email: customer.email || "",
+              phone: customer.phone || "",
+              cpf: customer.cpf || ""
+            }));
           }
         } catch (error) {
-          console.error('❌ Erro ao carregar endereço:', error);
+          console.error('❌ Erro ao carregar endereço do usuário:', error);
+          // Em caso de erro, preencher apenas dados pessoais
+          setForm(prev => ({
+            ...prev,
+            firstName: customer.name?.split(' ')[0] || "",
+            lastName: customer.name?.split(' ').slice(1).join(' ') || "",
+            email: customer.email || "",
+            phone: customer.phone || "",
+            cpf: customer.cpf || ""
+          }));
         }
       }
     };
 
-    // Evitar execução desnecessária se não estiver logado ou se já carregou o endereço
-    if (isLoggedIn && customer && !form.street) {
-      console.log('👤 Usuário logado, carregando endereço...');
+    if (!isLoading) {
       loadCustomerAddress();
-    } else if (isLoggedIn && customer && form.street) {
-      console.log('👤 Usuário logado com endereço já carregado, não carregando novamente');
     }
-  }, [isLoggedIn, customer, form.street]);
+    }, [isLoggedIn, customer, isLoading]);
   
   useEffect(() => {
     console.log('🛒 useEffect carrinho mudou:', { 
@@ -395,38 +478,73 @@ export default function CheckoutPage() {
     setForm(prev => ({ ...prev, [field]: value }))
   }
   
+  // ✅ FUNÇÃO PARA ALTERNAR MODO DE EDIÇÃO DO ENDEREÇO
+  const toggleAddressEditing = () => {
+    setIsEditingAddress(!isEditingAddress)
+  }
+  
   const validateForm = () => {
+    console.log('🔍 Validando formulário:', {
+      hasItems: items.length > 0,
+      firstName: !!form.firstName,
+      lastName: !!form.lastName,
+      email: !!form.email,
+      phone: !!form.phone,
+      cpf: !!form.cpf,
+      street: !!form.street,
+      number: !!form.number,
+      neighborhood: !!form.neighborhood,
+      city: !!form.city,
+      state: !!form.state,
+      zipCode: !!form.zipCode,
+      acceptTerms: form.acceptTerms,
+      hasSelectedFreight: !!selectedFreight,
+      canCalculateFreight: canCalculateFreight()
+    });
+
+    // Verificar se há itens no carrinho
+    if (items.length === 0) {
+      console.log('❌ Carrinho vazio');
+      return false;
+    }
+
     const requiredFields = [
       'firstName', 'lastName', 'email', 'phone', 'cpf',
       'street', 'number', 'neighborhood', 'city', 'state', 'zipCode'
     ]
     
     for (const field of requiredFields) {
-      if (!form[field as keyof CheckoutForm]) {
+      const fieldValue = form[field as keyof CheckoutForm];
+      if (!fieldValue || (typeof fieldValue === 'string' && fieldValue.trim() === '')) {
+        console.log(`❌ Campo obrigatório não preenchido: ${field}`);
         return false
       }
     }
     
-    if (!form.acceptTerms) return false
+    if (!form.acceptTerms) {
+      console.log('❌ Termos não aceitos');
+      return false
+    }
     
     // Validar se o endereço está completo
     if (!canCalculateFreight()) {
-      console.error('Endereço incompleto para checkout');
+      console.log('❌ Endereço incompleto para checkout');
       return false
     }
     
-    // Validar se o frete foi selecionado e é válido
+    // Validar se o frete foi selecionado
     if (!selectedFreight) {
-      console.error('Nenhum frete selecionado');
+      console.log('❌ Nenhum frete selecionado');
       return false
     }
     
-    // Usar a função de validação do FreightService
+    // Validar se a opção de frete é válida
     if (!freightService.isValidFreightOption(selectedFreight)) {
-      console.error('Opção de frete inválida na validação:', selectedFreight);
+      console.log('❌ Opção de frete inválida:', selectedFreight);
       return false
     }
     
+    console.log('✅ Formulário válido!');
     return true
   }
   
@@ -660,9 +778,7 @@ export default function CheckoutPage() {
                                  {form.street ? (
                    <>
                      Seus dados pessoais e endereço foram preenchidos automaticamente.
-                     <span className="block mt-1 text-blue-700">
-                       ✅ Agora complete o número da casa e clique em "Calcular Frete" para calcular o frete.
-                     </span>
+
                    </>
                  ) : (
                                      <>
@@ -835,9 +951,14 @@ export default function CheckoutPage() {
                           onChange={(e) => updateForm('zipCode', formatCEP(e.target.value))}
                           placeholder="00000-000"
                           maxLength={9}
+                           disabled={isLoggedIn && addressLoaded && !isEditingAddress}
+                           className={isLoggedIn && addressLoaded && !isEditingAddress ? "bg-gray-100 cursor-not-allowed" : ""}
                         />
                         <p className="text-xs text-gray-500 mt-1">
-                          Digite o CEP para preencher automaticamente o endereço
+                           {isLoggedIn && addressLoaded && !isEditingAddress 
+                             ? "Endereço carregado do seu perfil (clique em 'Editar Endereço' para modificar)"
+                             : "Digite o CEP para preencher automaticamente o endereço"
+                           }
                         </p>
                       </div>
                       <div>
@@ -847,6 +968,8 @@ export default function CheckoutPage() {
                           value={form.number}
                           onChange={(e) => updateForm('number', e.target.value)}
                           placeholder="123"
+                           disabled={isLoggedIn && addressLoaded && !isEditingAddress}
+                           className={isLoggedIn && addressLoaded && !isEditingAddress ? "bg-gray-100 cursor-not-allowed" : ""}
                         />
                       </div>
                     </div>
@@ -859,10 +982,14 @@ export default function CheckoutPage() {
                           value={form.street}
                           onChange={(e) => updateForm('street', e.target.value)}
                           placeholder="Nome da rua"
-                          className={form.street ? "bg-green-50" : ""}
+                           disabled={isLoggedIn && addressLoaded && !isEditingAddress}
+                           className={isLoggedIn && addressLoaded && !isEditingAddress ? "bg-gray-100 cursor-not-allowed" : (form.street ? "bg-green-50" : "")}
                         />
                         <p className="text-xs text-gray-500 mt-1">
-                          {form.street ? "Preenchido automaticamente pelo CEP (pode editar)" : "Preenchido automaticamente pelo CEP"}
+                           {isLoggedIn && addressLoaded && !isEditingAddress 
+                             ? "Endereço do seu perfil"
+                             : (form.street ? "Preenchido automaticamente pelo CEP (pode editar)" : "Preenchido automaticamente pelo CEP")
+                           }
                         </p>
                       </div>
                       <div>
@@ -872,10 +999,14 @@ export default function CheckoutPage() {
                           value={form.neighborhood}
                           onChange={(e) => updateForm('neighborhood', e.target.value)}
                           placeholder="Nome do bairro"
-                          className={form.neighborhood ? "bg-green-50" : ""}
+                           disabled={isLoggedIn && addressLoaded && !isEditingAddress}
+                           className={isLoggedIn && addressLoaded && !isEditingAddress ? "bg-gray-100 cursor-not-allowed" : (form.neighborhood ? "bg-green-50" : "")}
                         />
                         <p className="text-xs text-gray-500 mt-1">
-                          {form.neighborhood ? "Preenchido automaticamente pelo CEP (pode editar)" : "Preenchido automaticamente pelo CEP"}
+                           {isLoggedIn && addressLoaded && !isEditingAddress 
+                             ? "Endereço do seu perfil"
+                             : (form.neighborhood ? "Preenchido automaticamente pelo CEP (pode editar)" : "Preenchido automaticamente pelo CEP")
+                           }
                         </p>
                       </div>
                     </div>
@@ -888,10 +1019,14 @@ export default function CheckoutPage() {
                           value={form.city}
                           onChange={(e) => updateForm('city', e.target.value)}
                           placeholder="Nome da cidade"
-                          className={form.city ? "bg-green-50" : ""}
+                           disabled={isLoggedIn && addressLoaded && !isEditingAddress}
+                           className={isLoggedIn && addressLoaded && !isEditingAddress ? "bg-gray-100 cursor-not-allowed" : (form.city ? "bg-green-50" : "")}
                         />
                         <p className="text-xs text-gray-500 mt-1">
-                          {form.city ? "Preenchido automaticamente pelo CEP (pode editar)" : "Preenchido automaticamente pelo CEP"}
+                           {isLoggedIn && addressLoaded && !isEditingAddress 
+                             ? "Endereço do seu perfil"
+                             : (form.city ? "Preenchido automaticamente pelo CEP (pode editar)" : "Preenchido automaticamente pelo CEP")
+                           }
                         </p>
                       </div>
                       <div>
@@ -901,10 +1036,14 @@ export default function CheckoutPage() {
                           value={form.state}
                           onChange={(e) => updateForm('state', e.target.value)}
                           placeholder="Estado"
-                          className={form.state ? "bg-green-50" : ""}
+                           disabled={isLoggedIn && addressLoaded && !isEditingAddress}
+                           className={isLoggedIn && addressLoaded && !isEditingAddress ? "bg-gray-100 cursor-not-allowed" : (form.state ? "bg-green-50" : "")}
                         />
                         <p className="text-xs text-gray-500 mt-1">
-                          {form.state ? "Preenchido automaticamente pelo CEP (pode editar)" : "Preenchido automaticamente pelo CEP"}
+                           {isLoggedIn && addressLoaded && !isEditingAddress 
+                             ? "Endereço do seu perfil"
+                             : (form.state ? "Preenchido automaticamente pelo CEP (pode editar)" : "Preenchido automaticamente pelo CEP")
+                           }
                         </p>
                       </div>
                     </div>
@@ -916,10 +1055,104 @@ export default function CheckoutPage() {
                         value={form.complement}
                         onChange={(e) => updateForm('complement', e.target.value)}
                         placeholder="Apartamento, bloco, etc."
+                         disabled={isLoggedIn && addressLoaded && !isEditingAddress}
+                         className={isLoggedIn && addressLoaded && !isEditingAddress ? "bg-gray-100 cursor-not-allowed" : ""}
                       />
                     </div>
 
-                    {/* Botão para calcular frete */}
+                     {/* ✅ BOTÃO PARA EDITAR ENDEREÇO QUANDO CARREGADO DO PERFIL */}
+                     {isLoggedIn && addressLoaded && !isEditingAddress && (
+                       <div className="pt-2">
+                         <Button
+                           type="button"
+                           variant="outline"
+                           onClick={toggleAddressEditing}
+                           className="w-full"
+                         >
+                           <MapPin className="w-4 h-4 mr-2" />
+                           Editar Endereço
+                         </Button>
+                       </div>
+                     )}
+
+                     {/* ✅ BOTÃO PARA SALVAR EDIÇÃO DO ENDEREÇO */}
+                     {isLoggedIn && addressLoaded && isEditingAddress && (
+                       <div className="pt-2 space-y-2">
+                         <Button
+                           type="button"
+                           onClick={async () => {
+                             // Calcular frete automaticamente
+                             if (canCalculateFreight()) {
+                               setIsCalculatingFreight(true);
+                               try {
+                                 await calculateFreight(form.zipCode);
+                                 // Salvar endereço automaticamente
+                                 try {
+                                   const addressData = {
+                                     street: form.street,
+                                     number: form.number,
+                                     complement: form.complement,
+                                     neighborhood: form.neighborhood,
+                                     city: form.city,
+                                     state: form.state,
+                                     zipCode: form.zipCode,
+                                     isDefault: true,
+                                     label: 'Endereço Principal'
+                                   };
+                                   
+                                   const saveAddressResponse = await fetch('https://api.multiversoestudiocrm.com.br/api/public/customers/addresses', {
+                                     method: 'POST',
+                                     headers: {
+                                       'Authorization': `Bearer ${localStorage.getItem('customerToken')}`,
+                                       'Content-Type': 'application/json'
+                                     },
+                                     body: JSON.stringify(addressData)
+                                   });
+                                   
+                                   if (saveAddressResponse.ok) {
+                                     console.log('✅ Endereço salvo com sucesso!');
+                                   }
+                                 } catch (error) {
+                                   console.log('⚠️ Erro ao salvar endereço (não crítico):', error);
+                                 }
+                               } catch (error) {
+                                 console.error('Erro ao calcular frete:', error);
+                               } finally {
+                                 setIsCalculatingFreight(false);
+                               }
+                             }
+                             // Sair do modo de edição
+                             setIsEditingAddress(false);
+                           }}
+                           disabled={!canCalculateFreight() || isCalculatingFreight}
+                           className="w-full bg-blue-600 hover:bg-blue-700"
+                         >
+                           {isCalculatingFreight ? (
+                             <div className="flex items-center gap-2">
+                               <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                               Calculando frete...
+                             </div>
+                           ) : (
+                             <div className="flex items-center gap-2">
+                               <Truck className="w-4 h-4" />
+                               Calcular Frete
+                             </div>
+                           )}
+                         </Button>
+                         <Button
+                           type="button"
+                           variant="outline"
+                           onClick={toggleAddressEditing}
+                           className="w-full"
+                         >
+                           <X className="w-4 h-4 mr-2" />
+                           Cancelar Edição
+                         </Button>
+                       </div>
+                     )}
+
+                     {/* Botão para calcular frete - SÓ MOSTRAR QUANDO NÃO TIVER ENDEREÇO CARREGADO OU NÃO ESTIVER LOGADO */}
+                     {(!isLoggedIn || !addressLoaded) && (
                     <div className="pt-4">
                       <Button
                         onClick={handleCalculateFreight}
@@ -947,6 +1180,7 @@ export default function CheckoutPage() {
                          </p>
                        )}
                     </div>
+                     )}
                   </div>
                 
               </CardContent>
@@ -979,25 +1213,90 @@ export default function CheckoutPage() {
                     <span className="text-sm text-gray-600">Calculando frete...</span>
                   </div>
                 ) : freightOptions.length > 0 ? (
-                  <div className="p-4 bg-green-50 border border-green-200 rounded-lg">
+                   <div className="space-y-3">
+                     <p className="text-sm text-gray-600 mb-4">
+                       Escolha a opção de frete que melhor atende suas necessidades:
+                     </p>
+                     
+                                           {freightOptions.map((option, index) => {
+                        const isSelected = selectedFreight?.id === option.id;
+                        const price = freightService.getValidPrice(option);
+                        const deliveryTime = freightService.getValidDeliveryTime(option);
+                        
+                        // Determinar o tipo de frete baseado no índice
+                        let freightType = "";
+                        let typeColor = "";
+                        
+                        if (index === 0) {
+                          freightType = "Mais Barato";
+                          typeColor = "bg-green-100 text-green-800";
+                        } else if (index === 1) {
+                          freightType = "Mais Rápido";
+                          typeColor = "bg-blue-100 text-blue-800";
+                        }
+                        
+                        return (
+                          <div
+                            key={option.id}
+                            className={`p-4 border rounded-none cursor-pointer transition-all ${
+                              isSelected 
+                                ? 'border-black bg-gray-50' 
+                                : 'border-gray-200 hover:border-gray-300'
+                            }`}
+                            onClick={() => {
+                              setSelectedFreight(option);
+                              setShippingMethod(option.id.toString());
+                            }}
+                          >
                     <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-3">
-                        <div className="w-4 h-4 rounded-full border-2 border-green-500 bg-green-500" />
-                        <div>
-                          <p className="font-medium text-green-800">
-                            Seu frete: {freightOptions[0].name}
-                          </p>
-                          <p className="text-sm text-green-600">
-                            Vai chegar em {freightService.formatDeliveryTime(freightService.getValidDeliveryTime(freightOptions[0]))}
+                              <div className="flex-1">
+                                <div className="flex items-center gap-2 mb-2">
+                                  <div className={`w-4 h-4 rounded-full border-2 ${
+                                    isSelected ? 'border-black bg-black' : 'border-gray-300'
+                                  }`} />
+                                  {freightType && (
+                                    <span className={`text-xs px-2 py-1 rounded-none ${typeColor}`}>
+                                      {freightType}
+                                    </span>
+                                  )}
+                                </div>
+                                
+                                <div className="space-y-1">
+                                  <p className="font-medium text-gray-900">
+                                    {option.name}
+                                  </p>
+                                  <p className="text-sm text-gray-600">
+                                    Entrega em {freightService.formatDeliveryTime(deliveryTime)}
+                                  </p>
+                                  <p className="text-sm text-gray-500">
+                                    {option.company?.name}
                           </p>
                         </div>
                       </div>
+                              
                       <div className="text-right">
-                        <p className="font-bold text-green-800 text-lg">
-                          {freightService.formatFreightPrice(freightService.getValidPrice(freightOptions[0]))}
+                                <p className="font-bold text-lg text-gray-900">
+                                  {freightService.formatFreightPrice(price)}
                         </p>
+                                {price === 0 && (
+                                  <p className="text-xs text-green-600">Grátis</p>
+                                )}
                       </div>
                     </div>
+                          </div>
+                        );
+                      })}
+                     
+                     {selectedFreight && (
+                       <div className="mt-4 p-3 bg-green-50 border border-green-200 rounded-none">
+                         <div className="flex items-center gap-2">
+                           <div className="w-4 h-4 rounded-full border-2 border-green-500 bg-green-500" />
+                           <p className="text-sm text-green-800">
+                             <span className="font-medium">Frete selecionado:</span> {selectedFreight.name} - {freightService.formatFreightPrice(freightService.getValidPrice(selectedFreight))}
+                           </p>
+                         </div>
+                       </div>
+                     )}
                   </div>
                 ) : (
                   <div className="p-4 bg-red-50 border border-red-200 rounded-none">

@@ -7,11 +7,13 @@ export interface UseCustomerAuthReturn {
   isLoggedIn: boolean
   isLoading: boolean
   customer: CustomerProfile | null
+  apiError: string | null
   
   // ✅ FUNÇÕES DE AUTENTICAÇÃO
   login: (email: string, password: string) => Promise<boolean>
   register: (customerData: any) => Promise<boolean>
   logout: () => void
+  clearApiError: () => void
   
   // ✅ FUNÇÕES DE PERFIL
   refreshProfile: () => Promise<void>
@@ -33,6 +35,7 @@ export function useCustomerAuth(): UseCustomerAuthReturn {
   const [isLoggedIn, setIsLoggedIn] = useState(false)
   const [isLoading, setIsLoading] = useState(true)
   const [customer, setCustomer] = useState<CustomerProfile | null>(null)
+  const [apiError, setApiError] = useState<string | null>(null)
 
   // ✅ VERIFICAR STATUS DE AUTENTICAÇÃO AO INICIAR
   useEffect(() => {
@@ -64,10 +67,27 @@ export function useCustomerAuth(): UseCustomerAuthReturn {
     checkAuthStatus()
   }, [])
 
+  // ✅ FUNÇÃO PARA VERIFICAR SE API ESTÁ ONLINE
+  const checkApiStatus = async (): Promise<boolean> => {
+    try {
+      const response = await fetch('https://api.multiversoestudiocrm.com.br/api/public/health', {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      })
+      return response.ok
+    } catch (error) {
+      console.error('API não está disponível:', error)
+      return false
+    }
+  }
+
   // ✅ FUNÇÃO DE LOGIN
   const login = async (email: string, password: string): Promise<boolean> => {
     try {
       setIsLoading(true)
+      setApiError(null)
       
       const response = await authService.loginCustomer({ email, password })
       
@@ -86,10 +106,13 @@ export function useCustomerAuth(): UseCustomerAuthReturn {
         
         return true
       } else {
+        setApiError(response.message)
         console.error('Erro no login:', response.message)
         return false
       }
     } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : 'Erro ao fazer login'
+      setApiError(errorMessage)
       console.error('Erro no login:', error)
       return false
     } finally {
@@ -101,6 +124,7 @@ export function useCustomerAuth(): UseCustomerAuthReturn {
   const register = async (customerData: any): Promise<boolean> => {
     try {
       setIsLoading(true)
+      setApiError(null)
       
       const response = await authService.registerCustomer(customerData)
       
@@ -119,10 +143,13 @@ export function useCustomerAuth(): UseCustomerAuthReturn {
         
         return true
       } else {
+        setApiError(response.message)
         console.error('Erro no registro:', response.message)
         return false
       }
     } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : 'Erro ao registrar'
+      setApiError(errorMessage)
       console.error('Erro no registro:', error)
       return false
     } finally {
@@ -136,6 +163,12 @@ export function useCustomerAuth(): UseCustomerAuthReturn {
     customerProfileService.logout()
     setIsLoggedIn(false)
     setCustomer(null)
+    setApiError(null)
+  }
+
+  // ✅ FUNÇÃO PARA LIMPAR ERRO DA API
+  const clearApiError = () => {
+    setApiError(null)
   }
 
   // ✅ FUNÇÃO DE ATUALIZAR PERFIL
@@ -219,11 +252,13 @@ export function useCustomerAuth(): UseCustomerAuthReturn {
     isLoggedIn,
     isLoading,
     customer,
+    apiError,
     
     // ✅ FUNÇÕES DE AUTENTICAÇÃO
     login,
     register,
     logout,
+    clearApiError,
     
     // ✅ FUNÇÕES DE PERFIL
     refreshProfile,

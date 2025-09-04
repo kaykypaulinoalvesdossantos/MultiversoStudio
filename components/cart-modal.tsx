@@ -62,7 +62,7 @@ export default function CartModal({ isOpen, onClose }: CartModalProps) {
       if (isLoggedIn && customer && isOpen) {
         try {
           // Buscar perfil completo do usuário para pegar endereços
-          const profile = await fetch('/api/public/customers/profile', {
+          const profile = await fetch('https://api.multiversoestudiocrm.com.br/api/public/customers/profile', {
             headers: {
               'Authorization': `Bearer ${localStorage.getItem('customerToken')}`,
               'Content-Type': 'application/json'

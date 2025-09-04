@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Separator } from "@/components/ui/separator"
+import { ApiError } from "@/components/api-error"
 import {
   User,
   ShoppingCart,
@@ -39,7 +40,7 @@ import {
 
 export default function PerfilPage() {
   const router = useRouter()
-  const { customer, logout, isLoading } = useCustomerAuth()
+  const { customer, logout, isLoading, apiError, clearApiError } = useCustomerAuth()
   const cartContext = useCart()
   const cartItems = cartContext?.cartItems || []
   const removeFromCart = cartContext?.removeFromCart || (() => {})
@@ -434,6 +435,22 @@ export default function PerfilPage() {
         <div className="container mx-auto px-4 py-12 pt-32">
           <div className="text-center">
             <p>Carregando...</p>
+          </div>
+        </div>
+      </div>
+    )
+  }
+
+  if (apiError) {
+    return (
+      <div className="min-h-screen bg-white">
+        <Navbar />
+        <div className="container mx-auto px-4 py-12 pt-32">
+          <div className="max-w-md mx-auto">
+            <ApiError 
+              message={apiError}
+              onRetry={clearApiError}
+            />
           </div>
         </div>
       </div>

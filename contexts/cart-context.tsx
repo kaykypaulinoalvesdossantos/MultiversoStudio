@@ -40,9 +40,18 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
       const savedCart = localStorage.getItem('multiverso-cart')
       if (savedCart) {
         try {
-          setItems(JSON.parse(savedCart))
+          const parsedCart = JSON.parse(savedCart)
+          // Verificar se o carrinho tem a estrutura correta
+          if (Array.isArray(parsedCart)) {
+            setItems(parsedCart)
+          } else {
+            console.error('Carrinho salvo não é um array válido')
+            localStorage.removeItem('multiverso-cart')
+          }
         } catch (error) {
           console.error('Erro ao carregar carrinho:', error)
+          // Limpar carrinho corrompido
+          localStorage.removeItem('multiverso-cart')
         }
       }
       setIsLoaded(true)

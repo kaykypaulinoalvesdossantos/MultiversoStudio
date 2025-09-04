@@ -47,6 +47,13 @@ export class AuthService {
         body: JSON.stringify(customerData)
       })
 
+      // ✅ VERIFICAR SE A RESPOSTA É JSON VÁLIDO
+      const contentType = response.headers.get('content-type')
+      if (!contentType || !contentType.includes('application/json')) {
+        console.error('❌ API retornou HTML em vez de JSON:', contentType)
+        throw new Error('API retornou resposta inválida (HTML em vez de JSON)')
+      }
+
       const data = await response.json()
       console.log('📡 Resposta do registro:', data)
 
@@ -102,6 +109,13 @@ export class AuthService {
         },
         body: JSON.stringify(loginData)
       })
+
+      // ✅ VERIFICAR SE A RESPOSTA É JSON VÁLIDO
+      const contentType = response.headers.get('content-type')
+      if (!contentType || !contentType.includes('application/json')) {
+        console.error('❌ API retornou HTML em vez de JSON:', contentType)
+        throw new Error('API retornou resposta inválida (HTML em vez de JSON)')
+      }
 
       const data = await response.json()
       console.log('📡 Resposta do login:', data)
